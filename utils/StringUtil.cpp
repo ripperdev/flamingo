@@ -1,32 +1,27 @@
 /**
- * �ַ�������������, StringUtil.cpp
+ * StringUtil.cpp
  * zhangyl 2018.03.09
  */
 #include "StringUtil.h"
-#include <string.h>
+#include <cstring>
 
-void StringUtil::split(const std::string& str, std::vector<std::string>& v, const char* delimiter/* = "|"*/)
-{
-    if (delimiter == NULL || str.empty())
+void StringUtil::split(const std::string &str, std::vector<std::string> &v, const char *delimiter/* = "|"*/) {
+    if (delimiter == nullptr || str.empty())
         return;
 
     std::string buf(str);
-    size_t pos = std::string::npos;
+    size_t pos;
     std::string substr;
     int delimiterlength = strlen(delimiter);
-    while (true)
-    {
+    while (true) {
         pos = buf.find(delimiter);
-        if (pos != std::string::npos)
-        {
+        if (pos != std::string::npos) {
             substr = buf.substr(0, pos);
             if (!substr.empty())
                 v.push_back(substr);
 
             buf = buf.substr(pos + delimiterlength);
-        }
-        else
-        {
+        } else {
             if (!buf.empty())
                 v.push_back(buf);
             break;
@@ -34,12 +29,11 @@ void StringUtil::split(const std::string& str, std::vector<std::string>& v, cons
     }
 }
 
-void StringUtil::cut(const std::string& str, std::vector<std::string>& v, const char* delimiter/* = "|"*/)
-{
-    if (delimiter == NULL || str.empty())
+void StringUtil::cut(const std::string &str, std::vector<std::string> &v, const char *delimiter/* = "|"*/) {
+    if (delimiter == nullptr || str.empty())
         return;
 
-    std::string buf(str);
+    const std::string& buf(str);
     int delimiterlength = strlen(delimiter);
     size_t pos = buf.find(delimiter);
     if (pos == std::string::npos)
@@ -54,13 +48,11 @@ void StringUtil::cut(const std::string& str, std::vector<std::string>& v, const 
         v.push_back(substr2);
 }
 
-std::string& StringUtil::replace(std::string& str, const std::string& toReplaced, const std::string& newStr)
-{
+std::string &StringUtil::replace(std::string &str, const std::string &toReplaced, const std::string &newStr) {
     if (toReplaced.empty() || newStr.empty())
         return str;
 
-    for (std::string::size_type pos = 0; pos != std::string::npos; pos += newStr.length())
-    {
+    for (std::string::size_type pos = 0; pos != std::string::npos; pos += newStr.length()) {
         pos = str.find(toReplaced, pos);
         if (pos != std::string::npos)
             str.replace(pos, toReplaced.length(), newStr);
@@ -71,36 +63,29 @@ std::string& StringUtil::replace(std::string& str, const std::string& toReplaced
     return str;
 }
 
-void StringUtil::trimLeft(std::string& str, char trimmed/* = ' '*/)
-{
+void StringUtil::trimLeft(std::string &str, char trimmed/* = ' '*/) {
     std::string tmp = str;
     size_t length = tmp.length();
-    for (size_t i = 0; i < length; ++i)
-    {
-        if (tmp[i] != trimmed)
-        {
+    for (size_t i = 0; i < length; ++i) {
+        if (tmp[i] != trimmed) {
             str = tmp.substr(i);
             break;
         }
     }
 }
 
-void StringUtil::trimRight(std::string& str, char trimmed/* = ' '*/)
-{
+void StringUtil::trimRight(std::string &str, char trimmed/* = ' '*/) {
     std::string tmp = str;
     size_t length = tmp.length();
-    for (size_t i = length - 1; i >= 0; --i)
-    {
-        if (tmp[i] != trimmed)
-        {
+    for (size_t i = length - 1; i >= 0; --i) {
+        if (tmp[i] != trimmed) {
             str = tmp.substr(0, i + 1);
             break;
         }
     }
 }
 
-void StringUtil::trim(std::string& str, char trimmed/* = ' '*/)
-{
+void StringUtil::trim(std::string &str, char trimmed/* = ' '*/) {
     trimLeft(str, trimmed);
     trimRight(str, trimmed);
 }

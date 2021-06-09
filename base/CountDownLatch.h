@@ -1,10 +1,9 @@
 #pragma once
 
 #include <mutex>
-#include <condition_variable> 
+#include <condition_variable>
 
-class CountDownLatch
-{
+class CountDownLatch {
 public:
 
     explicit CountDownLatch(int count);
@@ -16,7 +15,7 @@ public:
     int getCount() const;
 
 private:
-    mutable std::mutex      mutex_;
+    mutable std::mutex mutex_;
     std::condition_variable condition_;
-    int                     count_;
+    int count_;
 };

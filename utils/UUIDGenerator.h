@@ -8,14 +8,15 @@
 
 #include <string>
 
-class UUIDGenerator final
-{
+class UUIDGenerator final {
 private:
     UUIDGenerator() = delete;
+
     ~UUIDGenerator() = delete;
 
-    UUIDGenerator(const UUIDGenerator& rhs) = delete;
-    UUIDGenerator& operator =(const UUIDGenerator& rhs) = delete;
+    UUIDGenerator(const UUIDGenerator &rhs) = delete;
+
+    UUIDGenerator &operator=(const UUIDGenerator &rhs) = delete;
 
 public:
     static std::string generate();
@@ -23,4 +24,3 @@ public:
 };
 
 #endif //!__UUID_GENERATOR_H__
-

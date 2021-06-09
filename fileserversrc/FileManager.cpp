@@ -4,45 +4,17 @@
  **/
 #include "FileManager.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "../base/AsyncLog.h"
 #include "../base/Platform.h"
 
-
-FileManager::FileManager()
-{
-
-}
-
-FileManager::~FileManager()
-{
-
-}
-
-bool FileManager::init(const char* basepath)
-{
+bool FileManager::init(const char *basepath) {
     m_basepath = basepath;
 
-#ifdef WIN32
-    //Windows下创建目录
-    if (!PathFileExistsA(basepath))
-    {
-        LOGE("basepath %s doesnot exist.", basepath);
-
-        if (!CreateDirectoryA(basepath, NULL))
-        {
-            LOGE("create base dir error, %s", basepath);
-            return false;
-        }
-    }
-
-    return true;    
-#else
-    DIR* dp = opendir(basepath);
-    if (dp == NULL)
-    {
-        LOGE("open base dir error, errno: %d, %s",  errno, strerror(errno));
+    DIR *dp = opendir(basepath);
+    if (dp == nullptr) {
+        LOGE("open base dir error, errno: %d, %s", errno, strerror(errno));
 
         if (mkdir(basepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0)
             return true;
@@ -52,10 +24,9 @@ bool FileManager::init(const char* basepath)
         return false;
     }
 
-    struct dirent* dirp;
+    struct dirent *dirp;
     //struct stat filestat;
-    while ((dirp = readdir(dp)) != NULL)
-    {
+    while ((dirp = readdir(dp)) != nullptr) {
         if (strcmp(dirp->d_name, ".") == 0 || strcmp(dirp->d_name, "..") == 0)
             continue;
 
@@ -71,17 +42,14 @@ bool FileManager::init(const char* basepath)
     }
 
     closedir(dp);
-#endif
 
     return true;
 }
 
-bool FileManager::isFileExsit(const char* filename)
-{
+bool FileManager::isFileExsit(const char *filename) {
     std::lock_guard<std::mutex> guard(m_mtFile);
     //先查看缓存
-    for (const auto& iter : m_listFiles)
-    {
+    for (const auto &iter : m_listFiles) {
         if (iter == filename)
             return true;
     }
@@ -89,9 +57,8 @@ bool FileManager::isFileExsit(const char* filename)
     //再查看文件系统
     std::string filepath = m_basepath;
     filepath += filename;
-    FILE* fp = fopen(filepath.c_str(), "r");
-    if (fp != NULL)
-    {
+    FILE *fp = fopen(filepath.c_str(), "r");
+    if (fp != nullptr) {
         fclose(fp);
         m_listFiles.emplace_back(filename);
         return true;
@@ -100,8 +67,7 @@ bool FileManager::isFileExsit(const char* filename)
     return false;
 }
 
-void FileManager::addFile(const char* filename)
-{
+void FileManager::addFile(const char *filename) {
     std::lock_guard<std::mutex> guard(m_mtFile);
     m_listFiles.emplace_back(filename);
 }

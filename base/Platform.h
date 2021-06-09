@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
@@ -80,15 +80,14 @@ typedef int SOCKET;
 #include <netdb.h>
 
 #include <unistd.h>
-#include <stdint.h>
+#include <cstdint>
 #include <endian.h>
 #include <poll.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <inttypes.h>
-#include <errno.h>
+#include <csignal>
+#include <cinttypes>
+#include <cerrno>
 #include <dirent.h>
-
 
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -103,13 +102,13 @@ typedef int SOCKET;
 //for ubuntu readv not found
 #ifdef __UBUNTU
 #include <sys/uio.h>
-#endif 
+#endif
 
 
 #define  XPOLLIN         POLLIN
 #define  XPOLLPRI        POLLPRI
 #define  XPOLLOUT        POLLOUT
-#define  XPOLLERR        POLLERR 
+#define  XPOLLERR        POLLERR
 #define  XPOLLHUP        POLLHUP
 #define  XPOLLNVAL       POLLNVAL
 #define  XPOLLRDHUP      POLLRDHUP

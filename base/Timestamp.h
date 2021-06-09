@@ -1,133 +1,119 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <string>
 
 using namespace std;
-	
-	class Timestamp
-	{
-	public:
-		///
-		/// Constucts an invalid Timestamp.
-		///
-		Timestamp() : microSecondsSinceEpoch_(0)
-		{
-		}
 
-		///
-		/// Constucts a Timestamp at specific time
-		///
-		/// @param microSecondsSinceEpoch
-		explicit Timestamp(int64_t microSecondsSinceEpoch);
+class Timestamp {
+public:
+    ///
+    /// Constucts an invalid Timestamp.
+    ///
+    Timestamp() : microSecondsSinceEpoch_(0) {
+    }
 
-        Timestamp& operator+=(Timestamp lhs)
-        {
-            this->microSecondsSinceEpoch_ += lhs.microSecondsSinceEpoch_;
-            return *this;
-        }
+    ///
+    /// Constucts a Timestamp at specific time
+    ///
+    /// @param microSecondsSinceEpoch
+    explicit Timestamp(int64_t microSecondsSinceEpoch);
 
-        Timestamp& operator+=(int64_t lhs)
-        {
-            this->microSecondsSinceEpoch_ += lhs;
-            return *this;
-        }
+    Timestamp &operator+=(Timestamp lhs) {
+        this->microSecondsSinceEpoch_ += lhs.microSecondsSinceEpoch_;
+        return *this;
+    }
 
-        Timestamp& operator-=(Timestamp lhs)
-        {
-            this->microSecondsSinceEpoch_ -= lhs.microSecondsSinceEpoch_;
-            return *this;
-        }
+    Timestamp &operator+=(int64_t lhs) {
+        this->microSecondsSinceEpoch_ += lhs;
+        return *this;
+    }
 
-        Timestamp& operator-=(int64_t lhs)
-        {
-            this->microSecondsSinceEpoch_ -= lhs;
-            return *this;
-        }
+    Timestamp &operator-=(Timestamp lhs) {
+        this->microSecondsSinceEpoch_ -= lhs.microSecondsSinceEpoch_;
+        return *this;
+    }
 
-		void swap(Timestamp& that)
-		{
-			std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
-		}
+    Timestamp &operator-=(int64_t lhs) {
+        this->microSecondsSinceEpoch_ -= lhs;
+        return *this;
+    }
 
-		// default copy/assignment/dtor are Okay
+    void swap(Timestamp &that) {
+        std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
+    }
 
-		string toString() const;
-		string toFormattedString(bool showMicroseconds = true) const;
+    // default copy/assignment/dtor are Okay
 
-		bool valid() const { return microSecondsSinceEpoch_ > 0; }
+    string toString() const;
 
-		// for internal usage.
-		int64_t microSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
-		time_t secondsSinceEpoch() const
-		{
-			return static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
-		}
+    string toFormattedString(bool showMicroseconds = true) const;
 
-		///
-		/// Get time of now.
-		///
-		static Timestamp now();
-		static Timestamp invalid();
+    bool valid() const { return microSecondsSinceEpoch_ > 0; }
 
-		static const int kMicroSecondsPerSecond = 1000 * 1000;
+    // for internal usage.
+    int64_t microSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
 
-	private:
-		int64_t     microSecondsSinceEpoch_;
-	};
+    time_t secondsSinceEpoch() const {
+        return static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
+    }
 
-	inline bool operator<(Timestamp lhs, Timestamp rhs)
-	{
-		return lhs.microSecondsSinceEpoch() < rhs.microSecondsSinceEpoch();
-	}
+    ///
+    /// Get time of now.
+    ///
+    static Timestamp now();
 
-	inline bool operator>(Timestamp lhs, Timestamp rhs)
-	{
-		return rhs < lhs;
-	}
+    static Timestamp invalid();
 
-	inline bool operator<=(Timestamp lhs, Timestamp rhs)
-	{
-		return !(lhs > rhs);
-	}
+    static const int kMicroSecondsPerSecond = 1000 * 1000;
 
-	inline bool operator>=(Timestamp lhs, Timestamp rhs)
-	{
-		return !(lhs < rhs);
-	}
+private:
+    int64_t microSecondsSinceEpoch_;
+};
 
-	inline bool operator==(Timestamp lhs, Timestamp rhs)
-	{
-		return lhs.microSecondsSinceEpoch() == rhs.microSecondsSinceEpoch();
-	}
+inline bool operator<(Timestamp lhs, Timestamp rhs) {
+    return lhs.microSecondsSinceEpoch() < rhs.microSecondsSinceEpoch();
+}
 
-	inline bool operator!=(Timestamp lhs, Timestamp rhs)
-	{
-		return !(lhs == rhs);
-	}
+inline bool operator>(Timestamp lhs, Timestamp rhs) {
+    return rhs < lhs;
+}
 
-	///
-	/// Gets time difference of two timestamps, result in seconds.
-	///
-	/// @param high, low
-	/// @return (high-low) in seconds
-	/// @c double has 52-bit precision, enough for one-microsecond
-	/// resolution for next 100 years.
-	inline double timeDifference(Timestamp high, Timestamp low)
-	{
-		int64_t diff = high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
-		return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
-	}
+inline bool operator<=(Timestamp lhs, Timestamp rhs) {
+    return !(lhs > rhs);
+}
 
-	///
-	/// Add @c seconds to given timestamp.
-	///
-	/// @return timestamp+seconds as Timestamp
-	///
-	inline Timestamp addTime(Timestamp timestamp, int64_t microseconds)
-	{
-		//int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
-		return Timestamp(timestamp.microSecondsSinceEpoch() + microseconds);
-	}
+inline bool operator>=(Timestamp lhs, Timestamp rhs) {
+    return !(lhs < rhs);
+}
 
+inline bool operator==(Timestamp lhs, Timestamp rhs) {
+    return lhs.microSecondsSinceEpoch() == rhs.microSecondsSinceEpoch();
+}
+
+inline bool operator!=(Timestamp lhs, Timestamp rhs) {
+    return !(lhs == rhs);
+}
+
+///
+/// Gets time difference of two timestamps, result in seconds.
+///
+/// @param high, low
+/// @return (high-low) in seconds
+/// @c double has 52-bit precision, enough for one-microsecond
+/// resolution for next 100 years.
+inline double timeDifference(Timestamp high, Timestamp low) {
+    int64_t diff = high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
+    return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
+}
+
+///
+/// Add @c seconds to given timestamp.
+///
+/// @return timestamp+seconds as Timestamp
+///
+inline Timestamp addTime(Timestamp timestamp, int64_t microseconds) {
+    //int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
+    return Timestamp(timestamp.microSecondsSinceEpoch() + microseconds);
+}

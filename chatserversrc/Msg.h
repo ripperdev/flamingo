@@ -4,17 +4,15 @@
  **/
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 //包是否压缩过
-enum
-{
+enum {
     PACKAGE_UNCOMPRESSED,
     PACKAGE_COMPRESSED
 };
 
-enum msg_type
-{
+enum msg_type {
     msg_type_unknown,
     msg_type_heartbeat = 1000,     //心跳包
     msg_type_register,             //注册
@@ -27,7 +25,7 @@ enum msg_type
     msg_type_modifypassword,       //修改登陆密码
     msg_type_creategroup,          //创建群组
     msg_type_getgroupmembers,      //获取群组成员列表
-    msg_type_chat   = 1100,        //单聊消息
+    msg_type_chat = 1100,        //单聊消息
     msg_type_multichat,            //群发消息
     msg_type_kickuser,             //被踢下线
     msg_type_remotedesktop,        //远程桌面
@@ -37,34 +35,32 @@ enum msg_type
 };
 
 //在线类型
-enum online_type{
-    online_type_offline         = 0,    //离线
-    online_type_pc_online       = 1,    //电脑在线
-    online_type_pc_invisible    = 2,    //电脑隐身
-    online_type_android_cellular= 3,    //android 3G/4G/5G在线
-    online_type_android_wifi    = 4,    //android wifi在线
-    online_type_ios             = 5,    //ios 在线
-    online_type_mac             = 6     //MAC在线
+enum online_type {
+    online_type_offline = 0,    //离线
+    online_type_pc_online = 1,    //电脑在线
+    online_type_pc_invisible = 2,    //电脑隐身
+    online_type_android_cellular = 3,    //android 3G/4G/5G在线
+    online_type_android_wifi = 4,    //android wifi在线
+    online_type_ios = 5,    //ios 在线
+    online_type_mac = 6     //MAC在线
 };
 
 #pragma pack(push, 1)
 //协议头
-struct chat_msg_header
-{
-    char     compressflag;     //压缩标志，如果为1，则启用压缩，反之不启用压缩
-    int32_t  originsize;       //包体压缩前大小
-    int32_t  compresssize;     //包体压缩后大小
-    char     reserved[16];
+struct chat_msg_header {
+    char compressflag;     //压缩标志，如果为1，则启用压缩，反之不启用压缩
+    int32_t originsize;       //包体压缩前大小
+    int32_t compresssize;     //包体压缩后大小
+    char reserved[16];
 };
 
 #pragma pack(pop)
 
 //type为1发出加好友申请 2 收到加好友请求(仅客户端使用) 3应答加好友 4删除好友请求 5应答删除好友
 //当type=3时，accept是必须字段，0对方拒绝，1对方接受
-enum friend_operation_type
-{
+enum friend_operation_type {
     //发送加好友申请
-    friend_operation_send_add_apply      = 1,
+    friend_operation_send_add_apply = 1,
     //接收到加好友申请(仅客户端使用)
     friend_operation_recv_add_apply,
     //应答加好友申请
@@ -75,16 +71,14 @@ enum friend_operation_type
     friend_operation_recv_delete_apply
 };
 
-enum friend_operation_apply_type
-{
+enum friend_operation_apply_type {
     //拒绝加好友
     friend_operation_apply_refuse,
     //接受加好友
     friend_operation_apply_accept
 };
 
-enum updateteaminfo_operation_type
-{
+enum updateteaminfo_operation_type {
     //新增分组
     updateteaminfo_operation_add,
     //删除分组
@@ -108,21 +102,20 @@ enum updateteaminfo_operation_type
  *  107 客户端版本太旧，需要升级成新版本
  */
 //TODO: 其他的地方改成这个错误码
-enum error_code
-{
-    error_code_ok                   = 0,
-    error_code_unknown              = 1,
-    error_code_notlogin             = 2,
-    error_code_registerfail         = 100,
-    error_code_registeralready      = 101,
-    error_code_notregister          = 102,
-    error_code_invalidpassword      = 103,
-    error_code_updateuserinfofail   = 104,
-    error_code_modifypasswordfail   = 105,
-    error_code_creategroupfail      = 106,
-    error_code_toooldversion        = 107,
-    error_code_modifymarknamefail   = 108,
-    error_code_teamname_exsit       = 109, //分组已经存在
+enum error_code {
+    error_code_ok = 0,
+    error_code_unknown = 1,
+    error_code_notlogin = 2,
+    error_code_registerfail = 100,
+    error_code_registeralready = 101,
+    error_code_notregister = 102,
+    error_code_invalidpassword = 103,
+    error_code_updateuserinfofail = 104,
+    error_code_modifypasswordfail = 105,
+    error_code_creategroupfail = 106,
+    error_code_toooldversion = 107,
+    error_code_modifymarknamefail = 108,
+    error_code_teamname_exsit = 109, //分组已经存在
 };
 
 /**

@@ -7,20 +7,21 @@
 #include "../net/Callbacks.h"
 #include "../net/Channel.h"
 
-namespace net
-{
+namespace net {
     class EventLoop;
+
     class Timer;
+
     class TimerId;
 
     ///
     /// A best efforts timer queue.
     /// No guarantee that the callback will be on time.
     ///
-    class TimerQueue
-    {
+    class TimerQueue {
     public:
-        TimerQueue(EventLoop* loop);
+        explicit TimerQueue(EventLoop *loop);
+
         ~TimerQueue();
 
         ///
@@ -29,9 +30,9 @@ namespace net
         ///
         /// Must be thread safe. Usually be called from other threads.
         //intervalµ¥Î»ÊÇÎ¢Ãî
-        TimerId addTimer(const TimerCallback& cb, Timestamp when, int64_t interval, int64_t repeatCount);
+        TimerId addTimer(const TimerCallback &cb, Timestamp when, int64_t interval, int64_t repeatCount);
 
-        TimerId addTimer(TimerCallback&& cb, Timestamp when, int64_t interval, int64_t repeatCount);
+        TimerId addTimer(TimerCallback &&cb, Timestamp when, int64_t interval, int64_t repeatCount);
 
         void removeTimer(TimerId timerId);
 
@@ -39,40 +40,40 @@ namespace net
 
         // called when timerfd alarms
         void doTimer();
-      
-    private:
+
         //noncopyable
-        TimerQueue(const TimerQueue& rhs) = delete;
-        TimerQueue& operator=(const TimerQueue& rhs) = delete;
+        TimerQueue(const TimerQueue &rhs) = delete;
 
+        TimerQueue &operator=(const TimerQueue &rhs) = delete;
+
+    private:
         // FIXME: use unique_ptr<Timer> instead of raw pointers.
-        typedef std::pair<Timestamp, Timer*>    Entry;
-        typedef std::set<Entry>                 TimerList;
-        typedef std::pair<Timer*, int64_t>      ActiveTimer;
-        typedef std::set<ActiveTimer>           ActiveTimerSet;
+        typedef std::pair<Timestamp, Timer *> Entry;
+        typedef std::set<Entry> TimerList;
+        typedef std::pair<Timer *, int64_t> ActiveTimer;
+        typedef std::set<ActiveTimer> ActiveTimerSet;
 
-        void addTimerInLoop(Timer* timer);
+        void addTimerInLoop(Timer *timer);
+
         void removeTimerInLoop(TimerId timerId);
+
         void cancelTimerInLoop(TimerId timerId, bool off);
-        
+
         // move out all expired timers
         //std::vector<Entry> getExpired(Timestamp now);
         //void reset(const std::vector<Entry>& expired, Timestamp now);
 
-        void insert(Timer* timer);
+        void insert(Timer *timer);
 
-    private:
-        EventLoop*          loop_;
+        EventLoop *loop_;
         //const int           timerfd_;
         //Channel             timerfdChannel_;
         // Timer list sorted by expiration
-        TimerList           timers_;
+        TimerList timers_;
 
         //for cancel()
         //ActiveTimerSet      activeTimers_;
         //bool                callingExpiredTimers_; /* atomic */
         //ActiveTimerSet      cancelingTimers_;
     };
-
 }
-

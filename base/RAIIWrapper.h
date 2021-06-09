@@ -2,21 +2,19 @@
 #define __RAII_WRAPPER_H__
 
 template<class T>
-class RAIIWrapper
-{
+class RAIIWrapper {
 public:
-    RAIIWrapper(T* p) :ptr(p) {}
+    RAIIWrapper(T *p) : ptr(p) {}
 
-    virtual ~RAIIWrapper()
-    {
-        if (ptr != NULL)
-        {
+    virtual ~RAIIWrapper() {
+        if (ptr != NULL) {
             delete ptr;
             ptr = NULL;
         }
     }
+
 private:
-    T* ptr;
+    T *ptr;
 };
 
 #endif //!__RAII_WRAPPER_H__

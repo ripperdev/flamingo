@@ -4,25 +4,22 @@
 */
 
 #include "DaemonRun.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include "../base/Platform.h"
 
-#ifndef WIN32
-void daemon_run()
-{
+void daemon_run() {
     int pid;
     signal(SIGCHLD, SIG_IGN);
     //1）在父进程中，fork返回新创建子进程的进程ID；
     //2）在子进程中，fork返回0；
     //3）如果出现错误，fork返回一个负值；
     pid = fork();
-    if (pid < 0)
-    {
+    if (pid < 0) {
         std::cout << "fork error" << std::endl;
         exit(-1);
     }
-    //父进程退出，子进程独立运行
+        //父进程退出，子进程独立运行
     else if (pid > 0) {
         exit(0);
     }
@@ -33,8 +30,7 @@ void daemon_run()
     setsid();
     int fd;
     fd = open("/dev/null", O_RDWR, 0);
-    if (fd != -1)
-    {
+    if (fd != -1) {
         dup2(fd, STDIN_FILENO);
         dup2(fd, STDOUT_FILENO);
         dup2(fd, STDERR_FILENO);
@@ -42,5 +38,3 @@ void daemon_run()
     if (fd > 2)
         close(fd);
 }
-
-#endif

@@ -10,20 +10,19 @@
 
 using namespace net;
 
-class BussinessLogic final
-{
-private:
+class BussinessLogic final {
+public:
     BussinessLogic() = delete;
+
     ~BussinessLogic() = delete;
 
-    BussinessLogic(const BussinessLogic& rhs) = delete;
-    BussinessLogic& operator =(const BussinessLogic& rhs) = delete;
+    BussinessLogic(const BussinessLogic &rhs) = delete;
 
-public:
-    static void registerUser(const std::string& data, const std::shared_ptr<TcpConnection>& conn, bool keepalive, std::string& retData);
+    BussinessLogic &operator=(const BussinessLogic &rhs) = delete;
+
+    static void registerUser(const std::string &data, const std::shared_ptr<TcpConnection> &conn, bool keepalive,
+                             std::string &retData);
 
 };
-
-
 
 #endif //!__BUSSINESS_LOGIC_H__

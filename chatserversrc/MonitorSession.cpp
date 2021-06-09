@@ -4,7 +4,6 @@
  */
 #include "MonitorSession.h"
 #include <sstream>
-#include <string.h>
 #include <list>
 #include "../net/EventLoopThread.h"
 #include "../base/AsyncLog.h"
@@ -15,42 +14,35 @@
 #include "MonitorServer.h"
 #include "UserManager.h"
 
-
-struct HelpInfo
-{
+struct HelpInfo {
     std::string cmd;
     std::string tip;
 };
 
 const HelpInfo g_helpInfo[] = {
-    { "help", "show help info" },
-    { "ul",   "show online user list" },
-    { "su", "show userinfo specified by userid: su [userid]" },
-    { "elpb", "enable log package binary data" },
-    { "dlpb", "disable log package binary data" }
+        {"help", "show help info"},
+        {"ul",   "show online user list"},
+        {"su",   "show userinfo specified by userid: su [userid]"},
+        {"elpb", "enable log package binary data"},
+        {"dlpb", "disable log package binary data"}
 };
 
-MonitorSession::MonitorSession(std::shared_ptr<TcpConnection>& conn) : m_tmpConn(conn)
-{
+MonitorSession::MonitorSession(std::shared_ptr<TcpConnection> &conn) : m_tmpConn(conn) {
 
 }
 
-void MonitorSession::onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receivTime)
-{
+void MonitorSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBuffer, Timestamp receivTime) {
     std::string buf;
     std::string substr;
     size_t pos;
     size_t totalsize = 0;
-    while (true)
-    {
+    while (true) {
         //xxx\nyyy\nuuuu\njjjjj
         buf.clear();
         buf = pBuffer->toStringPiece();
-        while (true)
-        {
-            pos = buf.find("\n");
-            if (pos != std::string::npos)
-            {
+        while (true) {
+            pos = buf.find('\n');
+            if (pos != std::string::npos) {
                 if (pos == 0)
                     substr = "\n";
                 else
@@ -60,106 +52,88 @@ void MonitorSession::onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* 
                 LOGI("recv cmd: %s", substr.c_str());
                 //LOGI << "buf: " << substr;
                 process(conn, substr);
-            }
-            else
-            {
+            } else {
                 if (totalsize > 0)
                     pBuffer->retrieve(totalsize);
                 return;
-            }             
-        }// end inner while-loop     
-    }// end outer while-loop
+            }
+        }
+    }
 }
 
-void MonitorSession::showHelp()
-{
+void MonitorSession::showHelp() {
     std::ostringstream os;
-    for (size_t i = 0; i < sizeof(g_helpInfo) / sizeof(g_helpInfo[0]); ++i)
-    {
+    for (size_t i = 0; i < sizeof(g_helpInfo) / sizeof(g_helpInfo[0]); ++i) {
         os << (i + 1) << ". " << g_helpInfo[i].cmd << "-" << g_helpInfo[i].tip << "\n";
     }
 
     send(os.str().c_str(), os.str().length());
 }
 
-
-bool MonitorSession::showOnlineUserList(const std::string& token/* = ""*/)
-{
+bool MonitorSession::showOnlineUserList(const std::string &token/* = ""*/) {
     std::list<std::shared_ptr<ChatSession>> sessions;
     Singleton<ChatServer>::Instance().getSessions(sessions);
     std::ostringstream os;
-    if (sessions.empty())
-    {
+    if (sessions.empty()) {
         os << "No user online.\n";
-    }
-    else
-    {      
-        MonitorServer& monitorServer = Singleton<MonitorServer>::Instance();
-        for (const auto& iter : sessions)
-        {
+    } else {
+        MonitorServer &monitorServer = Singleton<MonitorServer>::Instance();
+        for (const auto &iter : sessions) {
             os << "sessionid:" << iter->getSessionId()
-                << ",userid:" << iter->getUserId()
-                << ",username:" << iter->getUsername();
+               << ",userid:" << iter->getUserId()
+               << ",username:" << iter->getUsername();
 
             //如果输入了token，则显示用户密码，否则不显示
-            if (monitorServer.isMonitorTokenValid(token.c_str()))
-            {
+            if (monitorServer.isMonitorTokenValid(token.c_str())) {
                 os << ",password:" << iter->getPassword();
-            }   
+            }
 
-                os << ",clienttype:" << iter->getClientType()
-                   << ",status:" << iter->getUserStatus()
-                   << ".\n";
+            os << ",clienttype:" << iter->getClientType()
+               << ",status:" << iter->getUserStatus()
+               << ".\n";
         }
     }
-    
+
     send(os.str().c_str(), os.str().length());
     return false;
 }
 
-bool MonitorSession::showSpecifiedUserInfoByID(int32_t userid)
-{
-    UserManager& userMgr = Singleton<UserManager>::Instance();
+bool MonitorSession::showSpecifiedUserInfoByID(int32_t userid) {
+    UserManager &userMgr = Singleton<UserManager>::Instance();
     User u;
-    if (userMgr.getUserInfoByUserId(userid, u))
-    {
+    if (userMgr.getUserInfoByUserId(userid, u)) {
         ostringstream os;
-        os << "\"address\":\"" << u.address
-           << "\", \"birthday\":" << u.birthday
-           << ",\"customface\": \"" << u.customface
-           << "\", \"facetype\":" << u.facetype
-           <<",\"gender\":" << u.gender
-           <<",\"mail\":\"" << u.mail
-           << "\",\"nickname\":\"" << u.nickname
-           << "\",\"phonenumber\":\"" << u.phonenumber
-           << "\",\"signature\":\"" << u.signature
+        os << R"("address":")" << u.address
+           << R"(", "birthday":)" << u.birthday
+           << R"(,"customface": ")" << u.customface
+           << R"(", "facetype":)" << u.facetype
+           << ",\"gender\":" << u.gender
+           << R"(,"mail":")" << u.mail
+           << R"(","nickname":")" << u.nickname
+           << R"(","phonenumber":")" << u.phonenumber
+           << R"(","signature":")" << u.signature
            << ",\"userid\":" << u.userid
-           << ",\"username\":\"" << u.username << "\""
+           << R"(,"username":")" << u.username << "\""
            << ", teaminfo:" << u.teaminfo
            << "\n";
-            
+
         send(os.str().c_str(), os.str().length());
-    }
-    else
-    {
-        char tip[32] = { "user not found.\n" };
+    } else {
+        char tip[32] = {"user not found.\n"};
         send(tip, strlen(tip));
     }
 
     return true;
 }
 
-void MonitorSession::send(const char* data, size_t length)
-{
-    if (!m_tmpConn.expired())
-    {
+void MonitorSession::send(const char *data, size_t length) {
+    if (!m_tmpConn.expired()) {
         std::shared_ptr<TcpConnection> conn = m_tmpConn.lock();
         conn->send(data, length);
     }
 }
 
-bool MonitorSession::process(const std::shared_ptr<TcpConnection>& conn, const std::string& inbuf)
-{
+bool MonitorSession::process(const std::shared_ptr<TcpConnection> &conn, const std::string &inbuf) {
     if (inbuf == "\n")
         return false;
 
@@ -168,52 +142,38 @@ bool MonitorSession::process(const std::shared_ptr<TcpConnection>& conn, const s
 
     if (v.empty())
         return false;
-    else
-    {
+    else {
         if (v[0] == g_helpInfo[0].cmd)
             showHelp();
-        else if (v[0] == g_helpInfo[1].cmd)
-        {
+        else if (v[0] == g_helpInfo[1].cmd) {
             if (v.size() >= 2)
                 showOnlineUserList(v[1]);
             else
                 showOnlineUserList("");
-        }
-        else if (v[0] == g_helpInfo[2].cmd)
-        {
-            if (v.size() < 2)
-            {
-                char tip[32] = { "please specify userid.\n" };
+        } else if (v[0] == g_helpInfo[2].cmd) {
+            if (v.size() < 2) {
+                char tip[32] = {"please specify userid.\n"};
                 send(tip, strlen(tip));
-            }
-            else
-            {
+            } else {
                 showSpecifiedUserInfoByID(atoi(v[1].c_str()));
             }
-                
-        }
-        else if (v[0] == g_helpInfo[3].cmd)
-        {
+
+        } else if (v[0] == g_helpInfo[3].cmd) {
             //开启日志数据包打印二进制字节
             Singleton<ChatServer>::Instance().enableLogPackageBinary(true);
 
-            char tip[32] = { "OK.\n" };
+            char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));
-        }
-        else if (v[0] == g_helpInfo[4].cmd)
-        {
+        } else if (v[0] == g_helpInfo[4].cmd) {
             //开启日志数据包打印二进制字节
             Singleton<ChatServer>::Instance().enableLogPackageBinary(false);
 
-            char tip[32] = { "OK.\n" };
+            char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));
-        }
-        else
-        {
-            char tip[32] = { "cmd not support\n" };
+        } else {
+            char tip[32] = {"cmd not support\n"};
             send(tip, strlen(tip));
         }
     }
-
     return true;
 }

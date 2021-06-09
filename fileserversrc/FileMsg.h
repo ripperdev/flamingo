@@ -4,10 +4,9 @@
  **/
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
-enum file_msg_type
-{
+enum file_msg_type {
     file_msg_type_unknown,
     msg_type_upload_req,
     msg_type_upload_resp,
@@ -15,8 +14,7 @@ enum file_msg_type
     msg_type_download_resp,
 };
 
-enum file_msg_error_code
-{
+enum file_msg_error_code {
     file_msg_error_unknown,        //未知错误
     file_msg_error_progress,       //文件上传或者下载进行中
     file_msg_error_complete,       //文件上传或者下载完成
@@ -24,17 +22,15 @@ enum file_msg_error_code
 };
 
 //客户端网络类型
-enum client_net_type
-{
+enum client_net_type {
     client_net_type_broadband,    //宽带
     client_net_type_cellular      //移动网络
 };
 
 #pragma pack(push, 1)
 //协议头
-struct file_msg_header
-{
-    int64_t  packagesize;       //指定包体的大小
+struct file_msg_header {
+    int64_t packagesize;       //指定包体的大小
 };
 
 #pragma pack(pop)
@@ -57,4 +53,3 @@ struct file_msg_header
     客户端：cmd = msg_type_download_req, seq(int32), filemd5(string, 长度是32), offset(int64) ,filesize(int64), filedata(string), clientNetType(int32)
     服务器: cmd = msg_type_download_resp(int32), seq(int32), errorcode(int32), filemd5(string, 长度是32), offset(int64), filesize(int64)
  **/
-

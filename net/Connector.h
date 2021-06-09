@@ -3,56 +3,63 @@
 #include "InetAddress.h"
 #include <functional>
 #include <memory>
-//#include "EventLoop.h"
 
-namespace net
-{
+namespace net {
+    class Channel;
 
-	class Channel;
-	class EventLoop;
+    class EventLoop;
 
-	class Connector : public std::enable_shared_from_this<Connector>
-	{
-	public:
-		typedef std::function<void (int sockfd)> NewConnectionCallback;
+    class Connector : public std::enable_shared_from_this<Connector> {
+    public:
+        typedef std::function<void(int sockfd)> NewConnectionCallback;
 
-		Connector(EventLoop* loop, const InetAddress& serverAddr);
-		~Connector();
+        Connector(EventLoop *loop, const InetAddress &serverAddr);
 
-		void setNewConnectionCallback(const NewConnectionCallback& cb)
-		{ newConnectionCallback_ = cb; }
+        ~Connector() = default;
 
-		void start();  // can be called in any thread
-		void restart();  // must be called in loop thread
-		void stop();  // can be called in any thread
+        void setNewConnectionCallback(const NewConnectionCallback &cb) { newConnectionCallback_ = cb; }
 
-		const InetAddress& serverAddress() const { return serverAddr_; }
+        void start();  // can be called in any thread
+        void restart();  // must be called in loop thread
+        void stop();  // can be called in any thread
 
-	private:
-		enum States { kDisconnected, kConnecting, kConnected };
-		static const int kMaxRetryDelayMs = 30*1000;
-		static const int kInitRetryDelayMs = 500;
+        const InetAddress &serverAddress() const { return serverAddr_; }
 
-		void setState(States s) { state_ = s; }
-		void startInLoop();
-		void stopInLoop();
-		void connect();
-		void connecting(int sockfd);
-		void handleWrite();
-		void handleError();
-		void retry(int sockfd);
-		int removeAndResetChannel();
-		void resetChannel();
+    private:
+        enum States {
+            kDisconnected, kConnecting, kConnected
+        };
+        static const int kMaxRetryDelayMs = 30 * 1000;
+        static const int kInitRetryDelayMs = 500;
 
-		EventLoop*                      loop_;
-		InetAddress                     serverAddr_;
+        void setState(States s) { state_ = s; }
+
+        void startInLoop();
+
+        void stopInLoop();
+
+        void connect();
+
+        void connecting(int sockfd);
+
+        void handleWrite();
+
+        void handleError();
+
+        void retry(int sockfd);
+
+        int removeAndResetChannel();
+
+        void resetChannel();
+
+        EventLoop *loop_;
+        InetAddress serverAddr_;
         // atomic
-		bool                            connect_; 
+        bool connect_;
         // FIXME: use atomic variable
-		States                          state_;                  
-		std::unique_ptr<Channel>        channel_;
-		NewConnectionCallback           newConnectionCallback_;
-		int                             retryDelayMs_;
-	};
-
+        States state_;
+        std::unique_ptr<Channel> channel_;
+        NewConnectionCallback newConnectionCallback_;
+        int retryDelayMs_;
+    };
 }

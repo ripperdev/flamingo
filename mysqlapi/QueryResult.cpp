@@ -1,63 +1,50 @@
 #include "QueryResult.h"
-#include "../base/AsyncLog.h"
 
 QueryResult::QueryResult(MYSQL_RES *result, uint64_t rowCount, uint32_t fieldCount)
- : m_FieldCount(fieldCount), m_RowCount(rowCount)
-{
+        : m_FieldCount(fieldCount), m_RowCount(rowCount) {
     m_Result = result;
-	m_CurrentRow = new Field[m_FieldCount];
+    m_CurrentRow = new Field[m_FieldCount];
     //assert(mCurrentRow);
 
     MYSQL_FIELD *fields = mysql_fetch_fields(m_Result);
 
-    for (uint32_t i = 0; i < m_FieldCount; i++)
-    {
+    for (uint32_t i = 0; i < m_FieldCount; i++) {
         //TODO: 这个地方要不要判断为NULL？
-		if (fields[i].name != NULL)
-        {
+        if (fields[i].name != nullptr) {
             m_FieldNames[i] = fields[i].name;
-            m_vtFieldNames.push_back(fields[i].name);
-        }
-        else
-        {
+            m_vtFieldNames.emplace_back(fields[i].name);
+        } else {
             m_FieldNames[i] = "";
-            m_vtFieldNames.push_back("");
+            m_vtFieldNames.emplace_back("");
         }
-        
+
         m_CurrentRow[i].setType(convertNativeType(fields[i].type));
     }
 }
 
-QueryResult::~QueryResult(void)
-{
+QueryResult::~QueryResult() {
     endQuery();
 }
 
-bool QueryResult::nextRow()
-{
+bool QueryResult::nextRow() {
     MYSQL_ROW row;
 
     if (!m_Result)
         return false;
 
     row = mysql_fetch_row(m_Result);
-    if (!row)
-    {
+    if (!row) {
         endQuery();
         return false;
     }
 
     unsigned long int *ulFieldLength;
     ulFieldLength = mysql_fetch_lengths(m_Result);
-    for (uint32_t i = 0; i < m_FieldCount; i++)
-    {
-        if(row[i] == NULL)
-        {
+    for (uint32_t i = 0; i < m_FieldCount; i++) {
+        if (row[i] == nullptr) {
             m_CurrentRow[i].m_bNULL = true;
             m_CurrentRow[i].setValue("", 0);
-        }
-        else
-        {
+        } else {
             m_CurrentRow[i].m_bNULL = false;
             m_CurrentRow[i].setValue(row[i], ulFieldLength[i]);
         }
@@ -68,26 +55,21 @@ bool QueryResult::nextRow()
     return true;
 }
 
-void QueryResult::endQuery()
-{
-    if (m_CurrentRow)
-    {
-        delete [] m_CurrentRow;
-        m_CurrentRow = 0;
+void QueryResult::endQuery() {
+    if (m_CurrentRow) {
+        delete[] m_CurrentRow;
+        m_CurrentRow = nullptr;
     }
 
-    if (m_Result)
-    {
-		//LOGI << "QueryResult::EndQuery, mysql_free_result";
+    if (m_Result) {
+        //LOGI << "QueryResult::EndQuery, mysql_free_result";
         mysql_free_result(m_Result);
-        m_Result = 0;
+        m_Result = nullptr;
     }
 }
 
-enum Field::DataTypes QueryResult::convertNativeType(enum_field_types mysqlType) const
-{
-    switch (mysqlType)
-    {
+enum Field::DataTypes QueryResult::convertNativeType(enum_field_types mysqlType) {
+    switch (mysqlType) {
         case FIELD_TYPE_TIMESTAMP:
         case FIELD_TYPE_DATE:
         case FIELD_TYPE_TIME:

@@ -3,24 +3,25 @@
 #include "Poller.h"
 #include <map>
 #include "../base/Platform.h"
-//#include "EventLoop.h"
 
-namespace net
-{
+namespace net {
     class EventLoop;
+
     class Channel;
 
-    class SelectPoller : public Poller
-    {
+    class SelectPoller : public Poller {
     public:
-        SelectPoller(EventLoop* loop);
-        virtual ~SelectPoller();
+        explicit SelectPoller(EventLoop *loop);
 
-        virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-        virtual bool updateChannel(Channel* channel);
-        virtual void removeChannel(Channel* channel);
+        virtual ~SelectPoller() = default;
 
-        virtual bool hasChannel(Channel* channel) const;
+        Timestamp poll(int timeoutMs, ChannelList *activeChannels) override;
+
+        bool updateChannel(Channel *channel) override;
+
+        void removeChannel(Channel *channel) override;
+
+        bool hasChannel(Channel *channel) const override;
 
         //static EPollPoller* newDefaultPoller(EventLoop* loop);
 
@@ -29,20 +30,18 @@ namespace net
     private:
         static const int kInitEventListSize = 16;
 
-        void fillActiveChannels(int numEvents, ChannelList* activeChannels, fd_set& readfds, fd_set& writefds) const;
-        bool update(int operation, Channel* channel);
+        void fillActiveChannels(int numEvents, ChannelList *activeChannels, fd_set &readfds, fd_set &writefds) const;
 
-    private:
+        bool update(int operation, Channel *channel);
+
         typedef std::vector<struct epoll_event> EventList;
 
-        int             epollfd_;
-        EventList       events_;
+        int epollfd_{};
+        EventList events_;
 
-        typedef std::map<int, Channel*> ChannelMap;
+        typedef std::map<int, Channel *> ChannelMap;
 
-        ChannelMap      channels_;
-        EventLoop*      ownerLoop_;
+        ChannelMap channels_;
+        EventLoop *ownerLoop_;
     };
-
 }
-

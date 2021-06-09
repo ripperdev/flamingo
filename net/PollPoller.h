@@ -1,6 +1,5 @@
 #pragma once
 
-#ifndef WIN32
 #include "Poller.h"
 
 #include <vector>
@@ -8,39 +7,36 @@
 
 struct pollfd;
 
-namespace net
-{
+namespace net {
     class Channel;
+
     class EventLoop;
+
     ///
     /// IO Multiplexing with poll(2).
     ///
-    class PollPoller : public Poller
-    {
+    class PollPoller : public Poller {
     public:
 
-        PollPoller(EventLoop* loop);
-        virtual ~PollPoller();
+        explicit PollPoller(EventLoop *loop);
 
-        virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-        virtual bool updateChannel(Channel* channel);
-        virtual void removeChannel(Channel* channel);
+        Timestamp poll(int timeoutMs, ChannelList *activeChannels) override;
+
+        bool updateChannel(Channel *channel) override;
+
+        void removeChannel(Channel *channel) override;
 
         void assertInLoopThread() const;
-        
 
     private:
-        void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
+        void fillActiveChannels(int numEvents, ChannelList *activeChannels) const;
 
-    private:
-        typedef std::vector<struct pollfd>  PollFdList;
-        typedef std::map<int, Channel*>     ChannelMap;
+        typedef std::vector<struct pollfd> PollFdList;
+        typedef std::map<int, Channel *> ChannelMap;
 
-        ChannelMap                          channels_;
-        PollFdList                          pollfds_;
-        EventLoop*                          ownerLoop_;
+        ChannelMap channels_;
+        PollFdList pollfds_;
+        EventLoop *ownerLoop_;
     };
 
 }
-
-#endif 

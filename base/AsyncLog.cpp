@@ -4,21 +4,18 @@
  * @date:   2019.04.13
  */
 #include "AsyncLog.h"
-#include <ctime>
-#include <time.h>
 #include <sys/timeb.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include <iostream>
-#include <stdarg.h>
+#include <cstdarg>
 #include "../base/Platform.h"
 
 #define MAX_LINE_LENGTH   256
 #define DEFAULT_ROLL_SIZE 10 * 1024 * 1024
 
 bool CAsyncLog::m_bTruncateLongLog = false;
-FILE* CAsyncLog::m_hLogFile = NULL;
+FILE *CAsyncLog::m_hLogFile = nullptr;
 std::string CAsyncLog::m_strFileName = "default";
 std::string CAsyncLog::m_strFileNamePID = "";
 LOG_LEVEL CAsyncLog::m_nCurrentLevel = LOG_LEVEL_INFO;
@@ -31,25 +28,19 @@ std::condition_variable CAsyncLog::m_cvWrite;
 bool CAsyncLog::CAsyncLog::m_bExit = false;
 bool CAsyncLog::m_bRunning = false;
 
-bool CAsyncLog::init(const char* pszLogFileName/* = nullptr*/, bool bTruncateLongLine/* = false*/, int64_t nRollSize/* = 10 * 1024 * 1024*/)
-{
+bool CAsyncLog::init(const char *pszLogFileName/* = nullptr*/, bool bTruncateLongLine/* = false*/,
+                     int64_t nRollSize/* = 10 * 1024 * 1024*/) {
     m_bTruncateLongLog = bTruncateLongLine;
     m_nFileRollSize = nRollSize;
-   
-    if (pszLogFileName == nullptr || pszLogFileName[0] == 0)
-    {
+
+    if (pszLogFileName == nullptr || pszLogFileName[0] == 0) {
         m_strFileName.clear();
-    }
-    else
+    } else
         m_strFileName = pszLogFileName;
 
     //获取进程id，这样快速看到同一个进程的不同日志文件
     char szPID[8];
-#ifdef WIN32
-    snprintf(szPID, sizeof(szPID), "%05d", (int)::GetCurrentProcessId());  
-#else
-    snprintf(szPID, sizeof(szPID), "%05d", (int)::getpid());
-#endif
+    snprintf(szPID, sizeof(szPID), "%05d", (int) ::getpid());
     m_strFileNamePID = szPID;
 
     //TODO：创建文件夹
@@ -59,43 +50,37 @@ bool CAsyncLog::init(const char* pszLogFileName/* = nullptr*/, bool bTruncateLon
     return true;
 }
 
-void CAsyncLog::uninit()
-{
+void CAsyncLog::uninit() {
     m_bExit = true;
 
     m_cvWrite.notify_one();
 
     if (m_spWriteThread->joinable())
         m_spWriteThread->join();
-    
-    if(m_hLogFile != nullptr)
-	{
+
+    if (m_hLogFile != nullptr) {
         fclose(m_hLogFile);
         m_hLogFile = nullptr;
-	}
+    }
 }
 
-void CAsyncLog::setLevel(LOG_LEVEL nLevel)
-{
+void CAsyncLog::setLevel(LOG_LEVEL nLevel) {
     if (nLevel < LOG_LEVEL_TRACE || nLevel > LOG_LEVEL_FATAL)
         return;
-    
+
     m_nCurrentLevel = nLevel;
 }
 
-bool CAsyncLog::isRunning()
-{
+bool CAsyncLog::isRunning() {
     return m_bRunning;
 }
 
-bool CAsyncLog::output(long nLevel, const char* pszFmt, ...)
-{
-    if (nLevel != LOG_LEVEL_CRITICAL)
-    {
+bool CAsyncLog::output(long nLevel, const char *pszFmt, ...) {
+    if (nLevel != LOG_LEVEL_CRITICAL) {
         if (nLevel < m_nCurrentLevel)
             return false;
     }
-    
+
     std::string strLine;
     makeLinePrefix(nLevel, strLine);
 
@@ -105,17 +90,16 @@ bool CAsyncLog::output(long nLevel, const char* pszFmt, ...)
     //先计算一下不定参数的长度，以便于分配空间
     va_list ap;
     va_start(ap, pszFmt);
-    int nLogMsgLength = vsnprintf(NULL, 0, pszFmt, ap);
+    int nLogMsgLength = vsnprintf(nullptr, 0, pszFmt, ap);
     va_end(ap);
 
     //容量必须算上最后一个\0
-    if ((int)strLogMsg.capacity() < nLogMsgLength + 1)
-    {
+    if ((int) strLogMsg.capacity() < nLogMsgLength + 1) {
         strLogMsg.resize(nLogMsgLength + 1);
     }
     va_list aq;
     va_start(aq, pszFmt);
-    vsnprintf((char*)strLogMsg.data(), strLogMsg.capacity(), pszFmt, aq);
+    vsnprintf((char *) strLogMsg.data(), strLogMsg.capacity(), pszFmt, aq);
     va_end(aq);
 
     //string内容正确但length不对，恢复一下其length
@@ -129,39 +113,25 @@ bool CAsyncLog::output(long nLevel, const char* pszFmt, ...)
     strLine += strMsgFormal;
 
     //不是输出到控制台才会在每一行末尾加一个换行符
-    if (!m_strFileName.empty())
-    {
+    if (!m_strFileName.empty()) {
         strLine += "\n";
     }
-	
-    if (nLevel != LOG_LEVEL_FATAL)
-    {
+
+    if (nLevel != LOG_LEVEL_FATAL) {
         std::lock_guard<std::mutex> lock_guard(m_mutexWrite);
         m_listLinesToWrite.push_back(strLine);
         m_cvWrite.notify_one();
-    }
-    else
-    {
+    } else {
         //为了让FATAL级别的日志能立即crash程序，采取同步写日志的方法
         std::cout << strLine << std::endl;
-#ifdef _WIN32
-        OutputDebugStringA(strLine.c_str());
-        OutputDebugStringA("\n");
-#endif
-        
-        if (!m_strFileName.empty())
-        {
-            if (m_hLogFile == nullptr)
-            {
+
+        if (!m_strFileName.empty()) {
+            if (m_hLogFile == nullptr) {
                 //新建文件
                 char szNow[64];
-                time_t now = time(NULL);
-                tm time;
-#ifdef _WIN32
-                localtime_s(&time, &now);
-#else
+                time_t now = time(nullptr);
+                tm time{};
                 localtime_r(&now, &time);
-#endif
                 strftime(szNow, sizeof(szNow), "%Y%m%d%H%M%S", &time);
 
                 std::string strNewFileName(m_strFileName);
@@ -174,22 +144,18 @@ bool CAsyncLog::output(long nLevel, const char* pszFmt, ...)
                     return false;
             }// end inner if 
 
-           writeToFile(strLine);
+            writeToFile(strLine);
 
         }// end outer-if
 
         //让程序主动crash掉
         crash();
     }
-    
-
     return true;
 }
 
-bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const char* pszFmt, ...)
-{
-    if (nLevel != LOG_LEVEL_CRITICAL)
-    {
+bool CAsyncLog::output(long nLevel, const char *pszFileName, int nLineNo, const char *pszFmt, ...) {
+    if (nLevel != LOG_LEVEL_CRITICAL) {
         if (nLevel < m_nCurrentLevel)
             return false;
     }
@@ -198,7 +164,7 @@ bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const 
     makeLinePrefix(nLevel, strLine);
 
     //函数签名
-    char szFileName[512] = { 0 };
+    char szFileName[512] = {0};
     snprintf(szFileName, sizeof(szFileName), "[%s:%d]", pszFileName, nLineNo);
     strLine += szFileName;
 
@@ -208,17 +174,16 @@ bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const 
     //先计算一下不定参数的长度，以便于分配空间
     va_list ap;
     va_start(ap, pszFmt);
-    int nLogMsgLength = vsnprintf(NULL, 0, pszFmt, ap);
+    int nLogMsgLength = vsnprintf(nullptr, 0, pszFmt, ap);
     va_end(ap);
 
     //容量必须算上最后一个\0
-    if ((int)strLogMsg.capacity() < nLogMsgLength + 1)
-    {
+    if ((int) strLogMsg.capacity() < nLogMsgLength + 1) {
         strLogMsg.resize(nLogMsgLength + 1);
     }
     va_list aq;
     va_start(aq, pszFmt);
-    vsnprintf((char*)strLogMsg.data(), strLogMsg.capacity(), pszFmt, aq);
+    vsnprintf((char *) strLogMsg.data(), strLogMsg.capacity(), pszFmt, aq);
     va_end(aq);
 
     //string内容正确但length不对，恢复一下其length
@@ -232,39 +197,24 @@ bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const 
     strLine += strMsgFormal;
 
     //不是输出到控制台才会在每一行末尾加一个换行符
-    if (!m_strFileName.empty())
-    { 
+    if (!m_strFileName.empty()) {
         strLine += "\n";
     }
 
-    if (nLevel != LOG_LEVEL_FATAL)
-    {
+    if (nLevel != LOG_LEVEL_FATAL) {
         std::lock_guard<std::mutex> lock_guard(m_mutexWrite);
         m_listLinesToWrite.push_back(strLine);
         m_cvWrite.notify_one();
-    }
-    else
-    {
+    } else {
         //为了让FATAL级别的日志能立即crash程序，采取同步写日志的方法
         std::cout << strLine << std::endl;
-#ifdef _WIN32
-        OutputDebugStringA(strLine.c_str());
-        OutputDebugStringA("\n");
-#endif
-
-        if (!m_strFileName.empty())
-        {
-            if (m_hLogFile == nullptr)
-            {
+        if (!m_strFileName.empty()) {
+            if (m_hLogFile == nullptr) {
                 //新建文件
                 char szNow[64];
-                time_t now = time(NULL);
-                tm time;
-#ifdef _WIN32
-                localtime_s(&time, &now);
-#else
+                time_t now = time(nullptr);
+                tm time{};
                 localtime_r(&now, &time);
-#endif
                 strftime(szNow, sizeof(szNow), "%Y%m%d%H%M%S", &time);
 
                 std::string strNewFileName(m_strFileName);
@@ -277,7 +227,7 @@ bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const 
                     return false;
             }// end inner if 
 
-            writeToFile(strLine);     
+            writeToFile(strLine);
         }// end outer-if
 
         //让程序主动crash掉
@@ -287,8 +237,7 @@ bool CAsyncLog::output(long nLevel, const char* pszFileName, int nLineNo, const 
     return true;
 }
 
-bool CAsyncLog::outputBinary(unsigned char* buffer, size_t size)
-{
+bool CAsyncLog::outputBinary(unsigned char *buffer, size_t size) {
     //std::string strBinary;
     std::ostringstream os;
 
@@ -298,12 +247,10 @@ bool CAsyncLog::outputBinary(unsigned char* buffer, size_t size)
     size_t lsize = 0;
     size_t lprintbufsize = 0;
     int index = 0;
-    os << "address[" << (long)buffer << "] size[" << size << "] \n";
-    while (true)
-    {
+    os << "address[" << (long) buffer << "] size[" << size << "] \n";
+    while (true) {
         memset(szbuf, 0, sizeof(szbuf));
-        if (size > lsize)
-        {
+        if (size > lsize) {
             lprintbufsize = (size - lsize);
             lprintbufsize = lprintbufsize > PRINTSIZE ? PRINTSIZE : lprintbufsize;
             formLog(index, szbuf, sizeof(szbuf), buffer + lsize, lprintbufsize);
@@ -319,9 +266,7 @@ bool CAsyncLog::outputBinary(unsigned char* buffer, size_t size)
             os << szbuf;
             //}
             lsize += lprintbufsize;
-        }
-        else
-        {
+        } else {
             break;
         }
     }
@@ -333,28 +278,23 @@ bool CAsyncLog::outputBinary(unsigned char* buffer, size_t size)
     return true;
 }
 
-const char* CAsyncLog::ullto4Str(int n)
-{
+const char *CAsyncLog::ullto4Str(int n) {
     static char buf[64 + 1];
     memset(buf, 0, sizeof(buf));
     sprintf(buf, "%06u", n);
     return buf;
 }
 
-char* CAsyncLog::formLog(int& index, char* szbuf, size_t size_buf, unsigned char* buffer, size_t size)
-{
+char *CAsyncLog::formLog(int &index, char *szbuf, size_t size_buf, const unsigned char *buffer, size_t size) {
     size_t len = 0;
     size_t lsize = 0;
     int headlen = 0;
-    char szhead[64 + 1] = { 0 };
+    char szhead[64 + 1] = {0};
     char szchar[17] = "0123456789abcdef";
     //memset(szhead, 0, sizeof(szhead));
-    while (size > lsize && len + 10 < size_buf)
-    {
-        if (lsize % 32 == 0)
-        {
-            if (0 != headlen)
-            {
+    while (size > lsize && len + 10 < size_buf) {
+        if (lsize % 32 == 0) {
+            if (0 != headlen) {
                 szbuf[len++] = '\n';
             }
 
@@ -378,8 +318,7 @@ char* CAsyncLog::formLog(int& index, char* szbuf, size_t size_buf, unsigned char
     return szbuf;
 }
 
-void CAsyncLog::makeLinePrefix(long nLevel, std::string& strPrefix)
-{
+void CAsyncLog::makeLinePrefix(long nLevel, std::string &strPrefix) {
     //级别
     strPrefix = "[INFO]";
     if (nLevel == LOG_LEVEL_TRACE)
@@ -398,7 +337,7 @@ void CAsyncLog::makeLinePrefix(long nLevel, std::string& strPrefix)
         strPrefix = "[CRITICAL]";
 
     //时间
-    char szTime[64] = { 0 };
+    char szTime[64] = {0};
     getTime(szTime, sizeof(szTime));
 
     strPrefix += "[";
@@ -406,34 +345,28 @@ void CAsyncLog::makeLinePrefix(long nLevel, std::string& strPrefix)
     strPrefix += "]";
 
     //当前线程信息
-    char szThreadID[32] = { 0 };
+    char szThreadID[32] = {0};
     std::ostringstream osThreadID;
     osThreadID << std::this_thread::get_id();
     snprintf(szThreadID, sizeof(szThreadID), "[%s]", osThreadID.str().c_str());
-    strPrefix += szThreadID;   
+    strPrefix += szThreadID;
 }
 
-void CAsyncLog::getTime(char* pszTime, int nTimeStrLength)
-{   
-    struct timeb tp;
+void CAsyncLog::getTime(char *pszTime, int nTimeStrLength) {
+    struct timeb tp{};
     ftime(&tp);
-    
+
     time_t now = tp.time;
-    tm time;
-#ifdef _WIN32
-    localtime_s(&time, &now);
-#else
+    tm time{};
     localtime_r(&now, &time);
-#endif
-    
-    snprintf(pszTime, nTimeStrLength, "[%04d-%02d-%02d %02d:%02d:%02d:%03d]", time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec, tp.millitm);
+
+    snprintf(pszTime, nTimeStrLength, "[%04d-%02d-%02d %02d:%02d:%02d:%03d]", time.tm_year + 1900, time.tm_mon + 1,
+             time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec, tp.millitm);
     //strftime(pszTime, nTimeStrLength, "[%Y-%m-%d %H:%M:%S:]", &time);
 }
 
-bool CAsyncLog::createNewFile(const char* pszLogFileName)
-{
-    if (m_hLogFile != nullptr)
-    {
+bool CAsyncLog::createNewFile(const char *pszLogFileName) {
+    if (m_hLogFile != nullptr) {
         fclose(m_hLogFile);
     }
 
@@ -442,61 +375,46 @@ bool CAsyncLog::createNewFile(const char* pszLogFileName)
     return m_hLogFile != nullptr;
 }
 
-bool CAsyncLog::writeToFile(const std::string& data)
-{
+bool CAsyncLog::writeToFile(const std::string &data) {
     //为了防止长文件一次性写不完，放在一个循环里面分批写
     std::string strLocal(data);
     int ret = 0;
-    while (true)
-    {
+    while (true) {
         ret = fwrite(strLocal.c_str(), 1, strLocal.length(), m_hLogFile);
         if (ret <= 0)
             return false;
-        else if (ret <= (int)strLocal.length())
-        {
+        else if (ret <= (int) strLocal.length()) {
             strLocal.erase(0, ret);
         }
 
         if (strLocal.empty())
             break;
     }
-    
 
     //::OutputDebugStringA(strDebugInfo.c_str());
-
     fflush(m_hLogFile);
-
     return true;
 }
 
-void CAsyncLog::crash()
-{
-    char* p = nullptr;
+void CAsyncLog::crash() {
+    char *p = nullptr;
     *p = 0;
 }
 
-void CAsyncLog::writeThreadProc()
-{
+void CAsyncLog::writeThreadProc() {
     m_bRunning = true;
 
-    while (true)
-    {        
-        if (!m_strFileName.empty())
-        {
-            if (m_hLogFile == nullptr || m_nCurrentWrittenSize >= m_nFileRollSize)
-            {
+    while (true) {
+        if (!m_strFileName.empty()) {
+            if (m_hLogFile == nullptr || m_nCurrentWrittenSize >= m_nFileRollSize) {
                 //重置m_nCurrentWrittenSize大小
                 m_nCurrentWrittenSize = 0;
 
                 //第一次或者文件大小超过rollsize，均新建文件
                 char szNow[64];
-                time_t now = time(NULL);
-                tm time;
-#ifdef _WIN32
-                localtime_s(&time, &now);
-#else
+                time_t now = time(nullptr);
+                tm time{};
                 localtime_r(&now, &time);
-#endif
                 strftime(szNow, sizeof(szNow), "%Y%m%d%H%M%S", &time);
 
                 std::string strNewFileName(m_strFileName);
@@ -514,8 +432,7 @@ void CAsyncLog::writeThreadProc()
         std::string strLine;
         {
             std::unique_lock<std::mutex> guard(m_mutexWrite);
-            while (m_listLinesToWrite.empty())
-            {
+            while (m_listLinesToWrite.empty()) {
                 if (m_bExit)
                     return;
 
@@ -526,21 +443,14 @@ void CAsyncLog::writeThreadProc()
             m_listLinesToWrite.pop_front();
         }
 
-        
         std::cout << strLine << std::endl;
 
-#ifdef _WIN32
-        OutputDebugStringA(strLine.c_str());
-        OutputDebugStringA("\n");
-#endif
-
-        if (!m_strFileName.empty())
-        {
+        if (!m_strFileName.empty()) {
             if (!writeToFile(strLine))
                 return;
 
             m_nCurrentWrittenSize += strLine.length();
-        }     
+        }
     }// end outer-while-loop
 
     m_bRunning = false;

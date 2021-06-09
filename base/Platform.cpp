@@ -2,15 +2,13 @@
 
 #ifdef WIN32
 
-NetworkInitializer::NetworkInitializer()
-{
+NetworkInitializer::NetworkInitializer() {
     WORD wVersionRequested = MAKEWORD(2, 2);
     WSADATA wsaData;
     ::WSAStartup(wVersionRequested, &wsaData);   
 }
 
-NetworkInitializer::~NetworkInitializer()
-{
+NetworkInitializer::~NetworkInitializer() {
     ::WSACleanup();
 }
 

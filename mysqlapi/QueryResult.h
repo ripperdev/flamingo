@@ -1,64 +1,62 @@
 #pragma once
 
-//#include <assert.h>
 #include <mysql/mysql.h>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <map>
 
 #include "Field.h"
 
-class  QueryResult
-{
-    public:
-        typedef std::map<uint32_t, std::string> FieldNames;
+class QueryResult {
+public:
+    typedef std::map<uint32_t, std::string> FieldNames;
 
-        QueryResult(MYSQL_RES* result, uint64_t rowCount, uint32_t fieldCount);
-        virtual ~QueryResult();
+    QueryResult(MYSQL_RES *result, uint64_t rowCount, uint32_t fieldCount);
 
-        virtual bool nextRow();
+    virtual ~QueryResult();
 
-        uint32_t getField_idx(const std::string& name) const
-        {
-            for(FieldNames::const_iterator iter = getFieldNames().begin(); iter != getFieldNames().end(); ++iter)
-            {
-                if(iter->second == name)
-                    return iter->first;
-            }
+    virtual bool nextRow();
 
-            //assert(false && "unknown field name");
-            return uint32_t(-1);
+    uint32_t getField_idx(const std::string &name) const {
+        for (const auto &iter : getFieldNames()) {
+            if (iter.second == name)
+                return iter.first;
         }
 
-        Field* fetch() const { return m_CurrentRow; }
+        //assert(false && "unknown field name");
+        return uint32_t(-1);
+    }
 
-        const Field & operator [] (int index) const 
-        { 
-            return m_CurrentRow[index];
-        }
+    Field *fetch() const { return m_CurrentRow; }
 
-        const Field& operator [] (const std::string &name) const
-        {
-            return m_CurrentRow[getField_idx(name)];
-        }
+    const Field &operator[](int index) const {
+        return m_CurrentRow[index];
+    }
 
-        uint32_t getFieldCount() const { return m_FieldCount; }
-        uint64_t getRowCount() const { return m_RowCount; }
-        FieldNames const& getFieldNames() const {return m_FieldNames; }
+    const Field &operator[](const std::string &name) const {
+        return m_CurrentRow[getField_idx(name)];
+    }
 
-        std::vector<std::string> const& getNames() const {return m_vtFieldNames;}
+    uint32_t getFieldCount() const { return m_FieldCount; }
 
-    private:
-        enum Field::DataTypes convertNativeType(enum_field_types mysqlType) const;
-	public:
-        void endQuery();
+    uint64_t getRowCount() const { return m_RowCount; }
 
-    protected:
-        Field *                     m_CurrentRow;
-        uint32_t                    m_FieldCount;
-        uint64_t                    m_RowCount;
-        FieldNames                  m_FieldNames;
-        std::vector<std::string>    m_vtFieldNames;
+    FieldNames const &getFieldNames() const { return m_FieldNames; }
 
-		MYSQL_RES*                  m_Result;
+    std::vector<std::string> const &getNames() const { return m_vtFieldNames; }
+
+private:
+    static enum Field::DataTypes convertNativeType(enum_field_types mysqlType) ;
+
+public:
+    void endQuery();
+
+protected:
+    Field *m_CurrentRow;
+    uint32_t m_FieldCount;
+    uint64_t m_RowCount;
+    FieldNames m_FieldNames;
+    std::vector<std::string> m_vtFieldNames;
+
+    MYSQL_RES *m_Result;
 };
