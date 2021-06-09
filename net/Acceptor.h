@@ -22,7 +22,7 @@ namespace net
         Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
         ~Acceptor();
 
-        //设置新连接到来的回调函数
+        //璁剧疆鏂拌繛鎺ュ埌鏉ョ殑鍥炶皟鍑芥暟
         void setNewConnectionCallback(const NewConnectionCallback& cb)
         {
             newConnectionCallback_ = cb;

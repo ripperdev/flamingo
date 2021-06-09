@@ -1,5 +1,5 @@
 /**
- * URL����빤�ߣ�URLEncodeUtil.h
+ * URL±à½âÂë¹¤¾ß£¬URLEncodeUtil.h
  * zhangyl 2018.05.16
  */
 #ifndef __URLENCODE_UTIL_H__

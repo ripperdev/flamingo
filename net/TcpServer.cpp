@@ -97,7 +97,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(std::bind(&TcpServer::removeConnection, this, std::placeholders::_1)); // FIXME: unsafe
-    //¸ÃÏß³Ì·ÖÀëÍêioÊÂ¼şºó£¬Á¢¼´µ÷ÓÃTcpConnection::connectEstablished
+    //è¯¥çº¿ç¨‹åˆ†ç¦»å®Œioäº‹ä»¶åï¼Œç«‹å³è°ƒç”¨TcpConnection::connectEstablished
     ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }
 
@@ -116,7 +116,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
     //assert(n == 1);
     if (n != 1)
     {
-        //³öÏÖÕâÖÖÇé¿ö£¬ÊÇTcpConneaction¶ÔÏóÔÚ´´½¨¹ı³ÌÖĞ£¬¶Ô·½¾Í¶Ï¿ªÁ¬½ÓÁË¡£
+        //å‡ºç°è¿™ç§æƒ…å†µï¼Œæ˜¯TcpConneactionå¯¹è±¡åœ¨åˆ›å»ºè¿‡ç¨‹ä¸­ï¼Œå¯¹æ–¹å°±æ–­å¼€è¿æ¥äº†ã€‚
         LOGD("TcpServer::removeConnectionInLoop [%s] - connection %s, connection does not exist.", name_.c_str(), conn->name().c_str());
         return;
     }

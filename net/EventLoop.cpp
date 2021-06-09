@@ -18,7 +18,7 @@
 
 using namespace net;
 
-//ÄÚ²¿ÕìÌı»½ĞÑfdµÄÕìÌı¶Ë¿Ú£¬Òò´ËÍâ²¿¿ÉÒÔÔÙÊ¹ÓÃÕâ¸ö¶Ë¿Ú
+//å†…éƒ¨ä¾¦å¬å”¤é†’fdçš„ä¾¦å¬ç«¯å£ï¼Œå› æ­¤å¤–éƒ¨å¯ä»¥å†ä½¿ç”¨è¿™ä¸ªç«¯å£
 //#define INNER_WAKEUP_LISTEN_PORT 10000
 
 thread_local  EventLoop* t_loopInThisThread = 0;
@@ -30,7 +30,7 @@ EventLoop* getEventLoopOfCurrentThread()
     return t_loopInThisThread;
 }
 
-// ÔÚÏß³Ìº¯ÊıÖĞ´´½¨eventloop
+// åœ¨çº¿ç¨‹å‡½æ•°ä¸­åˆ›å»ºeventloop
 EventLoop::EventLoop()
     : looping_(false),
     quit_(false),
@@ -185,7 +185,7 @@ void EventLoop::setFrameFunctor(const Functor& cb)
 
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
 {
-    //Ö»Ö´ĞĞÒ»´Î
+    //åªæ‰§è¡Œä¸€æ¬¡
     return timerQueue_->addTimer(cb, time, 0, 1);
 }
 
@@ -198,7 +198,7 @@ TimerId EventLoop::runAfter(int64_t delay, const TimerCallback& cb)
 TimerId EventLoop::runEvery(int64_t interval, const TimerCallback& cb)
 {
     Timestamp time(addTime(Timestamp::now(), interval));
-    //-1±íÊ¾Ò»Ö±ÖØ¸´ÏÂÈ¥
+    //-1è¡¨ç¤ºä¸€ç›´é‡å¤ä¸‹å»
     return timerQueue_->addTimer(cb, time, interval, -1);
 }
 
@@ -268,7 +268,7 @@ bool EventLoop::createWakeupfd()
 #ifdef WIN32
     //if (_pipe(fdpipe_, 256, O_BINARY) == -1)
     //{
-    //    //ÈÃ³ÌĞò¹Òµô
+    //    //è®©ç¨‹åºæŒ‚æ‰
     //    LOGF("Unable to create pipe, EventLoop: 0x%x", this);
     //    return false;
     //}
@@ -276,11 +276,11 @@ bool EventLoop::createWakeupfd()
     wakeupFdListen_ = sockets::createOrDie();
     wakeupFdSend_ = sockets::createOrDie();
 
-    //WindowsÉÏĞèÒª´´½¨Ò»¶Ôsocket  
+    //Windowsä¸Šéœ€è¦åˆ›å»ºä¸€å¯¹socket  
     struct sockaddr_in bindaddr;
     bindaddr.sin_family = AF_INET;
     bindaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    //½«portÉèÎª0£¬È»ºó½øĞĞbind£¬ÔÙ½Ó×ÅÍ¨¹ıgetsocknameÀ´»ñÈ¡port£¬Õâ¿ÉÒÔÂú×ã»ñÈ¡Ëæ»ú¶Ë¿ÚµÄÇé¿ö¡£
+    //å°†portè®¾ä¸º0ï¼Œç„¶åè¿›è¡Œbindï¼Œå†æ¥ç€é€šè¿‡getsocknameæ¥è·å–portï¼Œè¿™å¯ä»¥æ»¡è¶³è·å–éšæœºç«¯å£çš„æƒ…å†µã€‚
     bindaddr.sin_port = 0;
     sockets::setReuseAddr(wakeupFdListen_, true);
     sockets::bindOrDie(wakeupFdListen_, bindaddr);
@@ -290,7 +290,7 @@ bool EventLoop::createWakeupfd()
     int serveraddrlen = sizeof(serveraddr);
     if (getsockname(wakeupFdListen_, (sockaddr*)& serveraddr, &serveraddrlen) < 0)
     {
-        //ÈÃ³ÌĞò¹Òµô
+        //è®©ç¨‹åºæŒ‚æ‰
         LOGF("Unable to bind address info, EventLoop: 0x%x", this);
         return false;
     }
@@ -303,7 +303,7 @@ bool EventLoop::createWakeupfd()
     //serveraddr.sin_port = htons(INNER_WAKEUP_LISTEN_PORT);   
     if (::connect(wakeupFdSend_, (struct sockaddr*) & serveraddr, sizeof(serveraddr)) < 0)
     {
-        //ÈÃ³ÌĞò¹Òµô
+        //è®©ç¨‹åºæŒ‚æ‰
         LOGF("Unable to connect to wakeup peer, EventLoop: 0x%x", this);
         return false;
     }
@@ -313,7 +313,7 @@ bool EventLoop::createWakeupfd()
     wakeupFdRecv_ = ::accept(wakeupFdListen_, (struct sockaddr*) & clientaddr, &clientaddrlen);
     if (wakeupFdRecv_ < 0)
     {
-        //ÈÃ³ÌĞò¹Òµô
+        //è®©ç¨‹åºæŒ‚æ‰
         LOGF("Unable to accept wakeup peer, EventLoop: 0x%x", this);
         return false;
     }
@@ -322,11 +322,11 @@ bool EventLoop::createWakeupfd()
     sockets::setNonBlockAndCloseOnExec(wakeupFdRecv_);
 
 #else
-    //LinuxÉÏÒ»¸öeventfd¾Í¹»ÁË£¬¿ÉÒÔÊµÏÖ¶ÁĞ´
+    //Linuxä¸Šä¸€ä¸ªeventfdå°±å¤Ÿäº†ï¼Œå¯ä»¥å®ç°è¯»å†™
     wakeupFd_ = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (wakeupFd_ < 0)
     {
-        //ÈÃ³ÌĞò¹Òµô
+        //è®©ç¨‹åºæŒ‚æ‰
         LOGF("Unable to create wakeup eventfd, EventLoop: 0x%x", this);
         return false;
     }
@@ -413,7 +413,7 @@ void EventLoop::doPendingFunctors()
 
 void EventLoop::printActiveChannels() const
 {
-    //TODO: ¸Ä³Éfor-each Óï·¨
+    //TODO: æ”¹æˆfor-each è¯­æ³•
     for (ChannelList::const_iterator it = activeChannels_.begin(); it != activeChannels_.end(); ++it)
     {
         const Channel* ch = *it;

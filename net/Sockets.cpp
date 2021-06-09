@@ -103,7 +103,7 @@ void Socket::setReusePort(bool on)
 void Socket::setKeepAlive(bool on)
 {
 #ifdef WIN32
-    //TODO: ²¹È«WindowsµÄĞ´·¨
+    //TODO: è¡¥å…¨Windowsçš„å†™æ³•
 #else
     int optval = on ? 1 : 0;
     ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE, &optval, static_cast<socklen_t>(sizeof optval));
@@ -181,7 +181,7 @@ SOCKET sockets::createNonblockingOrDie()
 void sockets::setNonBlockAndCloseOnExec(SOCKET sockfd)
 {
 #ifdef WIN32
-    //½«socketÉèÖÃ³É·Ç×èÈûµÄ
+    //å°†socketè®¾ç½®æˆéé˜»å¡çš„
     unsigned long on = 1;
     ::ioctlsocket(sockfd, FIONBIO, &on);
 #else
@@ -284,7 +284,7 @@ void sockets::setReuseAddr(SOCKET sockfd, bool on)
 
 void sockets::setReusePort(SOCKET sockfd, bool on)
 {
-    //Windows ÏµÍ³Ã»ÓĞ SO_REUSEPORT Ñ¡Ïî
+    //Windows ç³»ç»Ÿæ²¡æœ‰ SO_REUSEPORT é€‰é¡¹
 #ifndef WIN32
     int optval = on ? 1 : 0;
     int ret = ::setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &optval, static_cast<socklen_t>(sizeof optval));
@@ -375,7 +375,7 @@ void sockets::toIp(char* buf, size_t size, const struct sockaddr_in& addr)
 void sockets::fromIpPort(const char* ip, uint16_t port, struct sockaddr_in* addr)
 {
     addr->sin_family = AF_INET;
-    //TODO: Ğ£ÑéÏÂĞ´µÄ¶Ô²»¶Ô
+    //TODO: æ ¡éªŒä¸‹å†™çš„å¯¹ä¸å¯¹
 #ifdef WIN32
     addr->sin_port = htons(port);
 #else

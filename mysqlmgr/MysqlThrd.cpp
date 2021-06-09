@@ -61,7 +61,7 @@ bool CMysqlThrd::init()
         return true;
     }
 
-    // 启动线程
+    // 脝么露炉脧脽鲁脤
 	m_pThread.reset(new std::thread(std::bind(&CMysqlThrd::mainLoop, this)));
 
 	{

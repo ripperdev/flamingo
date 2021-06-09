@@ -62,7 +62,7 @@ namespace net
 			messageCallback_ = cb;
 		}
 
-        //ÉèÖÃ³É¹¦·¢ÍêÊı¾İÖ´ĞĞµÄ»Øµ÷
+        //è®¾ç½®æˆåŠŸå‘å®Œæ•°æ®æ‰§è¡Œçš„å›è°ƒ
 		void setWriteCompleteCallback(const WriteCompleteCallback& cb)
 		{
 			writeCompleteCallback_ = cb;

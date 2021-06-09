@@ -1,7 +1,7 @@
-1¡¢¹Ø±Õ·À»ğÇ½£ºsudo systemctl stop firewalld.service
-2¡¢¹Ø±Õ¿ª»úÆô¶¯£ºsudo systemctl disable firewalld.service
-3¡¢°²×°iptables·À»ğÇ½
-Ö´ĞĞÒÔÏÂÃüÁî°²×°iptables·À»ğÇ½£ºsudo yum install iptables-services
-4¡¢ÅäÖÃiptables·À»ğÇ½£¬´ò¿ªÖ¸¶¨¶Ë¿Ú£¨¾ßÌå¸úÒÔÇ°°æ±¾Ò»Ñù£¬ÍøÉÏ½éÉÜºÜ¶à£¬ÕâÀï²»¶à½éÉÜÁË£©
-5. ÉèÖÃiptables·À»ğÇ½¿ª»úÆô¶¯£ºsudo systemctl enable iptables
+1ã€å…³é—­é˜²ç«å¢™ï¼šsudo systemctl stop firewalld.service
+2ã€å…³é—­å¼€æœºå¯åŠ¨ï¼šsudo systemctl disable firewalld.service
+3ã€å®‰è£…iptablesé˜²ç«å¢™
+æ‰§è¡Œä»¥ä¸‹å‘½ä»¤å®‰è£…iptablesé˜²ç«å¢™ï¼šsudo yum install iptables-services
+4ã€é…ç½®iptablesé˜²ç«å¢™ï¼Œæ‰“å¼€æŒ‡å®šç«¯å£ï¼ˆå…·ä½“è·Ÿä»¥å‰ç‰ˆæœ¬ä¸€æ ·ï¼Œç½‘ä¸Šä»‹ç»å¾ˆå¤šï¼Œè¿™é‡Œä¸å¤šä»‹ç»äº†ï¼‰
+5. è®¾ç½®iptablesé˜²ç«å¢™å¼€æœºå¯åŠ¨ï¼šsudo systemctl enable iptables
 

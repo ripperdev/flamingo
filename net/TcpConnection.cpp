@@ -144,7 +144,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
     if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
     {
         nwrote = sockets::write(channel_->fd(), data, len);
-        //TODO: ´òÓ¡threadidÓÃÓÚµ÷ÊÔ£¬ºóÃæÈ¥µô
+        //TODO: æ‰“å°threadidç”¨äºè°ƒè¯•ï¼Œåé¢å»æ‰
         //std::stringstream ss;
         //ss << std::this_thread::get_id();
         //LOGI << "send data in threadID = " << ss;
@@ -285,14 +285,14 @@ void TcpConnection::connectEstablished()
     loop_->assertInLoopThread();
     if (state_ != kConnecting)
     {
-        //Ò»¶¨²»ÄÜ×ßÕâ¸ö·ÖÖ§
+        //ä¸€å®šä¸èƒ½èµ°è¿™ä¸ªåˆ†æ”¯
         return;
     }
         
     setState(kConnected);
     channel_->tie(shared_from_this());
 
-    //¼ÙÈçÕıÔÚÖ´ĞĞÕâĞĞ´úÂëÊ±£¬¶Ô¶Ë¹Ø±ÕÁËÁ¬½Ó
+    //å‡å¦‚æ­£åœ¨æ‰§è¡Œè¿™è¡Œä»£ç æ—¶ï¼Œå¯¹ç«¯å…³é—­äº†è¿æ¥
     if (!channel_->enableReading())
     {
         LOGE("enableReading failed.");
@@ -301,7 +301,7 @@ void TcpConnection::connectEstablished()
         return;
     }
 
-    //connectionCallback_Ö¸Ïòvoid XXServer::OnConnection(const std::shared_ptr<TcpConnection>& conn)
+    //connectionCallback_æŒ‡å‘void XXServer::OnConnection(const std::shared_ptr<TcpConnection>& conn)
     connectionCallback_(shared_from_this());
 }
 
@@ -325,7 +325,7 @@ void TcpConnection::handleRead(Timestamp receiveTime)
     int32_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
     if (n > 0)
     {
-        //messageCallback_Ö¸ÏòCTcpSession::OnRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receiveTime)
+        //messageCallback_æŒ‡å‘CTcpSession::OnRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receiveTime)
         messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
     }
     else if (n == 0)
@@ -381,9 +381,9 @@ void TcpConnection::handleWrite()
 
 void TcpConnection::handleClose()
 {
-    //ÔÚLinuxÉÏµ±Ò»¸öÁ´½Ó³öÁËÎÊÌâ£¬»áÍ¬Ê±´¥·¢handleErrorºÍhandleClose
-    //ÎªÁË±ÜÃâÖØ¸´¹Ø±ÕÁ´½Ó£¬ÕâÀïÅĞ¶ÏÏÂµ±Ç°×´Ì¬
-    //ÒÑ¾­¹Ø±ÕÁË£¬Ö±½Ó·µ»Ø
+    //åœ¨Linuxä¸Šå½“ä¸€ä¸ªé“¾æ¥å‡ºäº†é—®é¢˜ï¼Œä¼šåŒæ—¶è§¦å‘handleErrorå’ŒhandleClose
+    //ä¸ºäº†é¿å…é‡å¤å…³é—­é“¾æ¥ï¼Œè¿™é‡Œåˆ¤æ–­ä¸‹å½“å‰çŠ¶æ€
+    //å·²ç»å…³é—­äº†ï¼Œç›´æ¥è¿”å›
     if (state_ == kDisconnected)
         return;
     
@@ -399,7 +399,7 @@ void TcpConnection::handleClose()
     // must be the last line
     closeCallback_(guardThis);
 
-    //Ö»´¦ÀíÒµÎñÉÏµÄ¹Ø±Õ£¬ÕæÕıµÄsocket fdÔÚTcpConnectionÎö¹¹º¯ÊıÖĞ¹Ø±Õ
+    //åªå¤„ç†ä¸šåŠ¡ä¸Šçš„å…³é—­ï¼ŒçœŸæ­£çš„socket fdåœ¨TcpConnectionææ„å‡½æ•°ä¸­å…³é—­
     //if (socket_)
     //{
     //    sockets::close(socket_->fd());
@@ -411,6 +411,6 @@ void TcpConnection::handleError()
     int err = sockets::getSocketError(channel_->fd());
     LOGE("TcpConnection::%s handleError [%d] - SO_ERROR = %s" , name_.c_str(), err , strerror(err));
 
-    //µ÷ÓÃhandleClose()¹Ø±ÕÁ¬½Ó£¬»ØÊÕChannelºÍfd
+    //è°ƒç”¨handleClose()å…³é—­è¿æ¥ï¼Œå›æ”¶Channelå’Œfd
     handleClose();
 }

@@ -108,19 +108,19 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
 	//eventHandling_ = true;
     /*
-    XPOLLIN £¬¶ÁÊÂ¼þ
-    XPOLLPRI£¬¶ÁÊÂ¼þ£¬µ«±íÊ¾½ô¼±Êý¾Ý£¬ÀýÈçtcp socketµÄ´øÍâÊý¾Ý
-    POLLRDNORM , ¶ÁÊÂ¼þ£¬±íÊ¾ÓÐÆÕÍ¨Êý¾Ý¿É¶Á¡¡¡¡¡¡
-    POLLRDBAND ,¡¡¶ÁÊÂ¼þ£¬±íÊ¾ÓÐÓÅÏÈÊý¾Ý¿É¶Á¡¡¡¡¡¡¡¡
-    XPOLLOUT£¬Ð´ÊÂ¼þ
-    POLLWRNORM , Ð´ÊÂ¼þ£¬±íÊ¾ÓÐÆÕÍ¨Êý¾Ý¿ÉÐ´
-    POLLWRBAND ,¡¡Ð´ÊÂ¼þ£¬±íÊ¾ÓÐÓÅÏÈÊý¾Ý¿ÉÐ´¡¡¡¡¡¡   ¡¡¡¡¡¡¡¡
-    XPOLLRDHUP (since Linux 2.6.17)£¬Stream socketµÄÒ»¶Ë¹Ø±ÕÁËÁ¬½Ó£¨×¢ÒâÊÇstream socket£¬ÎÒÃÇÖªµÀ»¹ÓÐraw socket,dgram socket£©£¬»òÕßÊÇÐ´¶Ë¹Ø±ÕÁËÁ¬½Ó£¬Èç¹ûÒªÊ¹ÓÃÕâ¸öÊÂ¼þ£¬±ØÐë¶¨Òå_GNU_SOURCE ºê¡£Õâ¸öÊÂ¼þ¿ÉÒÔÓÃÀ´ÅÐ¶ÏÁ´Â·ÊÇ·ñ·¢ÉúÒì³££¨µ±È»¸üÍ¨ÓÃµÄ·½·¨ÊÇÊ¹ÓÃÐÄÌø»úÖÆ£©¡£ÒªÊ¹ÓÃÕâ¸öÊÂ¼þ£¬µÃÕâÑù°üº¬Í·ÎÄ¼þ£º
-    ¡¡¡¡#define _GNU_SOURCE
-      ¡¡¡¡#include <poll.h>
-    XPOLLERR£¬½öÓÃÓÚÄÚºËÉèÖÃ´«³ö²ÎÊýrevents£¬±íÊ¾Éè±¸·¢Éú´íÎó
-    XPOLLHUP£¬½öÓÃÓÚÄÚºËÉèÖÃ´«³ö²ÎÊýrevents£¬±íÊ¾Éè±¸±»¹ÒÆð£¬Èç¹ûpoll¼àÌýµÄfdÊÇsocket£¬±íÊ¾Õâ¸ösocket²¢Ã»ÓÐÔÚÍøÂçÉÏ½¨Á¢Á¬½Ó£¬±ÈÈçËµÖ»µ÷ÓÃÁËsocket()º¯Êý£¬µ«ÊÇÃ»ÓÐ½øÐÐconnect¡£
-    XPOLLNVAL£¬½öÓÃÓÚÄÚºËÉèÖÃ´«³ö²ÎÊýrevents£¬±íÊ¾·Ç·¨ÇëÇóÎÄ¼þÃèÊö·ûfdÃ»ÓÐ´ò¿ª
+    XPOLLIN ï¼Œè¯»äº‹ä»¶
+    XPOLLPRIï¼Œè¯»äº‹ä»¶ï¼Œä½†è¡¨ç¤ºç´§æ€¥æ•°æ®ï¼Œä¾‹å¦‚tcp socketçš„å¸¦å¤–æ•°æ®
+    POLLRDNORM , è¯»äº‹ä»¶ï¼Œè¡¨ç¤ºæœ‰æ™®é€šæ•°æ®å¯è¯»ã€€ã€€ã€€
+    POLLRDBAND ,ã€€è¯»äº‹ä»¶ï¼Œè¡¨ç¤ºæœ‰ä¼˜å…ˆæ•°æ®å¯è¯»ã€€ã€€ã€€ã€€
+    XPOLLOUTï¼Œå†™äº‹ä»¶
+    POLLWRNORM , å†™äº‹ä»¶ï¼Œè¡¨ç¤ºæœ‰æ™®é€šæ•°æ®å¯å†™
+    POLLWRBAND ,ã€€å†™äº‹ä»¶ï¼Œè¡¨ç¤ºæœ‰ä¼˜å…ˆæ•°æ®å¯å†™ã€€ã€€ã€€   ã€€ã€€ã€€ã€€
+    XPOLLRDHUP (since Linux 2.6.17)ï¼ŒStream socketçš„ä¸€ç«¯å…³é—­äº†è¿žæŽ¥ï¼ˆæ³¨æ„æ˜¯stream socketï¼Œæˆ‘ä»¬çŸ¥é“è¿˜æœ‰raw socket,dgram socketï¼‰ï¼Œæˆ–è€…æ˜¯å†™ç«¯å…³é—­äº†è¿žæŽ¥ï¼Œå¦‚æžœè¦ä½¿ç”¨è¿™ä¸ªäº‹ä»¶ï¼Œå¿…é¡»å®šä¹‰_GNU_SOURCE å®ã€‚è¿™ä¸ªäº‹ä»¶å¯ä»¥ç”¨æ¥åˆ¤æ–­é“¾è·¯æ˜¯å¦å‘ç”Ÿå¼‚å¸¸ï¼ˆå½“ç„¶æ›´é€šç”¨çš„æ–¹æ³•æ˜¯ä½¿ç”¨å¿ƒè·³æœºåˆ¶ï¼‰ã€‚è¦ä½¿ç”¨è¿™ä¸ªäº‹ä»¶ï¼Œå¾—è¿™æ ·åŒ…å«å¤´æ–‡ä»¶ï¼š
+    ã€€ã€€#define _GNU_SOURCE
+      ã€€ã€€#include <poll.h>
+    XPOLLERRï¼Œä»…ç”¨äºŽå†…æ ¸è®¾ç½®ä¼ å‡ºå‚æ•°reventsï¼Œè¡¨ç¤ºè®¾å¤‡å‘ç”Ÿé”™è¯¯
+    XPOLLHUPï¼Œä»…ç”¨äºŽå†…æ ¸è®¾ç½®ä¼ å‡ºå‚æ•°reventsï¼Œè¡¨ç¤ºè®¾å¤‡è¢«æŒ‚èµ·ï¼Œå¦‚æžœpollç›‘å¬çš„fdæ˜¯socketï¼Œè¡¨ç¤ºè¿™ä¸ªsocketå¹¶æ²¡æœ‰åœ¨ç½‘ç»œä¸Šå»ºç«‹è¿žæŽ¥ï¼Œæ¯”å¦‚è¯´åªè°ƒç”¨äº†socket()å‡½æ•°ï¼Œä½†æ˜¯æ²¡æœ‰è¿›è¡Œconnectã€‚
+    XPOLLNVALï¼Œä»…ç”¨äºŽå†…æ ¸è®¾ç½®ä¼ å‡ºå‚æ•°reventsï¼Œè¡¨ç¤ºéžæ³•è¯·æ±‚æ–‡ä»¶æè¿°ç¬¦fdæ²¡æœ‰æ‰“å¼€
     */
 	LOGD(reventsToString().c_str());
 	if ((revents_ & XPOLLHUP) && !(revents_ & XPOLLIN))
@@ -145,15 +145,15 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
     
 	if (revents_ & (XPOLLIN | XPOLLPRI | XPOLLRDHUP))
 	{
-		//µ±ÊÇÕìÌýsocketÊ±£¬readCallback_Ö¸ÏòAcceptor::handleRead
-        //µ±ÊÇ¿Í»§¶ËsocketÊ±£¬µ÷ÓÃTcpConnection::handleRead 
+		//å½“æ˜¯ä¾¦å¬socketæ—¶ï¼ŒreadCallback_æŒ‡å‘Acceptor::handleRead
+        //å½“æ˜¯å®¢æˆ·ç«¯socketæ—¶ï¼Œè°ƒç”¨TcpConnection::handleRead 
         if (readCallback_) 
             readCallback_(receiveTime);
 	}
 
 	if (revents_ & XPOLLOUT)
 	{
-		//Èç¹ûÊÇÁ¬½Ó×´Ì¬·þµÄsocket£¬ÔòwriteCallback_Ö¸ÏòConnector::handleWrite()
+		//å¦‚æžœæ˜¯è¿žæŽ¥çŠ¶æ€æœçš„socketï¼Œåˆ™writeCallback_æŒ‡å‘Connector::handleWrite()
         if (writeCallback_) 
             writeCallback_();
 	}

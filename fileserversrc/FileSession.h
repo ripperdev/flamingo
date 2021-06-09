@@ -16,11 +16,11 @@ public:
     FileSession(const FileSession& rhs) = delete;
     FileSession& operator =(const FileSession& rhs) = delete;
 
-    //ÓĞÊı¾İ¿É¶Á, »á±»¶à¸ö¹¤×÷loopµ÷ÓÃ
+    //æœ‰æ•°æ®å¯è¯», ä¼šè¢«å¤šä¸ªå·¥ä½œloopè°ƒç”¨
     void onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receivTime);   
 
 private:
-    //64Î»»úÆ÷ÉÏ£¬size_tÊÇ8¸ö×Ö½Ú
+    //64ä½æœºå™¨ä¸Šï¼Œsize_tæ˜¯8ä¸ªå­—èŠ‚
     bool process(const std::shared_ptr<TcpConnection>& conn, const char* inbuf, size_t length);
     
     bool onUploadFileResponse(const std::string& filemd5, int64_t offset, int64_t filesize, const std::string& filedata, const std::shared_ptr<TcpConnection>& conn);
@@ -30,12 +30,12 @@ private:
 
 private:
     int32_t           m_id;         //session id
-    int32_t           m_seq;        //µ±Ç°SessionÊı¾İ°üĞòÁĞºÅ
+    int32_t           m_seq;        //å½“å‰Sessionæ•°æ®åŒ…åºåˆ—å·
 
-    //µ±Ç°ÎÄ¼şĞÅÏ¢
+    //å½“å‰æ–‡ä»¶ä¿¡æ¯
     FILE*             m_fp{};
-    int64_t           m_currentDownloadFileOffset{};    //µ±Ç°ÔÚÕıÏÂÔØµÄÎÄ¼şµÄÆ«ÒÆÁ¿
-    int64_t           m_currentDownloadFileSize{};      //µ±Ç°ÔÚÕıÏÂÔØµÄÎÄ¼şµÄ´óĞ¡(ÏÂÔØÍê³ÉÒÔºó×îºÃÖÃ0)
-    std::string       m_strFileBaseDir;                 //ÎÄ¼şÄ¿Â¼
-    bool              m_bFileUploading;                 //ÊÇ·ñ´¦ÓÚÕıÔÚÉÏ´«ÎÄ¼şµÄ¹ı³ÌÖĞ
+    int64_t           m_currentDownloadFileOffset{};    //å½“å‰åœ¨æ­£ä¸‹è½½çš„æ–‡ä»¶çš„åç§»é‡
+    int64_t           m_currentDownloadFileSize{};      //å½“å‰åœ¨æ­£ä¸‹è½½çš„æ–‡ä»¶çš„å¤§å°(ä¸‹è½½å®Œæˆä»¥åæœ€å¥½ç½®0)
+    std::string       m_strFileBaseDir;                 //æ–‡ä»¶ç›®å½•
+    bool              m_bFileUploading;                 //æ˜¯å¦å¤„äºæ­£åœ¨ä¸Šä¼ æ–‡ä»¶çš„è¿‡ç¨‹ä¸­
 };

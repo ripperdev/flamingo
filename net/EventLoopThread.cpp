@@ -60,7 +60,7 @@ void EventLoopThread::threadFunc()
 	}
 
 	{
-		//一个一个的线程创建
+		//涓�涓竴涓殑绾跨▼鍒涘缓
         std::unique_lock<std::mutex> lock(mutex_);
 		loop_ = &loop;
 		cond_.notify_all();

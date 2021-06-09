@@ -15,12 +15,12 @@ struct OnlineUserInfo
     std::string username;
     std::string nickname;
     std::string password;
-    int32_t     clienttype;     //¿Í»§¶ËÀàĞÍ, 0Î´Öª, pc=1, android/ios=2
-    int32_t     status;         //ÔÚÏß×´Ì¬ 0ÀëÏß 1ÔÚÏß 2Ã¦Âµ 3Àë¿ª 4ÒşÉí
+    int32_t     clienttype;     //å®¢æˆ·ç«¯ç±»å‹, 0æœªçŸ¥, pc=1, android/ios=2
+    int32_t     status;         //åœ¨çº¿çŠ¶æ€ 0ç¦»çº¿ 1åœ¨çº¿ 2å¿™ç¢Œ 3ç¦»å¼€ 4éšèº«
 };
 
 /**
- * ÁÄÌì»á»°Àà
+ * èŠå¤©ä¼šè¯ç±»
  */
 class ChatSession : public TcpSession
 {
@@ -31,7 +31,7 @@ public:
     ChatSession(const ChatSession& rhs) = delete;
     ChatSession& operator =(const ChatSession& rhs) = delete;
 
-    //ÓĞÊı¾İ¿É¶Á, »á±»¶à¸ö¹¤×÷loopµ÷ÓÃ
+    //æœ‰æ•°æ®å¯è¯», ä¼šè¢«å¤šä¸ªå·¥ä½œloopè°ƒç”¨
     void onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receivTime);   
     
     int32_t getSessionId()
@@ -75,18 +75,18 @@ public:
     }
 
     /**
-     *@param type È¡Öµ£º 1 ÓÃ»§ÉÏÏß£» 2 ÓÃ»§ÏÂÏß£» 3 ¸öÈËêÇ³Æ¡¢Í·Ïñ¡¢Ç©ÃûµÈĞÅÏ¢¸ü¸Ä
+     *@param type å–å€¼ï¼š 1 ç”¨æˆ·ä¸Šçº¿ï¼› 2 ç”¨æˆ·ä¸‹çº¿ï¼› 3 ä¸ªäººæ˜µç§°ã€å¤´åƒã€ç­¾åç­‰ä¿¡æ¯æ›´æ”¹
      */
     void sendUserStatusChangeMsg(int32_t userid, int type, int status = 0);
 
-    //ÈÃSessionÊ§Ğ§£¬ÓÃÓÚ±»ÌßÏÂÏßµÄÓÃ»§µÄsession
+    //è®©Sessionå¤±æ•ˆï¼Œç”¨äºè¢«è¸¢ä¸‹çº¿çš„ç”¨æˆ·çš„session
     void makeSessionInvalid();
     bool isSessionValid();
 
     void enableHearbeatCheck();
     void disableHeartbeatCheck();
 
-    //¼ì²âĞÄÌø°ü£¬Èç¹ûÖ¸¶¨Ê±¼äÄÚ£¨ÏÖÔÚÊÇ30Ãë£©Î´ÊÕµ½Êı¾İ°ü£¬ÔòÖ÷¶¯¶Ï¿ªÓÚ¿Í»§¶ËµÄÁ¬½Ó
+    //æ£€æµ‹å¿ƒè·³åŒ…ï¼Œå¦‚æœæŒ‡å®šæ—¶é—´å†…ï¼ˆç°åœ¨æ˜¯30ç§’ï¼‰æœªæ”¶åˆ°æ•°æ®åŒ…ï¼Œåˆ™ä¸»åŠ¨æ–­å¼€äºå®¢æˆ·ç«¯çš„è¿æ¥
     void checkHeartbeat(const std::shared_ptr<TcpConnection>& conn);
 
 private:
@@ -113,17 +113,17 @@ private:
 
     void deleteFriend(const std::shared_ptr<TcpConnection>& conn, int32_t friendid);
 
-    //¸ù¾İÓÃ»§·Ö×éĞÅÏ¢×é×°Ó¦´ğ¸ø¿Í»§¶ËµÄºÃÓÑÁĞ±íĞÅÏ¢
+    //æ ¹æ®ç”¨æˆ·åˆ†ç»„ä¿¡æ¯ç»„è£…åº”ç­”ç»™å®¢æˆ·ç«¯çš„å¥½å‹åˆ—è¡¨ä¿¡æ¯
     void makeUpFriendListInfo(std::string& friendinfo, const std::shared_ptr<TcpConnection>& conn);
 
-    //½«ÁÄÌìÏûÏ¢µÄ±¾µØÊ±¼ä¸Ä³É·şÎñÆ÷Ê±¼ä£¬ĞŞ¸Ä³É¹¦·µ»Øtrue,Ê§°Ü·µ»Øfalse¡£
+    //å°†èŠå¤©æ¶ˆæ¯çš„æœ¬åœ°æ—¶é—´æ”¹æˆæœåŠ¡å™¨æ—¶é—´ï¼Œä¿®æ”¹æˆåŠŸè¿”å›true,å¤±è´¥è¿”å›falseã€‚
     bool modifyChatMsgLocalTimeToServerTime(const std::string& chatInputJson, std::string& chatOutputJson);
 
 private:
     int32_t           m_id;                 //session id
     OnlineUserInfo    m_userinfo;
-    int32_t           m_seq;                //µ±Ç°SessionÊı¾İ°üĞòÁĞºÅ
-    bool              m_isLogin;            //µ±Ç°Session¶ÔÓ¦µÄÓÃ»§ÊÇ·ñÒÑ¾­µÇÂ¼
-    time_t            m_lastPackageTime;    //ÉÏÒ»´ÎÊÕ·¢°üµÄÊ±¼ä
-    TimerId           m_checkOnlineTimerId; //¼ì²âÊÇ·ñÔÚÏßµÄ¶¨Ê±Æ÷id
+    int32_t           m_seq;                //å½“å‰Sessionæ•°æ®åŒ…åºåˆ—å·
+    bool              m_isLogin;            //å½“å‰Sessionå¯¹åº”çš„ç”¨æˆ·æ˜¯å¦å·²ç»ç™»å½•
+    time_t            m_lastPackageTime;    //ä¸Šä¸€æ¬¡æ”¶å‘åŒ…çš„æ—¶é—´
+    TimerId           m_checkOnlineTimerId; //æ£€æµ‹æ˜¯å¦åœ¨çº¿çš„å®šæ—¶å™¨id
 };

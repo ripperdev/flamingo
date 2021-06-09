@@ -82,7 +82,7 @@ void Connector::connect()
         connecting(sockfd);
     else
     {
-        //TODO: 确定下是否要关闭
+        //TODO: 纭畾涓嬫槸鍚﹁鍏抽棴
         retry(sockfd);
         sockets::close(sockfd);
     }
@@ -187,7 +187,7 @@ void Connector::handleWrite()
             setState(kConnected);
             if (connect_)
             {
-                //newConnectionCallback_指向TcpClient::newConnection(int sockfd)
+                //newConnectionCallback_鎸囧悜TcpClient::newConnection(int sockfd)
                 newConnectionCallback_(sockfd);
             }
             else
@@ -228,7 +228,7 @@ void Connector::retry(int sockfd)
         //loop_->runAfter(retryDelayMs_/1000.0,
         //                std::bind(&Connector::startInLoop, shared_from_this()));
         //retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
-        //定时器重试， todo
+        //瀹氭椂鍣ㄩ噸璇曪紝 todo
     }
     else
     {

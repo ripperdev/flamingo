@@ -28,7 +28,7 @@ namespace net
         /// repeats if @c interval > 0.0.
         ///
         /// Must be thread safe. Usually be called from other threads.
-        //interval��λ��΢��
+        //intervalµ¥Î»ÊÇÎ¢Ãî
         TimerId addTimer(const TimerCallback& cb, Timestamp when, int64_t interval, int64_t repeatCount);
 
         TimerId addTimer(TimerCallback&& cb, Timestamp when, int64_t interval, int64_t repeatCount);

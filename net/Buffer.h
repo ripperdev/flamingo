@@ -200,7 +200,7 @@ namespace net
 
 		void append(const char* /*restrict*/ data, size_t len)
 		{
-			//ÆäÊµÏàµ±ÓÚ°ÑÒÑÓĞÊı¾İÍùÇ°Å²¶¯
+			//å…¶å®ç›¸å½“äºæŠŠå·²æœ‰æ•°æ®å¾€å‰æŒªåŠ¨
             ensureWritableBytes(len);
 			std::copy(data, data + len, beginWrite());
 			hasWritten(len);
@@ -213,7 +213,7 @@ namespace net
 
 		bool ensureWritableBytes(size_t len)
 		{
-			//Ê£ÏÂµÄ¿ÉĞ´¿Õ¼äÈç¹ûĞ¡ÓÚĞèÒªµÄ¿Õ¼älen£¬ÔòÔö¼Ólen³¤¶È¸ö¿Õ¼ä
+			//å‰©ä¸‹çš„å¯å†™ç©ºé—´å¦‚æœå°äºéœ€è¦çš„ç©ºé—´lenï¼Œåˆ™å¢åŠ lené•¿åº¦ä¸ªç©ºé—´
             if (writableBytes() < len)
 			{
 				makeSpace(len);
@@ -439,7 +439,7 @@ namespace net
 
 		void makeSpace(size_t len)
 		{
-			//kCheapPrependÎª±£ÁôµÄ¿Õ¼ä
+			//kCheapPrependä¸ºä¿ç•™çš„ç©ºé—´
             if (writableBytes() + prependableBytes() < len + kCheapPrepend)
 			{
 				// FIXME: move readable data

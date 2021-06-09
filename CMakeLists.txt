@@ -9,14 +9,14 @@ link_directories(
 	/usr/lib64/mysql/
 )
 
-# ÍÆ¼öÊ¹ÓÃ CentOS 7.0 ¼°ÒÔÉÏÏµÍ³
-# CentOS 7.0 ¼°ÒÔÉÏÏµÍ³Ä¬ÈÏ°²×°µÄÊÇmariadb£¬°²×°·½·¨
+# æ¨èä½¿ç”¨ CentOS 7.0 åŠä»¥ä¸Šç³»ç»Ÿ
+# CentOS 7.0 åŠä»¥ä¸Šç³»ç»Ÿé»˜è®¤å®‰è£…çš„æ˜¯mariadbï¼Œå®‰è£…æ–¹æ³•
 # yum install mariadb-server mariadb mariadb-devel
-# CentOS 7.0 ÒÔÏÂÏµÍ³Ä¬ÈÏ°²×°mysql£¬°²×°·½·¨£º
+# CentOS 7.0 ä»¥ä¸‹ç³»ç»Ÿé»˜è®¤å®‰è£…mysqlï¼Œå®‰è£…æ–¹æ³•ï¼š
 # yum install mysql-server mysql mysql-devel
 
 find_library(MYSQL_LIB libmysqlclient.so /usr/lib64/mysql/)
-#Èç¹ûÄãµÄÊı¾İ¿âÊÇmariadb£¬Äã»¹ĞèÒª°²×°mariadb-devel¿â£»Èç¹ûÄãµÄÊı¾İ¿âÊÇmysql£¬ÄãĞèÒª°²×°mysql-devel£¬·ñÔò»á³öÏÖÈçÏÂ´íÎóÌáÊ¾¡£
+#å¦‚æœä½ çš„æ•°æ®åº“æ˜¯mariadbï¼Œä½ è¿˜éœ€è¦å®‰è£…mariadb-develåº“ï¼›å¦‚æœä½ çš„æ•°æ®åº“æ˜¯mysqlï¼Œä½ éœ€è¦å®‰è£…mysql-develï¼Œå¦åˆ™ä¼šå‡ºç°å¦‚ä¸‹é”™è¯¯æç¤ºã€‚
 IF (NOT MYSQL_LIB)
     MESSAGE(FATAL_ERROR "mysqlclient not found. If your mysql is mariadb, please install mariadb-devel otherwise install mysql-devel.")
 ENDIF(NOT MYSQL_LIB)
@@ -122,7 +122,7 @@ fileserversrc/TcpSession.cpp)
 
 
 add_executable(chatserver ${net_srcs} ${json_srcs}  ${chatserver_srcs} ${mysqlapi_srcs} ${mysqlmgr_srcs} ${zlib_srcs} ${utils_srcs})
-#¹â°üº¬¿âÄ¿Â¼ÊÇÃ»ÓÃµÄ£¬»¹±ØĞëÊ¹ÓÃTARGET_LINK_LIBRARIESÁ´½Ó¸Ã¿â
+#å…‰åŒ…å«åº“ç›®å½•æ˜¯æ²¡ç”¨çš„ï¼Œè¿˜å¿…é¡»ä½¿ç”¨TARGET_LINK_LIBRARIESé“¾æ¥è¯¥åº“
 TARGET_LINK_LIBRARIES(chatserver mysqlclient)
 
 add_executable(fileserver ${net_srcs}  ${fileserver_srcs} ${utils_srcs})

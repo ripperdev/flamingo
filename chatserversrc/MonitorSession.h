@@ -1,5 +1,5 @@
 /**
- * ¼à¿Ø»á»°Àà, MonitorSession.h
+ * ç›‘æ§ä¼šè¯ç±», MonitorSession.h
  * zhangyl 2017.03.09
  */
 #ifndef __MONITOR_SESSION_H__
@@ -21,7 +21,7 @@ public:
     MonitorSession& operator =(const MonitorSession& rhs) = delete;
 
 public:
-    //ÓĞÊı¾İ¿É¶Á, »á±»¶à¸ö¹¤×÷loopµ÷ÓÃ
+    //æœ‰æ•°æ®å¯è¯», ä¼šè¢«å¤šä¸ªå·¥ä½œloopè°ƒç”¨
     void onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBuffer, Timestamp receivTime);
 
     std::shared_ptr<TcpConnection> getConnectionPtr()

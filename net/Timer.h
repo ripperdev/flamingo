@@ -46,9 +46,9 @@ namespace net
         const TimerCallback         callback_;
         Timestamp                   expiration_;
         const int64_t               interval_;
-        int64_t                     repeatCount_;       //ÖØ¸´´ÎÊı£¬-1 ±íÊ¾Ò»Ö±ÖØ¸´ÏÂÈ¥
+        int64_t                     repeatCount_;       //é‡å¤æ¬¡æ•°ï¼Œ-1 è¡¨ç¤ºä¸€ç›´é‡å¤ä¸‹å»
         const int64_t               sequence_;
-        bool                        canceled_;          //ÊÇ·ñ´¦ÓÚÈ¡Ïû×´Ì¬
+        bool                        canceled_;          //æ˜¯å¦å¤„äºå–æ¶ˆçŠ¶æ€
 
         static std::atomic<int64_t> s_numCreated_;
     };

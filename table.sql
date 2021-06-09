@@ -1,62 +1,62 @@
-//ÓÃ»§ĞÅÏ¢±í
+//ç”¨æˆ·ä¿¡æ¯è¡¨
 CREATE TABLE IF NOT EXISTS  t_user  (
-         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT '×ÔÔöID',
-		 f_user_id  bigint(20) NOT NULL COMMENT 'ÓÃ»§ID',
-		 f_username  varchar(64) NOT NULL COMMENT 'ÓÃ»§Ãû',
-         f_nickname  varchar(64) NOT NULL COMMENT 'ÓÃ»§êÇ³Æ',
-         f_password  varchar(64) DEFAULT NULL COMMENT 'ÓÃ»§ÃÜÂë',
-		 f_facetype  int(10) DEFAULT 0 COMMENT 'ÓÃ»§Í·ÏñÀàĞÍ',
-		 f_customface  varchar(32) DEFAULT NULL COMMENT '×Ô¶¨ÒåÍ·ÏñÃû',
-		 f_customfacefmt  varchar(6) DEFAULT NULL COMMENT '×Ô¶¨ÒåÍ·Ïñ¸ñÊ½',
-		 f_gender  int(2) DEFAULT 0 COMMENT 'ĞÔ±ğ',
-		 f_birthday  bigint(20) DEFAULT 19900101 COMMENT 'ÉúÈÕ',
-		 f_signature  varchar(256) DEFAULT NULL COMMENT '¸öĞÔÇ©Ãû',
-		 f_address  varchar(256) DEFAULT NULL COMMENT 'µØÖ·',
-		 f_phonenumber  varchar(64) DEFAULT NULL COMMENT 'µç»°',
-		 f_mail  varchar(256) DEFAULT NULL COMMENT 'ÓÊÏä',
-         f_register_time  datetime NOT NULL COMMENT '×¢²áÊ±¼ä',
-		 f_owner_id  bigint(20) DEFAULT 0 COMMENT 'ÈºÕËºÅÈºÖ÷userid',
-         f_remark  varchar(64) DEFAULT NULL COMMENT '±¸×¢',
-         f_update_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üĞÂÊ±¼ä',
-         f_teaminfo blob DEFAULT NULL COMMENT 'ºÃÓÑ·Ö×éĞÅÏ¢',       
+         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'è‡ªå¢ID',
+		 f_user_id  bigint(20) NOT NULL COMMENT 'ç”¨æˆ·ID',
+		 f_username  varchar(64) NOT NULL COMMENT 'ç”¨æˆ·å',
+         f_nickname  varchar(64) NOT NULL COMMENT 'ç”¨æˆ·æ˜µç§°',
+         f_password  varchar(64) DEFAULT NULL COMMENT 'ç”¨æˆ·å¯†ç ',
+		 f_facetype  int(10) DEFAULT 0 COMMENT 'ç”¨æˆ·å¤´åƒç±»å‹',
+		 f_customface  varchar(32) DEFAULT NULL COMMENT 'è‡ªå®šä¹‰å¤´åƒå',
+		 f_customfacefmt  varchar(6) DEFAULT NULL COMMENT 'è‡ªå®šä¹‰å¤´åƒæ ¼å¼',
+		 f_gender  int(2) DEFAULT 0 COMMENT 'æ€§åˆ«',
+		 f_birthday  bigint(20) DEFAULT 19900101 COMMENT 'ç”Ÿæ—¥',
+		 f_signature  varchar(256) DEFAULT NULL COMMENT 'ä¸ªæ€§ç­¾å',
+		 f_address  varchar(256) DEFAULT NULL COMMENT 'åœ°å€',
+		 f_phonenumber  varchar(64) DEFAULT NULL COMMENT 'ç”µè¯',
+		 f_mail  varchar(256) DEFAULT NULL COMMENT 'é‚®ç®±',
+         f_register_time  datetime NOT NULL COMMENT 'æ³¨å†Œæ—¶é—´',
+		 f_owner_id  bigint(20) DEFAULT 0 COMMENT 'ç¾¤è´¦å·ç¾¤ä¸»userid',
+         f_remark  varchar(64) DEFAULT NULL COMMENT 'å¤‡æ³¨',
+         f_update_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'æ›´æ–°æ—¶é—´',
+         f_teaminfo blob DEFAULT NULL COMMENT 'å¥½å‹åˆ†ç»„ä¿¡æ¯',       
          PRIMARY KEY ( f_user_id ),
 		 INDEX f_user_id (f_user_id),
          KEY  f_id  ( f_id )
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
-//alter table t_user add f_teaminfo blob default null comment "ºÃÓÑ·Ö×éĞÅÏ¢";
+//alter table t_user add f_teaminfo blob default null comment "å¥½å‹åˆ†ç»„ä¿¡æ¯";
 //alter table t_user drop column f_teaminfo;
 
-//ÓÃ»§¹ØÏµ±í
-//ÎªÁË±ÜÃâÈßÓà£¬Ò»¶¨Òª±£Ö¤f_user_id1Ğ¡ÓÚf_user_id2
+//ç”¨æˆ·å…³ç³»è¡¨
+//ä¸ºäº†é¿å…å†—ä½™ï¼Œä¸€å®šè¦ä¿è¯f_user_id1å°äºf_user_id2
 CREATE TABLE IF NOT EXISTS  t_user_relationship  (
-         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT '×ÔÔöID',
-         f_user_id1  bigint(20) NOT NULL COMMENT 'µÚÒ»¸öÓÃ»§id',
-         f_user_id2  bigint(20) NOT NULL COMMENT 'µÚ¶ş¸öÓÃ»§id',		 
-		 f_user1_teamname VARCHAR(32) NOT NULL DEFAULT "ÎÒµÄºÃÓÑ" COMMENT "ÓÃ»§2ÔÚÓÃ»§1µÄºÃÓÑ·Ö×éÃû³Æ",
-		 f_user1_markname VARCHAR(32) COMMENT "ÓÃ»§2ÔÚÓÃ»§1µÄ±¸×¢Ãû³Æ",		 
-		 f_user2_teamname VARCHAR(32) NOT NULL DEFAULT "ÎÒµÄºÃÓÑ" COMMENT "ÓÃ»§1ÔÚÓÃ»§2µÄºÃÓÑ·Ö×éÃû³Æ",
-		 f_user2_markname VARCHAR(32) COMMENT "ÓÃ»§1ÔÚÓÃ»§2µÄ±¸×¢Ãû³Æ",
-         f_update_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üĞÂÊ±¼ä',
-         f_remark  varchar(64) DEFAULT NULL COMMENT '±¸×¢',
+         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'è‡ªå¢ID',
+         f_user_id1  bigint(20) NOT NULL COMMENT 'ç¬¬ä¸€ä¸ªç”¨æˆ·id',
+         f_user_id2  bigint(20) NOT NULL COMMENT 'ç¬¬äºŒä¸ªç”¨æˆ·id',		 
+		 f_user1_teamname VARCHAR(32) NOT NULL DEFAULT "æˆ‘çš„å¥½å‹" COMMENT "ç”¨æˆ·2åœ¨ç”¨æˆ·1çš„å¥½å‹åˆ†ç»„åç§°",
+		 f_user1_markname VARCHAR(32) COMMENT "ç”¨æˆ·2åœ¨ç”¨æˆ·1çš„å¤‡æ³¨åç§°",		 
+		 f_user2_teamname VARCHAR(32) NOT NULL DEFAULT "æˆ‘çš„å¥½å‹" COMMENT "ç”¨æˆ·1åœ¨ç”¨æˆ·2çš„å¥½å‹åˆ†ç»„åç§°",
+		 f_user2_markname VARCHAR(32) COMMENT "ç”¨æˆ·1åœ¨ç”¨æˆ·2çš„å¤‡æ³¨åç§°",
+         f_update_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'æ›´æ–°æ—¶é—´',
+         f_remark  varchar(64) DEFAULT NULL COMMENT 'å¤‡æ³¨',
          PRIMARY KEY ( f_id ),
          KEY  f_id  ( f_id )
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
-//ALTER TABLE t_user_relationship CHANGE f_create_time f_update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '¸üĞÂÊ±¼ä';		
-//alter table t_user_relationship modify f_user1_teamname varchar(32) not null default "ÎÒµÄºÃÓÑ" comment "ÓÃ»§2ÔÚÓÃ»§1µÄºÃÓÑ·Ö×éÃû³Æ";
-//alter table t_user_relationship modify f_user2_teamname varchar(32) not null default "ÎÒµÄºÃÓÑ" comment "ÓÃ»§1ÔÚÓÃ»§2µÄºÃÓÑ·Ö×éÃû³Æ";
-//alter table t_user_relationship add f_user1_markname VARCHAR(32) COMMENT "ÓÃ»§2ÔÚÓÃ»§1µÄ±¸×¢Ãû³Æ";
-//alter table t_user_relationship add f_user2_markname VARCHAR(32) COMMENT "ÓÃ»§1ÔÚÓÃ»§2µÄ±¸×¢Ãû³Æ";
+//ALTER TABLE t_user_relationship CHANGE f_create_time f_update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'æ›´æ–°æ—¶é—´';		
+//alter table t_user_relationship modify f_user1_teamname varchar(32) not null default "æˆ‘çš„å¥½å‹" comment "ç”¨æˆ·2åœ¨ç”¨æˆ·1çš„å¥½å‹åˆ†ç»„åç§°";
+//alter table t_user_relationship modify f_user2_teamname varchar(32) not null default "æˆ‘çš„å¥½å‹" comment "ç”¨æˆ·1åœ¨ç”¨æˆ·2çš„å¥½å‹åˆ†ç»„åç§°";
+//alter table t_user_relationship add f_user1_markname VARCHAR(32) COMMENT "ç”¨æˆ·2åœ¨ç”¨æˆ·1çš„å¤‡æ³¨åç§°";
+//alter table t_user_relationship add f_user2_markname VARCHAR(32) COMMENT "ç”¨æˆ·1åœ¨ç”¨æˆ·2çš„å¤‡æ³¨åç§°";
 
-//ÏûÏ¢¼ÇÂ¼±í
+//æ¶ˆæ¯è®°å½•è¡¨
 CREATE TABLE IF NOT EXISTS  t_chatmsg  (
-         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT '×ÔÔöID',
-         f_senderid  bigint(20) NOT NULL COMMENT '·¢ËÍÕßid',
-         f_targetid  bigint(20) NOT NULL COMMENT '½ÓÊÕÕßid',
-		 f_msgcontent  BLOB NOT NULL COMMENT 'ÁÄÌìÄÚÈİ',
-         f_create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '´´½¨Ê±¼ä',
-         f_remark  varchar(64) DEFAULT NULL COMMENT '±¸×¢',
+         f_id  bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'è‡ªå¢ID',
+         f_senderid  bigint(20) NOT NULL COMMENT 'å‘é€è€…id',
+         f_targetid  bigint(20) NOT NULL COMMENT 'æ¥æ”¶è€…id',
+		 f_msgcontent  BLOB NOT NULL COMMENT 'èŠå¤©å†…å®¹',
+         f_create_time  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'åˆ›å»ºæ—¶é—´',
+         f_remark  varchar(64) DEFAULT NULL COMMENT 'å¤‡æ³¨',
          PRIMARY KEY ( f_id ),
          KEY  f_id  ( f_id )
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8

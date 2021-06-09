@@ -64,7 +64,7 @@ namespace net
 		/// Safe to call from other threads.
 		void queueInLoop(const Functor& cb);
 
-        // timers£¬Ê±¼äµ¥Î»¾ùÊÇÎ¢Ãë
+        // timersï¼Œæ—¶é—´å•ä½å‡æ˜¯å¾®ç§’
         ///
         /// Runs callback at 'time'.
         /// Safe to call from other threads.
@@ -145,7 +145,7 @@ namespace net
 
         //int                                 fdpipe_[2];
 #else
-        SOCKET                              wakeupFd_;          //TODO: Õâ¸öfdÊ²Ã´Ê±ºòÊÍ·Å£¿
+        SOCKET                              wakeupFd_;          //TODO: è¿™ä¸ªfdä»€ä¹ˆæ—¶å€™é‡Šæ”¾ï¼Ÿ
 #endif
 		// unlike in TimerQueue, which is an internal class,
 		// we don't expose Channel to client.

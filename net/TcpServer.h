@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-//#include <cstdatomic> // ÀÏgccÍ·ÎÄ¼ş
+//#include <cstdatomic> // è€gccå¤´æ–‡ä»¶
 #include <map>
 #include <memory>
 //#include "EventLoop.h"
@@ -32,7 +32,7 @@ namespace net
 		TcpServer(EventLoop* loop,
 			      const InetAddress& listenAddr,
 			      const std::string& nameArg,
-			      Option option = kReusePort);      //TODO: Ä¬ÈÏĞŞ¸Ä³ÉkReusePort
+			      Option option = kReusePort);      //TODO: é»˜è®¤ä¿®æ”¹æˆkReusePort
 		~TcpServer();  // force out-line dtor, for scoped_ptr members.
 
 		const std::string& hostport() const { return hostport_; }

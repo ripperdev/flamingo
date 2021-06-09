@@ -1,4 +1,4 @@
-﻿#include "QueryResult.h"
+#include "QueryResult.h"
 #include "../base/AsyncLog.h"
 
 QueryResult::QueryResult(MYSQL_RES *result, uint64_t rowCount, uint32_t fieldCount)

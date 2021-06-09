@@ -88,7 +88,7 @@ namespace net
 		int                         index_; // used by Poller.
 		bool                        logHup_;
 
-		std::weak_ptr<void>         tie_;           //std::shared_ptr<void>/std::shared_ptr<void>¿ÉÒÔÖ¸Ïò²»Í¬µÄÊı¾İÀàĞÍ
+		std::weak_ptr<void>         tie_;           //std::shared_ptr<void>/std::shared_ptr<void>å¯ä»¥æŒ‡å‘ä¸åŒçš„æ•°æ®ç±»å‹
 		bool                        tied_;
 		//bool                        eventHandling_;
 		//bool                        addedToLoop_;

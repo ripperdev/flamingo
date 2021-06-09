@@ -103,7 +103,7 @@ bool PollPoller::updateChannel(Channel * channel)
             return false;
 
         struct pollfd& pfd = pollfds_[idx];
-        //TODO: Ϊʲô�� -channel->fd() ��
+        //TODO: 为什么是 -channel->fd() ？
         //assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd() - 1);
         pfd.events = static_cast<short>(channel->events());
         pfd.revents = 0;
@@ -135,7 +135,7 @@ void PollPoller::removeChannel(Channel * channel)
         return;
 
     const struct pollfd& pfd = pollfds_[idx]; (void)pfd;
-    //TODO: Ϊʲô�� -channel->fd()��
+    //TODO: 为什么是 -channel->fd()？
     //assert(pfd.fd == -channel->fd() - 1 && pfd.events == channel->events());
     
     size_t n = channels_.erase(channel->fd());

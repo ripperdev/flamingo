@@ -87,6 +87,6 @@ bool InetAddress::resolve(const std::string& hostname, InetAddress* out)
 	}
 
 #endif
-    //TODO: WindowsÉÏÖØĞÂÊµÏÖÒ»ÏÂ
+    //TODO: Windowsä¸Šé‡æ–°å®ç°ä¸€ä¸‹
 	return false;
 }

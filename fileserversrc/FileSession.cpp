@@ -15,7 +15,7 @@
 
 using namespace net;
 
-//ÎÄ¼ş·şÎñÆ÷×î´óµÄ°ü50M
+//æ–‡ä»¶æœåŠ¡å™¨æœ€å¤§çš„åŒ…50M
 #define MAX_PACKAGE_SIZE    50 * 1024 * 1024
 
 FileSession::FileSession(const std::shared_ptr<TcpConnection>& conn, const char* filebasedir) :
@@ -36,21 +36,21 @@ void FileSession::onRead(const std::shared_ptr<TcpConnection>& conn, Buffer* pBu
 {
     while (true)
     {
-        //²»¹»Ò»¸ö°üÍ·´óĞ¡
+        //ä¸å¤Ÿä¸€ä¸ªåŒ…å¤´å¤§å°
         if (pBuffer->readableBytes() < (size_t)sizeof(file_msg_header))
         {
             //LOGI << "buffer is not enough for a package header, pBuffer->readableBytes()=" << pBuffer->readableBytes() << ", sizeof(msg)=" << sizeof(file_msg);
             return;
         }
 
-        //²»¹»Ò»¸öÕû°ü´óĞ¡
+        //ä¸å¤Ÿä¸€ä¸ªæ•´åŒ…å¤§å°
         file_msg_header header;
         memcpy(&header, pBuffer->peek(), sizeof(file_msg_header));
 
-        //°üÍ·ÓĞ´íÎó£¬Á¢¼´¹Ø±ÕÁ¬½Ó
+        //åŒ…å¤´æœ‰é”™è¯¯ï¼Œç«‹å³å…³é—­è¿æ¥
         if (header.packagesize <= 0 || header.packagesize > MAX_PACKAGE_SIZE)
         {          
-            //¿Í»§¶Ë·¢·Ç·¨Êı¾İ°ü£¬·şÎñÆ÷Ö÷¶¯¹Ø±ÕÖ®
+            //å®¢æˆ·ç«¯å‘éæ³•æ•°æ®åŒ…ï¼ŒæœåŠ¡å™¨ä¸»åŠ¨å…³é—­ä¹‹
             LOGE("Illegal package header size: %lld, close TcpConnection, client: %s", header.packagesize, conn->peerAddress().toIpPort().c_str());
             LOG_DEBUG_BIN((unsigned char*)&header, sizeof(header));
             conn->forceClose();
@@ -127,11 +127,11 @@ bool FileSession::process(const std::shared_ptr<TcpConnection>& conn, const char
 
     switch (cmd)
     {
-        //¿Í»§¶ËÎÄ¼şÉÏ´«
+        //å®¢æˆ·ç«¯æ–‡ä»¶ä¸Šä¼ 
         case msg_type_upload_req:
             return onUploadFileResponse(filemd5, offset, filesize, filedata, conn);
 
-        //¿Í»§¶ËÎÄ¼şÏÂÔØ
+        //å®¢æˆ·ç«¯æ–‡ä»¶ä¸‹è½½
         case msg_type_download_req:
         {
             int32_t clientNetType;
@@ -141,7 +141,7 @@ bool FileSession::process(const std::shared_ptr<TcpConnection>& conn, const char
                 return false;
             }
 
-            //¶ÔÓÚÏÂÔØ£¬¿Í»§¶Ë²»ÖªµÀÎÄ¼ş´óĞ¡£¬ ËùÒÔÖµÊÇ0
+            //å¯¹äºä¸‹è½½ï¼Œå®¢æˆ·ç«¯ä¸çŸ¥é“æ–‡ä»¶å¤§å°ï¼Œ æ‰€ä»¥å€¼æ˜¯0
             //if (filedatalength != 0)
             //    return false;
             return onDownloadFileResponse(filemd5, clientNetType, conn);
@@ -168,7 +168,7 @@ bool FileSession::onUploadFileResponse(const std::string& filemd5, int64_t offse
         return false;
     }
      
-    //·şÎñÆ÷ÉÏÒÑ¾­´æÔÚ¸ÃÎÄ¼ş£¬Ö±½Ó·µ»Ø(Èç¹û¸ÃÎÄ¼şÊÇ´¦ÓÚ´ò¿ª×´Ì¬ËµÃ÷´¦ÓÚÕıÔÚÉÏ´«µÄ×´Ì¬)
+    //æœåŠ¡å™¨ä¸Šå·²ç»å­˜åœ¨è¯¥æ–‡ä»¶ï¼Œç›´æ¥è¿”å›(å¦‚æœè¯¥æ–‡ä»¶æ˜¯å¤„äºæ‰“å¼€çŠ¶æ€è¯´æ˜å¤„äºæ­£åœ¨ä¸Šä¼ çš„çŠ¶æ€)
     if (Singleton<FileManager>::Instance().isFileExsit(filemd5.c_str()) && !m_bFileUploading)
     {
         offset = filesize;      
@@ -186,8 +186,8 @@ bool FileSession::onUploadFileResponse(const std::string& filemd5, int64_t offse
     {
         std::string filename = m_strFileBaseDir;
         filename += filemd5;
-        //Õâ¸öµØ·½ÎÒ¿ªÊ¼Ê¹ÓÃµÄÊÇ¡°w¡±Ä£Ê½£¬ÕâÔÚLinuxÆ½Ì¨Ã»ÎÊÌâ£¬µ«ÔÚWindowsÉÏÒòÎªÊÇÎÄ±¾Ä£Ê½£¬fwriteº¯ÊıÔÚÓöµ½ÎÄ¼şÖĞÓĞ0x0AÊ±£¬»á×Ô¶¯²¹ÉÏ0x0D£¬Ôì³ÉÎÄ¼şÄÚÈİ³ö´í
-        //ËùÒÔ¸Ä³Éwb£¬Ê¹ÓÃ¶ş½øÖÆÄ£Ê½
+        //è¿™ä¸ªåœ°æ–¹æˆ‘å¼€å§‹ä½¿ç”¨çš„æ˜¯â€œwâ€æ¨¡å¼ï¼Œè¿™åœ¨Linuxå¹³å°æ²¡é—®é¢˜ï¼Œä½†åœ¨Windowsä¸Šå› ä¸ºæ˜¯æ–‡æœ¬æ¨¡å¼ï¼Œfwriteå‡½æ•°åœ¨é‡åˆ°æ–‡ä»¶ä¸­æœ‰0x0Aæ—¶ï¼Œä¼šè‡ªåŠ¨è¡¥ä¸Š0x0Dï¼Œé€ æˆæ–‡ä»¶å†…å®¹å‡ºé”™
+        //æ‰€ä»¥æ”¹æˆwbï¼Œä½¿ç”¨äºŒè¿›åˆ¶æ¨¡å¼
         m_fp = fopen(filename.c_str(), "wb");
         if (m_fp == NULL)
         {
@@ -195,7 +195,7 @@ bool FileSession::onUploadFileResponse(const std::string& filemd5, int64_t offse
             return false;
         }
 
-        //±êÊ¶¸ÃÎÄ¼şÕıÔÚÉÏ´«ÖĞ
+        //æ ‡è¯†è¯¥æ–‡ä»¶æ­£åœ¨ä¸Šä¼ ä¸­
         m_bFileUploading = true;
     }
     else
@@ -225,7 +225,7 @@ bool FileSession::onUploadFileResponse(const std::string& filemd5, int64_t offse
         return false;
     }
 
-    //½«ÎÄ¼şÄÚÈİË¢µ½´ÅÅÌÉÏÈ¥
+    //å°†æ–‡ä»¶å†…å®¹åˆ·åˆ°ç£ç›˜ä¸Šå»
     if (fflush(m_fp) != 0)
     {
         LOGE("fflush error, filemd5: %s, errno: %d, errinfo: %s, filedata.length(): %lld, m_fp: 0x%x, buffer size is 512*1024, client: %s",
@@ -236,7 +236,7 @@ bool FileSession::onUploadFileResponse(const std::string& filemd5, int64_t offse
 
     int32_t errorcode = file_msg_error_progress;
 
-    //ÎÄ¼şÉÏ´«³É¹¦
+    //æ–‡ä»¶ä¸Šä¼ æˆåŠŸ
     if (offset + (int64_t)filedata.length() == filesize)
     {
         offset = filesize;
@@ -268,9 +268,9 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
     
     if (!Singleton<FileManager>::Instance().isFileExsit(filemd5.c_str()))
     {
-        //¿Í»§¶ËÏÂÔØ²»´æÔÚµÄÎÄ¼ş£¬¸æËß¿Í»§¶Ë²»´æÔÚ¸ÃÎÄ¼ş
+        //å®¢æˆ·ç«¯ä¸‹è½½ä¸å­˜åœ¨çš„æ–‡ä»¶ï¼Œå‘Šè¯‰å®¢æˆ·ç«¯ä¸å­˜åœ¨è¯¥æ–‡ä»¶
         string dummyfiledata;
-        //ÎÄ¼ş²»´æÔÚ,ÔòÉèÖÃÓ¦´ğÖĞÆ«ÒÆÁ¿offsetºÍÎÄ¼ş´óĞ¡filesize¾ùÉèÖÃÎª0
+        //æ–‡ä»¶ä¸å­˜åœ¨,åˆ™è®¾ç½®åº”ç­”ä¸­åç§»é‡offsetå’Œæ–‡ä»¶å¤§å°filesizeå‡è®¾ç½®ä¸º0
         int64_t notExsitFileOffset = 0;
         int64_t notExsitFileSize = 0;
         send(msg_type_download_resp, m_seq, file_msg_error_not_exist, filemd5, notExsitFileOffset, notExsitFileSize, dummyfiledata);
@@ -286,7 +286,7 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
         return true;
     }
 
-    //ÎÄ¼ş»¹Î´´ò¿ª,ÔòÏÈ´ò¿ª
+    //æ–‡ä»¶è¿˜æœªæ‰“å¼€,åˆ™å…ˆæ‰“å¼€
     if (m_fp == NULL)
     {
         string filename = m_strFileBaseDir;
@@ -323,7 +323,7 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
     
     //m_offset += offset;
     int64_t currentSendSize = 512 * 1024;
-    //ÒÆ¶¯ÍøÂç£¬Ã¿´Î´«ËÍ64k
+    //ç§»åŠ¨ç½‘ç»œï¼Œæ¯æ¬¡ä¼ é€64k
     if (clientNetType == client_net_type_cellular)
         currentSendSize = 64 * 1024;
 
@@ -333,7 +333,7 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
         currentSendSize = m_currentDownloadFileSize - m_currentDownloadFileOffset;
     }
 
-    //TODO: Õâ¸öfread()µ÷ÓÃÊ±¿ÉÄÜ»á³öÏÖ±ÀÀ£,´ıÅÅ²é
+    //TODO: è¿™ä¸ªfread()è°ƒç”¨æ—¶å¯èƒ½ä¼šå‡ºç°å´©æºƒ,å¾…æ’æŸ¥
 	if (currentSendSize <= 0 || fread(buffer, currentSendSize, 1, m_fp) != 1)
 	{
         std::ostringstream os;
@@ -346,13 +346,13 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
         LOGE(os.str().c_str());
 	}
 
-    //½«Òª·¢ËÍµÄÆ«ÒÆÁ¿
+    //å°†è¦å‘é€çš„åç§»é‡
     int sendoffset = m_currentDownloadFileOffset;
     m_currentDownloadFileOffset += currentSendSize;
     filedata.append(buffer, currentSendSize);      
 
     int errorcode = file_msg_error_progress;
-    //ÎÄ¼şÒÑ¾­ÏÂÔØÍê³É
+    //æ–‡ä»¶å·²ç»ä¸‹è½½å®Œæˆ
     if (m_currentDownloadFileOffset == m_currentDownloadFileSize)
         errorcode = file_msg_error_complete;
 
@@ -369,7 +369,7 @@ bool FileSession::onDownloadFileResponse(const std::string& filemd5, int32_t cli
 
     LOGI(os2.str().c_str());
 
-    //ÎÄ¼şÏÂÔØ³É¹¦,ÖØÖÃÎÄ¼ş×´Ì¬
+    //æ–‡ä»¶ä¸‹è½½æˆåŠŸ,é‡ç½®æ–‡ä»¶çŠ¶æ€
     if (errorcode == file_msg_error_complete)
         resetFile();
 

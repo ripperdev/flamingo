@@ -41,7 +41,7 @@ int32_t Buffer::readFd(int fd, int* savedErrno)
 	else if (implicit_cast<size_t>(n) <= writable)
 	{
 #ifdef WIN32
-        //WindowsÆ½Ì¨ÐèÒªÊÖ¶¯°Ñ½ÓÊÕµ½µÄÊý¾Ý¼ÓÈëbufferÖÐ£¬LinuxÆ½Ì¨ÒÑ¾­ÔÚ struct iovec ÖÐÖ¸¶¨ÁË»º³åÇøÐ´ÈëÎ»ÖÃ
+        //Windowså¹³å°éœ€è¦æ‰‹åŠ¨æŠŠæŽ¥æ”¶åˆ°çš„æ•°æ®åŠ å…¥bufferä¸­ï¼ŒLinuxå¹³å°å·²ç»åœ¨ struct iovec ä¸­æŒ‡å®šäº†ç¼“å†²åŒºå†™å…¥ä½ç½®
         append(extrabuf, n);
 #else
         writerIndex_ += n;
@@ -50,10 +50,10 @@ int32_t Buffer::readFd(int fd, int* savedErrno)
 	else
 	{
 #ifdef WIN32
-		//WindowsÆ½Ì¨Ö±½Ó½«ËùÓÐµÄ×Ö½Ú·ÅÈë»º³åÇøÈ¥
+		//Windowså¹³å°ç›´æŽ¥å°†æ‰€æœ‰çš„å­—èŠ‚æ”¾å…¥ç¼“å†²åŒºåŽ»
         append(extrabuf, n);
 #else
-        //LinuxÆ½Ì¨°ÑÊ£ÏÂµÄ×Ö½Ú²¹ÉÏÈ¥
+        //Linuxå¹³å°æŠŠå‰©ä¸‹çš„å­—èŠ‚è¡¥ä¸ŠåŽ»
         writerIndex_ = buffer_.size();
         append(extrabuf, n - writable);
 #endif

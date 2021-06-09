@@ -1,4 +1,4 @@
-﻿#include "MysqlManager.h"
+#include "MysqlManager.h"
 #include <sstream>
 #include "../base/AsyncLog.h"
 #include "../base/Singleton.h"

@@ -51,7 +51,7 @@ void Acceptor::handleRead()
     {
          string hostport = peerAddr.toIpPort();
          LOGD("Accepts of %s", hostport.c_str());
-        //newConnectionCallback_实际指向TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
+        //newConnectionCallback_瀹為檯鎸囧悜TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
         if (newConnectionCallback_)
         {
             newConnectionCallback_(connfd, peerAddr);

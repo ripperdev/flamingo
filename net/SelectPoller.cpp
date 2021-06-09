@@ -44,7 +44,7 @@ Timestamp SelectPoller::poll(int timeoutMs, ChannelList* activeChannels)
     FD_ZERO(&readfds);
     FD_ZERO(&writefds);
     
-    //»ñÈ¡×î´ófd 
+    //è·å–æœ€å¤§fd 
     int maxfd = 0;
     
     int tmpfd;
@@ -98,7 +98,7 @@ void SelectPoller::fillActiveChannels(int numEvents, ChannelList* activeChannels
 {
     Channel* channel = NULL;
     bool eventTriggered = false;
-    //TODO£ºÃ¿´Î±éÀúchannels_£¬Ğ§ÂÊÌ«µÍ£¬ÄÜ·ñ¸Ä½ø£¿
+    //TODOï¼šæ¯æ¬¡éå†channels_ï¼Œæ•ˆç‡å¤ªä½ï¼Œèƒ½å¦æ”¹è¿›ï¼Ÿ
     int currentCount = 0;
     for (const auto& iter : channels_)
     {
@@ -119,7 +119,7 @@ void SelectPoller::fillActiveChannels(int numEvents, ChannelList* activeChannels
         if (eventTriggered)
         {
             activeChannels->push_back(channel);
-            //ÖØÖÃ±êÖ¾
+            //é‡ç½®æ ‡å¿—
             eventTriggered = false;
 
             ++ currentCount;
