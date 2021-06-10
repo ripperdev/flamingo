@@ -4,7 +4,7 @@
  */
 
 #include "UUIDGenerator.h"
-#include <uuid.h>
+#include <uuid/uuid.h>
 
 std::string UUIDGenerator::generate() {
     uuid_t uuid;

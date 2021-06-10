@@ -4,13 +4,13 @@
 #include <functional>
 #include <memory>
 #include <string>
-//#include "EventLoop.h"
+#include "EventLoopThread.h"
 
 namespace net {
 
     class EventLoop;
 
-    class EventLoopThread;
+//    class EventLoopThread;
 
     class EventLoopThreadPool {
     public:
