@@ -72,12 +72,12 @@ void MonitorSession::showHelp() {
 
 bool MonitorSession::showOnlineUserList(const std::string &token/* = ""*/) {
     std::list<std::shared_ptr<ChatSession>> sessions;
-    Singleton<ChatServer>::Instance().getSessions(sessions);
+    ChatServer::getMe().getSessions(sessions);
     std::ostringstream os;
     if (sessions.empty()) {
         os << "No user online.\n";
     } else {
-        MonitorServer &monitorServer = Singleton<MonitorServer>::Instance();
+        MonitorServer &monitorServer = MonitorServer::getMe();
         for (const auto &iter : sessions) {
             os << "sessionid:" << iter->getSessionId()
                << ",userid:" << iter->getUserId()
@@ -99,7 +99,7 @@ bool MonitorSession::showOnlineUserList(const std::string &token/* = ""*/) {
 }
 
 bool MonitorSession::showSpecifiedUserInfoByID(int32_t userid) {
-    UserManager &userMgr = Singleton<UserManager>::Instance();
+    UserManager &userMgr = UserManager::getMe();
     User u;
     if (userMgr.getUserInfoByUserId(userid, u)) {
         ostringstream os;
@@ -160,13 +160,13 @@ bool MonitorSession::process(const std::shared_ptr<TcpConnection> &conn, const s
 
         } else if (v[0] == g_helpInfo[3].cmd) {
             //开启日志数据包打印二进制字节
-            Singleton<ChatServer>::Instance().enableLogPackageBinary(true);
+            ChatServer::getMe().enableLogPackageBinary(true);
 
             char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));
         } else if (v[0] == g_helpInfo[4].cmd) {
             //开启日志数据包打印二进制字节
-            Singleton<ChatServer>::Instance().enableLogPackageBinary(false);
+            ChatServer::getMe().enableLogPackageBinary(false);
 
             char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));

@@ -22,7 +22,7 @@ EventLoop g_mainLoop;
 void prog_exit(int signo) {
     std::cout << "program recv signal [" << signo << "] to exit." << std::endl;
 
-    Singleton<FileServer>::Instance().uninit();
+    FileServer::getMe().uninit();
     g_mainLoop.quit();
 }
 
@@ -73,11 +73,11 @@ int main(int argc, char *argv[]) {
     CAsyncLog::init(logFileFullPath.c_str());
 
     const char *filecachedir = config.getConfigName("imgcachedir");
-    Singleton<FileManager>::Instance().init(filecachedir);
+    FileManager::getMe().init(filecachedir);
 
     const char *listenip = config.getConfigName("listenip");
     auto listenport = (short) atol(config.getConfigName("listenport"));
-    Singleton<FileServer>::Instance().init(listenip, listenport, &g_mainLoop, filecachedir);
+    FileServer::getMe().init(listenip, listenport, &g_mainLoop, filecachedir);
 
     LOGI("imgserver initialization complete, now you can use client to connect it.");
 

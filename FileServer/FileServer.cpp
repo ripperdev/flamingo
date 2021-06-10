@@ -3,14 +3,16 @@
  *  zhangyl 2017.03.17
  **/
 #include "FileServer.h"
+
+#include <memory>
 #include "../base/AsyncLog.h"
 
 bool FileServer::init(const char *ip, short port, EventLoop *loop, const char *fileBaseDir/* = "filecache/"*/) {
     m_strFileBaseDir = fileBaseDir;
 
     InetAddress addr(ip, port);
-    m_server.reset(new TcpServer(loop, addr, "ZYL-MYImgAndFileServer", TcpServer::kReusePort));
-    m_server->setConnectionCallback(std::bind(&FileServer::onConnected, this, std::placeholders::_1));
+    m_server = std::make_unique<TcpServer>(loop, addr, "ZYL-MYImgAndFileServer", TcpServer::kReusePort);
+    m_server->setConnectionCallback([this](const TcpConnectionPtr &conn) { onConnected(conn); });
     //启动侦听
     m_server->start(6);
 
@@ -22,7 +24,7 @@ void FileServer::uninit() {
         m_server->stop();
 }
 
-void FileServer::onConnected(const std::shared_ptr<TcpConnection>& conn) {
+void FileServer::onConnected(const std::shared_ptr<TcpConnection> &conn) {
     if (conn->connected()) {
         LOGI("client connected: %s", conn->peerAddress().toIpPort().c_str());
         std::shared_ptr<FileSession> spSession(new FileSession(conn, m_strFileBaseDir.c_str()));

@@ -9,6 +9,8 @@
 #include <string>
 #include <mutex>
 
+#include "base/Singleton.h"
+
 struct NotifyMsgCache {
     int32_t userid;
     std::string notifymsg;
@@ -19,7 +21,7 @@ struct ChatMsgCache {
     std::string chatmsg;
 };
 
-class MsgCacheManager final {
+class MsgCacheManager final : public Singleton<MsgCacheManager> {
 public:
     MsgCacheManager() = default;
 

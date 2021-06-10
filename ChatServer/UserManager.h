@@ -12,6 +12,8 @@
 #include <set>
 #include <atomic>
 
+#include "base/Singleton.h"
+
 using namespace std;
 
 #define GROUPID_BOUBDARY   0x0FFFFFFF
@@ -53,7 +55,7 @@ struct User {
     list<FriendInfo> friends;
 };
 
-class UserManager final {
+class UserManager final : public Singleton<UserManager> {
 public:
     UserManager() = default;
 

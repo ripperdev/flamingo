@@ -5,9 +5,9 @@
 #include "FileSession.h"
 #include <sstream>
 #include <list>
-#include "../net/ProtocolStream.h"
-#include "../base/AsyncLog.h"
-#include "../base/Singleton.h"
+#include "net/ProtocolStream.h"
+#include "base/AsyncLog.h"
+#include "base/Singleton.h"
 #include "FileMsg.h"
 #include "FileManager.h"
 
@@ -147,7 +147,7 @@ bool FileSession::onUploadFileResponse(const std::string &filemd5, int64_t offse
     }
 
     //服务器上已经存在该文件，直接返回(如果该文件是处于打开状态说明处于正在上传的状态)
-    if (Singleton<FileManager>::Instance().isFileExsit(filemd5.c_str()) && !m_bFileUploading) {
+    if (FileManager::getMe().isFileExsit(filemd5.c_str()) && !m_bFileUploading) {
         offset = filesize;
         string dummyfiledata;
         send(msg_type_upload_resp, m_seq, file_msg_error_complete, filemd5, offset, filesize, dummyfiledata);
@@ -210,7 +210,7 @@ bool FileSession::onUploadFileResponse(const std::string &filemd5, int64_t offse
     if (offset + (int64_t) filedata.length() == filesize) {
         offset = filesize;
         errorcode = file_msg_error_complete;
-        Singleton<FileManager>::Instance().addFile(filemd5.c_str());
+        FileManager::getMe().addFile(filemd5.c_str());
         resetFile();
     }
 
@@ -235,7 +235,7 @@ bool FileSession::onDownloadFileResponse(const std::string &filemd5, int32_t cli
         return false;
     }
 
-    if (!Singleton<FileManager>::Instance().isFileExsit(filemd5.c_str())) {
+    if (!FileManager::getMe().isFileExsit(filemd5.c_str())) {
         //客户端下载不存在的文件，告诉客户端不存在该文件
         string dummyfiledata;
         //文件不存在,则设置应答中偏移量offset和文件大小filesize均设置为0

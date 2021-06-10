@@ -9,9 +9,10 @@
 #include <map>
 #include <mutex>
 #include <atomic>
-#include "../net/TcpServer.h"
-#include "../net/EventLoop.h"
+#include "net/TcpServer.h"
+#include "net/EventLoop.h"
 #include "ChatSession.h"
+#include "base/Singleton.h"
 
 using namespace net;
 
@@ -30,7 +31,7 @@ struct StoredUserInfo {
     std::string nickname;
 };
 
-class ChatServer final {
+class ChatServer final : public Singleton<ChatServer> {
 public:
     ChatServer();
 
@@ -63,7 +64,7 @@ public:
 
 private:
     //新连接到来调用或连接断开，所以需要通过conn->connected()来判断，一般只在主loop里面调用
-    void onConnected(const std::shared_ptr<TcpConnection>& conn);
+    void onConnected(const std::shared_ptr<TcpConnection> &conn);
 
     //连接断开
     void onDisconnected(const std::shared_ptr<TcpConnection> &conn);

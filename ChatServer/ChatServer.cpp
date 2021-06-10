@@ -56,7 +56,7 @@ void ChatServer::onConnected(const std::shared_ptr<TcpConnection> &conn) {
 void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
     //是否有用户下线
     //bool bUserOffline = false;
-    UserManager &userManager = Singleton<UserManager>::Instance();
+    UserManager &userManager = UserManager::getMe();
 
     //TODO: 这样的代码逻辑太混乱，需要优化
     std::lock_guard<std::mutex> guard(m_sessionMutex);

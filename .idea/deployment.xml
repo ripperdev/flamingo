@@ -8,6 +8,8 @@
             <mapping deploy="/tmp/tmp.1Xevtvbl8H" local="$PROJECT_DIR$" />
           </mappings>
           <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/release" />
+            <excludedPath local="true" path="$PROJECT_DIR$/debug" />
             <excludedPath local="true" path="$PROJECT_DIR$/debug" />
             <excludedPath local="true" path="$PROJECT_DIR$/release" />
           </excludedPaths>

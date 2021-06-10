@@ -1,3 +1,5 @@
+include_directories(${PROJECT_SOURCE_DIR})
+
 set(FILE_SRC FileManager.cpp
         FileServer.cpp
         FileSession.cpp

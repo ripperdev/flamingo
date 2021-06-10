@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "DatabaseMysql.h"
+#include "Singleton.h"
 
 #define MAXCMDLEN 8192
 
@@ -35,7 +36,7 @@ struct STableInfo {
     std::string m_strKeyString;
 };
 
-class CMysqlManager {
+class CMysqlManager : public Singleton<CMysqlManager> {
 public:
     CMysqlManager();
 

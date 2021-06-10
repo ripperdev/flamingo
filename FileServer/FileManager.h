@@ -1,14 +1,12 @@
-/** 
- *  文件管理类, FileManager.h
- *  zhangyl 2017.03.17
- **/
 #pragma once
 
 #include <string>
 #include <list>
 #include <mutex>
 
-class FileManager final {
+#include "base/Singleton.h"
+
+class FileManager final : public Singleton<FileManager> {
 public:
     FileManager() = default;
 

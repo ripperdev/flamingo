@@ -1,16 +1,14 @@
-/** 
- *  文件服务器主服务类，FileServer.h
- *  zhangyl 2017.03.17
- **/
 #pragma once
 
 #include <memory>
 #include <list>
 #include <map>
 #include <mutex>
-#include "../net/TcpServer.h"
-#include "../net/EventLoop.h"
+
+#include "net/TcpServer.h"
+#include "net/EventLoop.h"
 #include "FileSession.h"
+#include "base/Singleton.h"
 
 using namespace net;
 
@@ -21,7 +19,7 @@ struct StoredUserInfo {
     std::string nickname;
 };
 
-class FileServer final {
+class FileServer final : public Singleton<FileServer> {
 public:
     FileServer() = default;
 
@@ -37,7 +35,7 @@ public:
 
 private:
     //新连接到来调用或连接断开，所以需要通过conn->connected()来判断，一般只在主loop里面调用
-    void onConnected(const std::shared_ptr<TcpConnection>& conn);
+    void onConnected(const std::shared_ptr<TcpConnection> &conn);
 
     //连接断开
     void onDisconnected(const std::shared_ptr<TcpConnection> &conn);

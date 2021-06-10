@@ -1,41 +1,27 @@
 #pragma once
 
+#include <memory>
+#include <mutex>
+
+#include "Noncopyable.h"
+
 template<typename T>
-class Singleton {
+class Singleton : public Noncopyable {
 public:
-    static T &Instance() {
-        //pthread_once(&ponce_, &Singleton::init);
-        if (nullptr == value_) {
-            value_ = new T();
-        }
-        return *value_;
+    static T &getMe() {
+        std::call_once(_flag, [&]() {
+            _instance.reset(new T());
+        });
+        return *_instance;
     }
 
 private:
-    Singleton() = default;
-
-    ~Singleton() = default;
-
-    Singleton(const Singleton &) = delete;
-
-    Singleton &operator=(const Singleton &) = delete;
-
-    static void init() {
-        value_ = new T();
-        //::atexit(destroy);
-    }
-
-    static void destroy() {
-        delete value_;
-    }
-
-private:
-    //static pthread_once_t ponce_;
-    static T *value_;
+    static std::unique_ptr<T> _instance;
+    static std::once_flag _flag;
 };
 
-//template<typename T>
-//pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
+template<typename T>
+std::unique_ptr<T> Singleton<T>::_instance;
 
 template<typename T>
-T *Singleton<T>::value_ = nullptr;
+std::once_flag Singleton<T>::_flag;

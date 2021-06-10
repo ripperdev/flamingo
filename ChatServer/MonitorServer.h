@@ -5,16 +5,18 @@
 #ifndef __MONITOR_SERVER_H__
 #define __MONITOR_SERVER_H__
 
-#include "MonitorSession.h"
 #include <memory>
 #include <mutex>
 #include <list>
+
+#include "MonitorSession.h"
+#include "base/Singleton.h"
 
 using namespace net;
 
 //class MonitorSession;
 
-class MonitorServer final {
+class MonitorServer final : public Singleton<MonitorServer> {
 public:
     MonitorServer() = default;
 

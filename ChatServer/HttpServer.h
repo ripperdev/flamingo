@@ -8,14 +8,15 @@
 #include <memory>
 #include <mutex>
 #include <list>
-#include "../net/EventLoop.h"
-#include "../net/TcpServer.h"
+#include "net/EventLoop.h"
+#include "net/TcpServer.h"
+#include "base/Singleton.h"
 
 using namespace net;
 
 class HttpSession;
 
-class HttpServer final {
+class HttpServer final : public Singleton<HttpServer> {
 public:
     HttpServer() = default;
 

@@ -39,11 +39,11 @@ void BussinessLogic::registerUser(const std::string &data, const std::shared_ptr
     //std::string retData;
     User cachedUser;
     cachedUser.userid = 0;
-    Singleton<UserManager>::Instance().getUserInfoByUsername(u.username, cachedUser);
+    UserManager::getMe().getUserInfoByUsername(u.username, cachedUser);
     if (cachedUser.userid != 0)
         retData = R"({"code": 101, "msg": "registered already"})";
     else {
-        if (!Singleton<UserManager>::Instance().addUser(u))
+        if (!UserManager::getMe().addUser(u))
             retData = R"({"code": 100, "msg": "register failed"})";
         else {
             retData = R"({"code": 0, "msg": "ok"})";
