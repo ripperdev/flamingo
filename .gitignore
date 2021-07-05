@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# ctags
+tags
+
+# Output Directory
+build
+
