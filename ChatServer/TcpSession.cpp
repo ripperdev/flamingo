@@ -5,9 +5,9 @@
 #include "TcpSession.h"
 
 #include <utility>
-#include "../base/AsyncLog.h"
-#include "../base/Singleton.h"
-#include "../net/ProtocolStream.h"
+#include "base/Logger.h"
+#include "base/Singleton.h"
+#include "net/ProtocolStream.h"
 #include "utils/ZlibUtil.h"
 #include "ChatServer.h"
 #include "Msg.h"
@@ -41,7 +41,7 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
     string srcbuf(p, length);
     string destbuf;
     if (!ZlibUtil::compressBuf(srcbuf, destbuf)) {
-        LOGE("compress buf error");
+        LOG_ERROR("compress buf error");
         return;
     }
 
@@ -51,7 +51,7 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
     header.compresssize = destbuf.length();
     header.originsize = length;
     if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
-        LOGI("Send data, header length: %d, body length: %d", sizeof(header), destbuf.length());
+        LOG_INFO("Send data, header length: {}, body length: {}", sizeof(header), destbuf.length());
     }
 
     //插入一个包头
@@ -61,7 +61,7 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
     //TODO: 这些Session和connection对象的生命周期要好好梳理一下
     if (tmpConn_.expired()) {
         //FIXME: 出现这种问题需要排查
-        LOGE("Tcp connection is destroyed , but why TcpSession is still alive ?");
+        LOG_ERROR("Tcp connection is destroyed , but why TcpSession is still alive ?");
         return;
     }
 
@@ -69,10 +69,9 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
     if (conn) {
         if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
             size_t length = strPackageData.length();
-            LOGI("Send data, package length: %d", length);
+            LOG_INFO("Send data, package length: {}", length);
             //LOG_DEBUG_BIN((unsigned char*)strPackageData.c_str(), length);
         }
-
         conn->send(strPackageData);
     }
 }

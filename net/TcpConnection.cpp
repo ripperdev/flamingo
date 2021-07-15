@@ -3,16 +3,16 @@
 #include <thread>
 #include <sstream>
 #include <utility>
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "EventLoop.h"
 
 using namespace net;
 
 void net::defaultConnectionCallback(const TcpConnectionPtr &conn) {
-    LOGD("%s -> is %s",
-         conn->localAddress().toIpPort().c_str(),
-         conn->peerAddress().toIpPort().c_str(),
-         (conn->connected() ? "UP" : "DOWN"));
+    LOG_DEBUG("{} -> is {}",
+              conn->localAddress().toIpPort().c_str(),
+              conn->peerAddress().toIpPort().c_str(),
+              (conn->connected() ? "UP" : "DOWN"));
     // do not call conn->forceClose(), because some users want to register message callback only.
 }
 
@@ -34,13 +34,13 @@ TcpConnection::TcpConnection(EventLoop *loop, string nameArg, int sockfd, const 
     channel_->setWriteCallback([this] { handleWrite(); });
     channel_->setCloseCallback([this] { handleClose(); });
     channel_->setErrorCallback([this] { handleError(); });
-    LOGD("TcpConnection::ctor[%s] at 0x%x fd=%d", name_.c_str(), this, sockfd);
+    LOG_DEBUG("TcpConnection::ctor[{}] at {} fd={}", name_.c_str(), (void*)this, sockfd);
     socket_->setKeepAlive(true);
 }
 
 TcpConnection::~TcpConnection() {
-    LOGD("TcpConnection::dtor[%s] at 0x%x fd=%d state=%s",
-         name_.c_str(), this, channel_->fd(), stateToString());
+    LOG_DEBUG("TcpConnection::dtor[{}] at {} fd={} state={}",
+         name_.c_str(), (void*)this, channel_->fd(), stateToString());
     //assert(state_ == kDisconnected);
 }
 
@@ -99,7 +99,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
     size_t remaining = len;
     bool faultError = false;
     if (state_ == kDisconnected) {
-        LOGW("disconnected, give up writing");
+        LOG_WARN("disconnected, give up writing");
         return;
     }
     // if no thing in output queue, try writing directly
@@ -118,7 +118,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
         } else {
             nwrote = 0;
             if (errno != EWOULDBLOCK) {
-                LOGSYSE("TcpConnection::sendInLoop");
+                LOG_ERROR("TcpConnection::sendInLoop");
                 if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
                 {
                     faultError = true;
@@ -235,7 +235,7 @@ void TcpConnection::connectEstablished() {
 
     //假如正在执行这行代码时，对端关闭了连接
     if (!channel_->enableReading()) {
-        LOGE("enableReading failed.");
+        LOG_ERROR("enableReading failed.");
         //setState(kDisconnected);
         handleClose();
         return;
@@ -267,7 +267,7 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
         handleClose();
     } else {
         errno = savedErrno;
-        LOGSYSE("TcpConnection::handleRead");
+        LOG_ERROR("TcpConnection::handleRead");
         handleError();
     }
 }
@@ -288,7 +288,7 @@ void TcpConnection::handleWrite() {
                 }
             }
         } else {
-            LOGSYSE("TcpConnection::handleWrite");
+            LOG_ERROR("TcpConnection::handleWrite");
             // if (state_ == kDisconnecting)
             // {
             //   shutdownInLoop();
@@ -297,7 +297,7 @@ void TcpConnection::handleWrite() {
             handleClose();
         }
     } else {
-        LOGD("Connection fd = %d  is down, no more writing", channel_->fd());
+        LOG_DEBUG("Connection fd = {}  is down, no more writing", channel_->fd());
     }
 }
 
@@ -309,7 +309,7 @@ void TcpConnection::handleClose() {
         return;
 
     loop_->assertInLoopThread();
-    LOGD("fd = %d  state = %s", channel_->fd(), stateToString());
+    LOG_DEBUG("fd = {}  state = {}", channel_->fd(), stateToString());
     //assert(state_ == kConnected || state_ == kDisconnecting);
     // we don't close fd, leave it to dtor, so we can find leaks easily.
     setState(kDisconnected);
@@ -329,7 +329,7 @@ void TcpConnection::handleClose() {
 
 void TcpConnection::handleError() {
     int err = sockets::getSocketError(channel_->fd());
-    LOGE("TcpConnection::%s handleError [%d] - SO_ERROR = %s", name_.c_str(), err, strerror(err));
+    LOG_ERROR("TcpConnection::{} handleError [{}] - SO_ERROR = {}", name_.c_str(), err, strerror(err));
 
     //调用handleClose()关闭连接，回收Channel和fd
     handleClose();

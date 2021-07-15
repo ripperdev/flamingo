@@ -1,11 +1,6 @@
-/**
- *  文件服务器和图片服务器主服务类，FileServer.cpp
- *  zhangyl 2017.03.17
- **/
 #include "FileServer.h"
 
-#include <memory>
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 
 bool FileServer::init(const char *ip, short port, EventLoop *loop, const char *fileBaseDir/* = "filecache/"*/) {
     m_strFileBaseDir = fileBaseDir;
@@ -26,11 +21,11 @@ void FileServer::uninit() {
 
 void FileServer::onConnected(const std::shared_ptr<TcpConnection> &conn) {
     if (conn->connected()) {
-        LOGI("client connected: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("client connected: {}", conn->peerAddress().toIpPort().c_str());
         std::shared_ptr<FileSession> spSession(new FileSession(conn, m_strFileBaseDir.c_str()));
-        conn->setMessageCallback(
-                std::bind(&FileSession::onRead, spSession.get(), std::placeholders::_1, std::placeholders::_2,
-                          std::placeholders::_3));
+        conn->setMessageCallback([spSession](const TcpConnectionPtr &connPtr, Buffer *buffer, Timestamp timestamp) {
+            spSession->onRead(connPtr, buffer, timestamp);
+        });
 
         std::lock_guard<std::mutex> guard(m_sessionMutex);
         m_sessions.push_back(spSession);
@@ -44,14 +39,14 @@ void FileServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
     std::lock_guard<std::mutex> guard(m_sessionMutex);
     for (auto iter = m_sessions.begin(); iter != m_sessions.end(); ++iter) {
         if ((*iter)->getConnectionPtr() == nullptr) {
-            LOGE("connection is NULL");
+            LOG_ERROR("connection is NULL");
             break;
         }
 
         //用户下线
         m_sessions.erase(iter);
         //bUserOffline = true;
-        LOGI("client disconnected: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("client disconnected: {}", conn->peerAddress().toIpPort().c_str());
         break;
     }
 }

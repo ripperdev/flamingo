@@ -4,10 +4,10 @@
  */
 #include "HttpSession.h"
 #include <sstream>
-#include "../net/EventLoopThread.h"
-#include "../base/AsyncLog.h"
-#include "../utils/StringUtil.h"
-#include "../utils/URLEncodeUtil.h"
+#include "net/EventLoopThread.h"
+#include "base/Logger.h"
+#include "utils/StringUtil.h"
+#include "utils/URLEncodeUtil.h"
 #include "ChatServer.h"
 #include "BussinessLogic.h"
 
@@ -64,7 +64,7 @@ void HttpSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
         return;
     }
 
-    LOGI("url: %s  from %s", chunk[1].c_str(), conn->peerAddress().toIpPort().c_str());
+    LOG_INFO("url:{},from:{}", chunk[1], conn->peerAddress().toIpPort());
     //inbuf = /register.do?p={%22username%22:%20%2213917043329%22,%20%22nickname%22:%20%22balloon%22,%20%22password%22:%20%22123%22}
     std::vector<string> part;
     //通过?分割成前后两端，前面是url，后面是参数
@@ -79,8 +79,8 @@ void HttpSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
     string param = part[1].substr(2);
 
     if (!process(conn, url, param)) {
-        LOGE("handle http request error, from: %s, request: %s", conn->peerAddress().toIpPort().c_str(),
-             pBuffer->retrieveAllAsString().c_str());
+        LOG_ERROR("handle http request error, from:{}, request:{}", conn->peerAddress().toIpPort(),
+                  pBuffer->retrieveAllAsString());
     }
 
     //短连接，处理完关闭连接
@@ -143,8 +143,8 @@ void HttpSession::onRegisterResponse(const std::string &data, const std::shared_
         makeupResponse(retData, response);
         conn->send(response);
 
-        LOGI("Response to client: cmd=msg_type_register, data: %s, client: %s", retData.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("Response to client: cmd=msg_type_register, data:{}, client:{}", retData,
+                 conn->peerAddress().toIpPort());
     }
 }
 

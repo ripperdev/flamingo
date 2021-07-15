@@ -1,3 +1,5 @@
+include_directories(${PROJECT_SOURCE_DIR})
+
 set(NET_SRC Acceptor.cpp
         Buffer.cpp
         Channel.cpp

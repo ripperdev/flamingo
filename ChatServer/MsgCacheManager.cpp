@@ -2,7 +2,7 @@
  *  消息缓存类， MsgCacheManager.cpp
  *  zhangyl 2017.03.16
  **/
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "MsgCacheManager.h"
 
 bool MsgCacheManager::addNotifyMsgCache(int32_t userid, const std::string &cache) {
@@ -11,7 +11,7 @@ bool MsgCacheManager::addNotifyMsgCache(int32_t userid, const std::string &cache
     nc.userid = userid;
     nc.notifymsg.append(cache.c_str(), cache.length());;
     m_listNotifyMsgCache.push_back(nc);
-    LOGI("append notify msg to cache, userid: %d, , m_mapNotifyMsgCache.size(): %d, cache length: %d", userid,
+    LOG_INFO("append notify msg to cache, userid: %d, , m_mapNotifyMsgCache.size(): %d, cache length: %d", userid,
          m_listNotifyMsgCache.size(), cache.length());
 
     //TODO: 存盘或写入数据库以防止程序崩溃丢失
@@ -29,7 +29,7 @@ void MsgCacheManager::getNotifyMsgCache(int32_t userid, std::list<NotifyMsgCache
         }
     }
 
-    LOGI("get notify msg cache, userid: %d, , m_mapNotifyMsgCache.size(): %d, cached size: %d", userid,
+    LOG_INFO("get notify msg cache, userid: {}, , m_mapNotifyMsgCache.size(): {}, cached size: {}", userid,
          m_listNotifyMsgCache.size(), cached.size());
 }
 
@@ -39,7 +39,7 @@ bool MsgCacheManager::addChatMsgCache(int32_t userid, const std::string &cache) 
     c.userid = userid;
     c.chatmsg.append(cache.c_str(), cache.length());
     m_listChatMsgCache.push_back(c);
-    LOGI("append chat msg to cache, userid: %d, m_listChatMsgCache.size(): , cache length: %d", userid,
+    LOG_INFO("append chat msg to cache, userid: {}, m_listChatMsgCache.size():{}, cache length:%d", userid,
          m_listChatMsgCache.size(), cache.length());
     //TODO: 存盘或写入数据库以防止程序崩溃丢失
 
@@ -57,6 +57,6 @@ void MsgCacheManager::getChatMsgCache(int32_t userid, std::list<ChatMsgCache> &c
         }
     }
 
-    LOGI("get chat msg cache, userid: %d, m_listChatMsgCache.size(): %d, cached size: %d", userid,
+    LOG_INFO("get chat msg cache, userid:{}, m_listChatMsgCache.size():%d, cached size:%d", userid,
          m_listChatMsgCache.size(), cached.size());
 }

@@ -1,6 +1,6 @@
 #include "InetAddress.h"
 #include <cstring>
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "Endian.h"
 #include "Sockets.h"
 
@@ -74,7 +74,7 @@ bool InetAddress::resolve(const std::string &hostname, InetAddress *out) {
     }
 
     if (ret) {
-        LOGSYSE("InetAddress::resolve");
+        LOG_ERROR("InetAddress::resolve");
     }
     return false;
 }

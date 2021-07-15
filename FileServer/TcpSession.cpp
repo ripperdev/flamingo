@@ -5,8 +5,8 @@
 #include "TcpSession.h"
 
 #include <utility>
-#include "../base/AsyncLog.h"
-#include "../net/ProtocolStream.h"
+#include "base/Logger.h"
+#include "net/ProtocolStream.h"
 #include "FileMsg.h"
 
 TcpSession::TcpSession(std::weak_ptr<TcpConnection> tmpconn) : tmpConn_(std::move(tmpconn)) {
@@ -38,13 +38,13 @@ void TcpSession::sendPackage(const char *body, int64_t bodylength) {
     //TODO: 这些Session和connection对象的生命周期要好好梳理一下
     if (tmpConn_.expired()) {
         //FIXME: 出现这种问题需要排查
-        LOGE("Tcp connection is destroyed , but why TcpSession is still alive ?");
+        LOG_ERROR("Tcp connection is destroyed , but why TcpSession is still alive ?");
         return;
     }
 
     std::shared_ptr<TcpConnection> conn = tmpConn_.lock();
     if (conn) {
-        LOGI("Send data, package length: %d, body length: %d", strPackageData.length(), bodylength);
+        LOG_INFO("Send data, package length: %d, body length: %d", strPackageData.length(), bodylength);
         //LOG_DEBUG_BIN((unsigned char*)body, bodylength);
         conn->send(strPackageData.c_str(), strPackageData.length());
     }

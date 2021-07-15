@@ -5,7 +5,7 @@
 
 #include "BussinessLogic.h"
 #include "jsoncpp/json/json.h"
-#include "base/AsyncLog.h"
+#include "base/Logger.h"
 #include "base/Singleton.h"
 #include "ChatServer.h"
 #include "UserManager.h"
@@ -20,14 +20,14 @@ void BussinessLogic::registerUser(const std::string &data, const std::shared_ptr
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGW("invalid json: %s, client: %s", data.c_str(), conn->peerAddress().toIpPort().c_str());
+        LOG_WARN("invalid json: {}, client: {}", data.c_str(), conn->peerAddress().toIpPort().c_str());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["username"].isString() || !jsonRoot["nickname"].isString() || !jsonRoot["password"].isString()) {
-        LOGW("invalid json: %s, client: %s", data.c_str(), conn->peerAddress().toIpPort().c_str());
+        LOG_WARN("invalid json: {}, client: {}", data.c_str(), conn->peerAddress().toIpPort().c_str());
         return;
     }
 

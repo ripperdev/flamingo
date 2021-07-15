@@ -1,20 +1,13 @@
-/**
- *  聊天服务程序入口函数
- *  zhangyl 2017.03.09
- **/
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
-#include "../base/Platform.h"
-#include "../base/Singleton.h"
-#include "../base/ConfigFileReader.h"
-#include "../base/AsyncLog.h"
-#include "../net/EventLoop.h"
-#include "../net/EventLoopThreadPool.h"
+#include "base/ConfigFileReader.h"
+#include "base/Logger.h"
 #include "base/MysqlManager.h"
-
-#include <cstring>
-#include "../utils/DaemonRun.h"
+#include "base/Platform.h"
+#include "net/EventLoop.h"
+#include "net/EventLoopThreadPool.h"
+#include "utils/DaemonRun.h"
 
 #include "UserManager.h"
 #include "ChatServer.h"
@@ -22,11 +15,6 @@
 #include "HttpServer.h"
 
 using namespace net;
-
-#ifdef WIN32
-//初始化Windows socket库
-NetworkInitializer windowsNetworkInitializer;
-#endif
 
 EventLoop g_mainLoop;
 
@@ -37,8 +25,6 @@ void prog_exit(int signo) {
     HttpServer::getMe().uninit();
     ChatServer::getMe().uninit();
     g_mainLoop.quit();
-
-    CAsyncLog::uninit();
 }
 
 int main(int argc, char *argv[]) {
@@ -47,6 +33,22 @@ int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, prog_exit);
     signal(SIGTERM, prog_exit);
+
+    if (!Logger::getMe().init("ChatServer", "ChatServer")) {
+        std::cout << "ChatServer Logger init failed" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    CConfigFileReader config("etc/chatserver.conf");
+
+    const char *logbinarypackage = config.getConfigName("logbinarypackage");
+    if (logbinarypackage != nullptr) {
+        int logbinarypackageint = atoi(logbinarypackage);
+        if (logbinarypackageint != 0)
+            ChatServer::getMe().enableLogPackageBinary(true);
+        else
+            ChatServer::getMe().enableLogPackageBinary(false);
+    }
 
     int ch;
     bool bdaemon = false;
@@ -60,53 +62,17 @@ int main(int argc, char *argv[]) {
     if (bdaemon)
         daemon_run();
 
-    CConfigFileReader config("etc/chatserver.conf");
-
-    const char *logbinarypackage = config.getConfigName("logbinarypackage");
-    if (logbinarypackage != nullptr) {
-        int logbinarypackageint = atoi(logbinarypackage);
-        if (logbinarypackageint != 0)
-            ChatServer::getMe().enableLogPackageBinary(true);
-        else
-            ChatServer::getMe().enableLogPackageBinary(false);
-    }
-
-    std::string logFileFullPath;
-
-    const char *logfilepath = config.getConfigName("logfiledir");
-    if (logfilepath == nullptr) {
-        LOGF("logdir is not set in config file");
-        return 1;
-    }
-
-    //如果log目录不存在则创建之
-    DIR *dp = opendir(logfilepath);
-    if (dp == nullptr) {
-        if (mkdir(logfilepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-            LOGF("create base dir error, %s , errno: %d, %s", logfilepath, errno, strerror(errno));
-            return 1;
-        }
-    }
-    closedir(dp);
-
-    logFileFullPath = logfilepath;
-
-    const char *logfilename = config.getConfigName("logfilename");
-    logFileFullPath += logfilename;
-
-    CAsyncLog::init(logFileFullPath.c_str());
-
     //初始化数据库配置
     const char *dbserver = config.getConfigName("dbserver");
     const char *dbuser = config.getConfigName("dbuser");
     const char *dbpassword = config.getConfigName("dbpassword");
     const char *dbname = config.getConfigName("dbname");
     if (!CMysqlManager::getMe().init(dbserver, dbuser, dbpassword, dbname)) {
-        LOGF("Init mysql failed, please check your database config..............");
+        LOG_ERROR("Init mysql failed, please check your database config");
     }
 
     if (!UserManager::getMe().init(dbserver, dbuser, dbpassword, dbname)) {
-        LOGF("Init UserManager failed, please check your database config..............");
+        LOG_ERROR("Init UserManager failed, please check your database config");
     }
 
     const char *listenip = config.getConfigName("listenip");
@@ -122,11 +88,11 @@ int main(int argc, char *argv[]) {
     auto httplistenport = (short) atol(config.getConfigName("httplistenport"));
     HttpServer::getMe().init(httplistenip, httplistenport, &g_mainLoop);
 
-    LOGI("chatserver initialization completed, now you can use client to connect it.");
+    LOG_INFO("chatserver initialization completed, now you can use client to connect it.");
 
     g_mainLoop.loop();
 
-    LOGI("exit chatserver.");
+    LOG_INFO("exit chatserver.");
 
     return 0;
 }

@@ -1,13 +1,9 @@
-/**
- * 监控服务器类，MonitorServer.cpp
- * zhangyl 2018.03.09
- */
-#include "../net/InetAddress.h"
-#include "../base/AsyncLog.h"
-#include "../net/TcpServer.h"
-#include "../net/EventLoop.h"
-#include "../net/EventLoopThread.h"
-#include "../net/EventLoopThreadPool.h"
+#include "net/InetAddress.h"
+#include "base/Logger.h"
+#include "net/TcpServer.h"
+#include "net/EventLoop.h"
+#include "net/EventLoopThread.h"
+#include "net/EventLoopThreadPool.h"
 #include "MonitorSession.h"
 #include "MonitorServer.h"
 
@@ -53,14 +49,14 @@ void MonitorServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
     std::lock_guard<std::mutex> guard(m_sessionMutex);
     for (auto iter = m_sessions.begin(); iter != m_sessions.end(); ++iter) {
         if ((*iter)->getConnectionPtr() == nullptr) {
-            LOGE("connection is NULL");
+            LOG_ERROR("connection is NULL");
             break;
         }
 
         //通过比对connection对象找到对应的session
         if ((*iter)->getConnectionPtr() == conn) {
             m_sessions.erase(iter);
-            LOGI("monitor client disconnected: %s", conn->peerAddress().toIpPort().c_str());
+            LOG_INFO("monitor client disconnected:{}", conn->peerAddress().toIpPort());
             break;
         }
     }

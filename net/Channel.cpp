@@ -1,8 +1,8 @@
 #include "Channel.h"
 #include <sstream>
 
-#include "../base/Platform.h"
-#include "../base/AsyncLog.h"
+#include "base/Platform.h"
+#include "base/Logger.h"
 #include "Poller.h"
 #include "EventLoop.h"
 
@@ -106,16 +106,16 @@ void Channel::handleEventWithGuard(Timestamp receiveTime) {
     XPOLLHUP，仅用于内核设置传出参数revents，表示设备被挂起，如果poll监听的fd是socket，表示这个socket并没有在网络上建立连接，比如说只调用了socket()函数，但是没有进行connect。
     XPOLLNVAL，仅用于内核设置传出参数revents，表示非法请求文件描述符fd没有打开
     */
-    LOGD(reventsToString().c_str());
+    LOG_DEBUG(reventsToString().c_str());
     if ((revents_ & XPOLLHUP) && !(revents_ & XPOLLIN)) {
         if (logHup_) {
-            LOGW("Channel::handle_event() XPOLLHUP");
+            LOG_WARN("Channel::handle_event() XPOLLHUP");
         }
         if (closeCallback_) closeCallback_();
     }
 
     if (revents_ & XPOLLNVAL) {
-        LOGW("Channel::handle_event() XPOLLNVAL");
+        LOG_WARN("Channel::handle_event() XPOLLNVAL");
     }
 
     if (revents_ & (XPOLLERR | XPOLLNVAL)) {

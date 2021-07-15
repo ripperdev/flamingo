@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "InetAddress.h"
 #include "Endian.h"
 #include "Callbacks.h"
@@ -117,7 +117,7 @@ struct sockaddr_in *sockets::sockaddr_in_cast(struct sockaddr *addr) {
 SOCKET sockets::createOrDie() {
     SOCKET sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (sockfd < 0) {
-        LOGF("sockets::createNonblockingOrDie");
+        LOG_CRITICAL("sockets::createNonblockingOrDie");
     }
     return sockfd;
 }
@@ -125,7 +125,7 @@ SOCKET sockets::createOrDie() {
 SOCKET sockets::createNonblockingOrDie() {
     SOCKET sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (sockfd < 0) {
-        LOGF("sockets::createNonblockingOrDie");
+        LOG_CRITICAL("sockets::createNonblockingOrDie");
     }
 
     setNonBlockAndCloseOnExec(sockfd);
@@ -151,14 +151,14 @@ void sockets::setNonBlockAndCloseOnExec(SOCKET sockfd) {
 void sockets::bindOrDie(SOCKET sockfd, const struct sockaddr_in &addr) {
     int ret = ::bind(sockfd, sockaddr_cast(&addr), static_cast<socklen_t>(sizeof addr));
     if (ret < 0) {
-        LOGF("sockets::bindOrDie");
+        LOG_CRITICAL("sockets::bindOrDie");
     }
 }
 
 void sockets::listenOrDie(SOCKET sockfd) {
     int ret = ::listen(sockfd, SOMAXCONN);
     if (ret < 0) {
-        LOGF("sockets::listenOrDie");
+        LOG_CRITICAL("sockets::listenOrDie");
     }
 }
 
@@ -167,7 +167,7 @@ SOCKET sockets::accept(SOCKET sockfd, struct sockaddr_in *addr) {
     SOCKET connfd = ::accept4(sockfd, sockaddr_cast(addr), &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
     if (connfd < 0) {
         int savedErrno = errno;
-        LOGSYSE("Socket::accept");
+        LOG_ERROR("Socket::accept");
         switch (savedErrno) {
             case EAGAIN:
             case ECONNABORTED:
@@ -187,10 +187,10 @@ SOCKET sockets::accept(SOCKET sockfd, struct sockaddr_in *addr) {
             case ENOTSOCK:
             case EOPNOTSUPP:
                 // unexpected errors
-                LOGF("unexpected error of ::accept %d", savedErrno);
+                LOG_CRITICAL("unexpected error of ::accept %d", savedErrno);
                 break;
             default:
-                LOGF("unknown error of ::accept %d", savedErrno);
+                LOG_CRITICAL("unknown error of ::accept %d", savedErrno);
                 break;
         }
     }
@@ -207,7 +207,7 @@ void sockets::setReusePort(SOCKET sockfd, bool on) {
     int optval = on ? 1 : 0;
     int ret = ::setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &optval, static_cast<socklen_t>(sizeof optval));
     if (ret < 0 && on) {
-        LOGSYSE("SO_REUSEPORT failed.");
+        LOG_ERROR("SO_REUSEPORT failed.");
     }
 }
 
@@ -229,13 +229,13 @@ int32_t sockets::write(SOCKET sockfd, const void *buf, int32_t count) {
 
 void sockets::close(SOCKET sockfd) {
     if (::close(sockfd) < 0) {
-        LOGSYSE("sockets::close, fd=%d, errno=%d, errorinfo=%s", sockfd, errno, strerror(errno));
+        LOG_ERROR("sockets::close, fd=%d, errno=%d, errorinfo=%s", sockfd, errno, strerror(errno));
     }
 }
 
 void sockets::shutdownWrite(SOCKET sockfd) {
     if (::shutdown(sockfd, SHUT_WR) < 0) {
-        LOGSYSE("sockets::shutdownWrite");
+        LOG_ERROR("sockets::shutdownWrite");
     }
 }
 
@@ -264,7 +264,7 @@ void sockets::fromIpPort(const char *ip, uint16_t port, struct sockaddr_in *addr
     //TODO: 校验下写的对不对
     addr->sin_port = htobe16(port);
     if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0) {
-        LOGSYSE("sockets::fromIpPort");
+        LOG_ERROR("sockets::fromIpPort");
     }
 }
 

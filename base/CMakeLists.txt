@@ -1,5 +1,4 @@
 set(BASE_SRC
-        AsyncLog.cpp
         ConfigFileReader.cpp
         CountDownLatch.cpp
         DatabaseMysql.cpp
@@ -7,6 +6,7 @@ set(BASE_SRC
         MysqlManager.cpp
         MysqlThrd.cpp
         MysqlThrdMgr.cpp
+        Logger.cpp
         Platform.cpp
         QueryResult.cpp
         TaskList.cpp

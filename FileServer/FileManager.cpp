@@ -1,25 +1,21 @@
-/**
- *  文件管理类, FileManager.h
- *  zhangyl 2017.03.17
- **/
 #include "FileManager.h"
 
 #include <cstring>
 
-#include "../base/AsyncLog.h"
-#include "../base/Platform.h"
+#include "base/Logger.h"
+#include "base/Platform.h"
 
 bool FileManager::init(const char *basepath) {
     m_basepath = basepath;
 
     DIR *dp = opendir(basepath);
     if (dp == nullptr) {
-        LOGE("open base dir error, errno: %d, %s", errno, strerror(errno));
+        LOG_ERROR("open base dir error, errno: {}, {}", errno, strerror(errno));
 
         if (mkdir(basepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0)
             return true;
 
-        LOGE("create base dir error, %s , errno: %d, %s", basepath, errno, strerror(errno));
+        LOG_ERROR("create base dir error, {} , errno: {}, {}", basepath, errno, strerror(errno));
 
         return false;
     }
@@ -30,7 +26,6 @@ bool FileManager::init(const char *basepath) {
         if (strcmp(dirp->d_name, ".") == 0 || strcmp(dirp->d_name, "..") == 0)
             continue;
 
-
         //if (stat(dirp->d_name, &filestat) != 0)
         //{
         //    LOGW << "stat filename: [" << dirp->d_name << "] error, errno: " << errno << ", " << strerror(errno);
@@ -38,7 +33,7 @@ bool FileManager::init(const char *basepath) {
         //}
 
         m_listFiles.emplace_back(dirp->d_name);
-        LOGI("filename: %s", dirp->d_name);
+        LOG_INFO("filename: {}", dirp->d_name);
     }
 
     closedir(dp);

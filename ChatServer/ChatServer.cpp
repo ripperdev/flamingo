@@ -4,9 +4,9 @@
  **/
 #include "ChatServer.h"
 
-#include "../net/InetAddress.h"
-#include "../base/AsyncLog.h"
-#include "../base/Singleton.h"
+#include "net/InetAddress.h"
+#include "base/Logger.h"
+#include "base/Singleton.h"
 #include "ChatSession.h"
 #include "UserManager.h"
 
@@ -39,12 +39,12 @@ bool ChatServer::isLogPackageBinaryEnabled() {
 
 void ChatServer::onConnected(const std::shared_ptr<TcpConnection> &conn) {
     if (conn->connected()) {
-        LOGD("client connected: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_DEBUG("client connected: {}", conn->peerAddress().toIpPort().c_str());
         ++m_sessionId;
         std::shared_ptr<ChatSession> spSession(new ChatSession(conn, m_sessionId));
-        conn->setMessageCallback(
-                std::bind(&ChatSession::onRead, spSession.get(), std::placeholders::_1, std::placeholders::_2,
-                          std::placeholders::_3));
+        conn->setMessageCallback([spSession](const TcpConnectionPtr &connPtr, Buffer *buffer, Timestamp timestamp) {
+            spSession->onRead(connPtr, buffer, timestamp);
+        });
 
         std::lock_guard<std::mutex> guard(m_sessionMutex);
         m_sessions.push_back(spSession);
@@ -62,7 +62,7 @@ void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
     std::lock_guard<std::mutex> guard(m_sessionMutex);
     for (auto iter = m_sessions.begin(); iter != m_sessions.end(); ++iter) {
         if ((*iter)->getConnectionPtr() == nullptr) {
-            LOGE("connection is NULL");
+            LOG_ERROR("connection is NULL");
             break;
         }
 
@@ -80,13 +80,13 @@ void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
                         if (iter2.userid == iter3->getUserId()) {
                             iter3->sendUserStatusChangeMsg(offlineUserId, 2);
 
-                            LOGI("SendUserStatusChangeMsg to user(userid=%d): user go offline, offline userid = %d",
+                            LOG_INFO("SendUserStatusChangeMsg to user(userid=%d): user go offline, offline userid = %d",
                                  iter3->getUserId(), offlineUserId);
                         }
                     }
                 }
             } else {
-                LOGI("Session is invalid, userid=%d", (*iter)->getUserId());
+                LOG_INFO("Session is invalid, userid=%d", (*iter)->getUserId());
             }
 
             //停掉该Session的掉线检测
@@ -94,12 +94,12 @@ void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
             //用户下线
             m_sessions.erase(iter);
             //bUserOffline = true;
-            LOGI("client disconnected: %s", conn->peerAddress().toIpPort().c_str());
+            LOG_INFO("client disconnected: %s", conn->peerAddress().toIpPort().c_str());
             break;
         }
     }
 
-    LOGI("current online user count: %d", (int) m_sessions.size());
+    LOG_INFO("current online user count: %d", (int) m_sessions.size());
 }
 
 void ChatServer::getSessions(std::list<std::shared_ptr<ChatSession>> &sessions) {

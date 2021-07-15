@@ -1,13 +1,9 @@
-/**
- * ChatSession.cpp
- * zhangyl, 2017.03.10
- **/
 #include "ChatSession.h"
 #include <sstream>
 #include <list>
-#include "../net/ProtocolStream.h"
-#include "../base/AsyncLog.h"
-#include "../base/Singleton.h"
+#include "net/ProtocolStream.h"
+#include "base/Logger.h"
+#include "base/Singleton.h"
 #include "jsoncpp/json/json.h"
 #include "Msg.h"
 #include "UserManager.h"
@@ -42,8 +38,8 @@ ChatSession::ChatSession(const std::shared_ptr<TcpConnection> &conn, int session
 ChatSession::~ChatSession() {
     std::shared_ptr<TcpConnection> conn = getConnectionPtr();
     if (conn) {
-        LOGI("remove check online timerId, userid: %d, clientType: %d, client address: %s", m_userinfo.userid,
-             m_userinfo.clienttype, conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("remove check online timerId, userid: {}, clientType: {}, client address: {}", m_userinfo.userid,
+                 m_userinfo.clienttype, conn->peerAddress().toIpPort().c_str());
         conn->getLoop()->remove(m_checkOnlineTimerId);
     }
 }
@@ -65,8 +61,8 @@ void ChatSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
             if (header.compresssize <= 0 || header.compresssize > MAX_PACKAGE_SIZE ||
                 header.originsize <= 0 || header.originsize > MAX_PACKAGE_SIZE) {
                 //客户端发非法数据包，服务器主动关闭之
-                LOGE("Illegal package, compresssize: %lld, originsize: %lld, close TcpConnection, client: %s",
-                     header.compresssize, header.originsize, conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("Illegal package, compresssize: {}, originsize: {}, close TcpConnection, client: {}",
+                          header.compresssize, header.originsize, conn->peerAddress().toIpPort().c_str());
                 conn->forceClose();
                 return;
             }
@@ -81,14 +77,14 @@ void ChatSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
             pBuffer->retrieve(header.compresssize);
             std::string destbuf;
             if (!ZlibUtil::uncompressBuf(inbuf, destbuf, header.originsize)) {
-                LOGE("uncompress error, client: %s", conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("uncompress error, client: {}", conn->peerAddress().toIpPort().c_str());
                 conn->forceClose();
                 return;
             }
 
             if (!process(conn, destbuf.c_str(), destbuf.length())) {
                 //客户端发非法数据包，服务器主动关闭之
-                LOGE("Process error, close TcpConnection, client: %s", conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("Process error, close TcpConnection, client: {}", conn->peerAddress().toIpPort().c_str());
                 conn->forceClose();
                 return;
             }
@@ -100,8 +96,8 @@ void ChatSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
             //包头有错误，立即关闭连接
             if (header.originsize <= 0 || header.originsize > MAX_PACKAGE_SIZE) {
                 //客户端发非法数据包，服务器主动关闭之
-                LOGE("Illegal package, compresssize: %lld, originsize: %lld, close TcpConnection, client: %s",
-                     header.compresssize, header.originsize, conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("Illegal package, compresssize: {}, originsize: {}, close TcpConnection, client: {}",
+                          header.compresssize, header.originsize, conn->peerAddress().toIpPort().c_str());
                 conn->forceClose();
                 return;
             }
@@ -116,7 +112,7 @@ void ChatSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *pBu
             pBuffer->retrieve(header.originsize);
             if (!process(conn, inbuf.c_str(), inbuf.length())) {
                 //客户端发非法数据包，服务器主动关闭之
-                LOGE("Process error, close TcpConnection, client: %s", conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("Process error, close TcpConnection, client: {}", conn->peerAddress().toIpPort());
                 conn->forceClose();
                 return;
             }
@@ -132,30 +128,30 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
     BinaryStreamReader readStream(inbuf, buflength);
     int32_t cmd;
     if (!readStream.ReadInt32(cmd)) {
-        LOGE("read cmd error, client: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("read cmd error, client: {}", conn->peerAddress().toIpPort());
         return false;
     }
 
     //int seq;
     if (!readStream.ReadInt32(m_seq)) {
-        LOGE("read seq error, client: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("read seq error, client: {}", conn->peerAddress().toIpPort());
         return false;
     }
 
     std::string data;
     size_t datalength;
     if (!readStream.ReadString(&data, 0, datalength)) {
-        LOGE("read data error, client: %s", conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("read data error, client: {}", conn->peerAddress().toIpPort());
         return false;
     }
 
     //心跳包太频繁，不打印
     if (cmd != msg_type_heartbeat)
-        LOGI("Request from client: userid=%d, cmd=%d, seq=%d, data=%s, datalength=%d, buflength=%d", m_userinfo.userid,
-             cmd, m_seq, data.c_str(), datalength, buflength);
+        LOG_INFO("Request from client: userid={}, cmd={}, seq={}, data={}, datalength={}, buflength={}",
+                 m_userinfo.userid, cmd, m_seq, data.c_str(), datalength, buflength);
 
     if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
-        LOGI("body stream, buflength: %d, client: %s", buflength, conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("body stream, buflength: {}, client: {}", buflength, conn->peerAddress().toIpPort().c_str());
         //LOG_DEBUG_BIN((unsigned char*)inbuf, buflength);
     }
 
@@ -223,7 +219,7 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                     case msg_type_chat: {
                         int32_t target;
                         if (!readStream.ReadInt32(target)) {
-                            LOGE("read target error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read target error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
                         onChatResponse(target, data, conn);
@@ -235,7 +231,7 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                         std::string targets;
                         size_t targetslength;
                         if (!readStream.ReadString(&targets, 0, targetslength)) {
-                            LOGE("read targets error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read targets error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
@@ -249,20 +245,20 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                         string bmpHeader;
                         size_t bmpHeaderlength;
                         if (!readStream.ReadString(&bmpHeader, 0, bmpHeaderlength)) {
-                            LOGE("read bmpheader error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read bmpheader error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string bmpData;
                         size_t bmpDatalength;
                         if (!readStream.ReadString(&bmpData, 0, bmpDatalength)) {
-                            LOGE("read bmpdata error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read bmpdata error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         int32_t target;
                         if (!readStream.ReadInt32(target)) {
-                            LOGE("read target error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read target error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
                         onScreenshotResponse(target, bmpHeader, bmpData, conn);
@@ -273,21 +269,21 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                     case msg_type_updateteaminfo: {
                         int32_t operationType;
                         if (!readStream.ReadInt32(operationType)) {
-                            LOGE("read operationType error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read operationType error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string newTeamName;
                         size_t newTeamNameLength;
                         if (!readStream.ReadString(&newTeamName, 0, newTeamNameLength)) {
-                            LOGE("read newTeamName error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read newTeamName error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string oldTeamName;
                         size_t oldTeamNameLength;
                         if (!readStream.ReadString(&oldTeamName, 0, oldTeamNameLength)) {
-                            LOGE("read newTeamName error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read newTeamName error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
@@ -299,14 +295,14 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                     case msg_type_modifyfriendmarkname: {
                         int32_t friendid;
                         if (!readStream.ReadInt32(friendid)) {
-                            LOGE("read friendid error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read friendid error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string newmarkname;
                         size_t newmarknamelength;
                         if (!readStream.ReadString(&newmarkname, 0, newmarknamelength)) {
-                            LOGE("read newmarkname error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read newmarkname error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
@@ -318,21 +314,21 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                     case msg_type_movefriendtootherteam: {
                         int32_t friendid;
                         if (!readStream.ReadInt32(friendid)) {
-                            LOGE("read friendid error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read friendid error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string newteamname;
                         size_t newteamnamelength;
                         if (!readStream.ReadString(&newteamname, 0, newteamnamelength)) {
-                            LOGE("read newteamname error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read newteamname error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
                         string oldteamname;
                         size_t oldteamnamelength;
                         if (!readStream.ReadString(&oldteamname, 0, oldteamnamelength)) {
-                            LOGE("read oldteamname error, client: %s", conn->peerAddress().toIpPort().c_str());
+                            LOG_ERROR("read oldteamname error, client: {}", conn->peerAddress().toIpPort());
                             return false;
                         }
 
@@ -342,8 +338,8 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
 
                     default:
                         //pBuffer->retrieveAll();
-                        LOGE("unsupport cmd, cmd: %d, data=%s, connection name:", cmd, data.c_str(),
-                             conn->peerAddress().toIpPort().c_str());
+                        LOG_ERROR("unsupport cmd, cmd: {}, data={}, connection name:{}", cmd, data.c_str(),
+                                  conn->peerAddress().toIpPort());
                         //conn->forceClose();
                         return false;
                 }// end inner-switch
@@ -351,7 +347,7 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
                 //用户未登录，告诉客户端不能进行操作提示“未登录”
                 std::string data = R"({"code": 2, "msg": "not login, please login first!"})";
                 send(cmd, m_seq, data);
-                LOGI("Response to client: cmd=%d, , data=%s, , sessionId=%d", cmd, data.c_str(), m_id);
+                LOG_INFO("Response to client: cmd={}, , data={}, sessionId={}", cmd, data.c_str(), m_id);
             }// end if
         }// end default
     }// end outer-switch
@@ -376,8 +372,8 @@ void ChatSession::onRegisterResponse(const std::string &data, const std::shared_
     if (!retData.empty()) {
         send(msg_type_register, m_seq, retData);
 
-        LOGI("Response to client: cmd=msg_type_register, data: %s. client: %s", retData.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("Response to client: cmd=msg_type_register, data: {}. client: {}", retData,
+                 conn->peerAddress().toIpPort());
     }
 }
 
@@ -389,8 +385,8 @@ void ChatSession::onLoginResponse(const std::string &data, const std::shared_ptr
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("onLoginResponse failed, invalid json: %s, sessionId: %d, client: %s", data.c_str(), m_id,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("onLoginResponse failed, invalid json: {}, sessionId: {}, client: {}", data.c_str(), m_id,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
@@ -398,7 +394,7 @@ void ChatSession::onLoginResponse(const std::string &data, const std::shared_ptr
 
     if (!jsonRoot["username"].isString() || !jsonRoot["password"].isString() || !jsonRoot["clienttype"].isInt() ||
         !jsonRoot["status"].isInt()) {
-        LOGE("invalid json: %s, sessionId: %d, client: %s", data.c_str(), m_id, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, sessionId: {}, client: {}", data.c_str(), m_id, conn->peerAddress().toIpPort());
         return;
     }
 
@@ -427,7 +423,7 @@ void ChatSession::onLoginResponse(const std::string &data, const std::shared_ptr
                 //被踢下线的Session标记为无效的
                 targetSession->makeSessionInvalid();
 
-                LOGI("Response to client, userid: %d, cmd=msg_type_kickuser", targetSession->getUserId());
+                LOG_INFO("Response to client, userid: {}, cmd=msg_type_kickuser", targetSession->getUserId());
 
                 //关闭连接
                 //targetSession->GetConnectionPtr()->forceClose();
@@ -454,7 +450,7 @@ void ChatSession::onLoginResponse(const std::string &data, const std::shared_ptr
     //登录信息应答
     send(msg_type_login, m_seq, os.str());
 
-    LOGI("Response to client: cmd=msg_type_login, data=%s, userid=", os.str().c_str(), m_userinfo.userid);
+    LOG_INFO("Response to client: cmd=msg_type_login, data={}, userid={}", os.str(), m_userinfo.userid);
 
     //设置已经登录的标志
     m_isLogin = true;
@@ -484,8 +480,8 @@ void ChatSession::onLoginResponse(const std::string &data, const std::shared_ptr
             if (iter2) {
                 iter2->sendUserStatusChangeMsg(m_userinfo.userid, 1, m_userinfo.status);
 
-                LOGI("sendUserStatusChangeMsg to user(userid: %d): user go online, online userid: %d, status: %d",
-                     iter2->getUserId(), m_userinfo.userid, m_userinfo.status);
+                LOG_INFO("sendUserStatusChangeMsg to user(userid: {}): user go online, online userid: {}, status: {}",
+                         iter2->getUserId(), m_userinfo.userid, m_userinfo.status);
             }
         }
     }
@@ -498,7 +494,7 @@ void ChatSession::onGetFriendListResponse(const std::shared_ptr<TcpConnection> &
     os << R"({"code": 0, "msg": "ok", "userinfo":)" << friendlist << "}";
     send(msg_type_getofriendlist, m_seq, os.str());
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_getofriendlist, data: %s", m_userinfo.userid, os.str().c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_getofriendlist, data: {}", m_userinfo.userid, os.str());
 }
 
 void ChatSession::onChangeUserStatusResponse(const std::string &data, const std::shared_ptr<TcpConnection> &conn) {
@@ -509,16 +505,16 @@ void ChatSession::onChangeUserStatusResponse(const std::string &data, const std:
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["type"].isInt() || !jsonRoot["onlinestatus"].isInt()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -553,16 +549,16 @@ void ChatSession::onFindUserResponse(const std::string &data, const std::shared_
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["type"].isInt() || !jsonRoot["username"].isString()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -583,7 +579,7 @@ void ChatSession::onFindUserResponse(const std::string &data, const std::shared_
 
     send(msg_type_finduser, m_seq, retData);
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_finduser, data: %s", m_userinfo.userid, retData.c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_finduser, data: {}", m_userinfo.userid, retData);
 }
 
 void ChatSession::onOperateFriendResponse(const std::string &data, const std::shared_ptr<TcpConnection> &conn) {
@@ -593,16 +589,16 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["type"].isInt() || !jsonRoot["userid"].isInt()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -616,8 +612,8 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
         }
 
         if (UserManager::getMe().isFriend(m_userinfo.userid, targetUserid)) {
-            LOGE("In group already, unable to join in group, groupid: %d, , userid: %d, , client: %s", targetUserid,
-                 m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("In group already, unable to join in group, groupid: {}, userid: {}, client: {}", targetUserid,
+                      m_userinfo.userid, conn->peerAddress().toIpPort());
             //TODO: 通知下客户端
             return;
         }
@@ -636,21 +632,21 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
     //发出加好友申请
     if (type == 1) {
         if (UserManager::getMe().isFriend(m_userinfo.userid, targetUserid)) {
-            LOGE("Friendship already, unable to add friend, friendid: %d, userid: %d, client: %s", targetUserid,
-                 m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("Friendship already, unable to add friend, friendid: {}, userid: {}, client: {}", targetUserid,
+                      m_userinfo.userid, conn->peerAddress().toIpPort());
             //TODO: 通知下客户端
             return;
         }
 
-        //{"userid": 9, "type": 1, }        
+        //{"userid": 9, "type": 1, }
         snprintf(szData, 256, R"({"userid":%d, "type":2, "username": "%s"})", m_userinfo.userid,
                  m_userinfo.username.c_str());
     }
         //应答加好友
     else if (type == 3) {
         if (!jsonRoot["accept"].isInt()) {
-            LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-                 conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("invalid json: {}, userid: {}, client: {}", data, m_userinfo.userid,
+                      conn->peerAddress().toIpPort());
             return;
         }
 
@@ -658,15 +654,15 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
         //接受加好友申请后，建立好友关系
         if (accept == 1) {
             if (!UserManager::getMe().makeFriendRelationshipInDB(targetUserid, m_userinfo.userid)) {
-                LOGE("make relationship error: %s, userid: %d, client:  %s", data.c_str(), m_userinfo.userid,
-                     conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("make relationship error: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                          conn->peerAddress().toIpPort().c_str());
                 return;
             }
 
             if (!UserManager::getMe().updateUserRelationshipInMemory(m_userinfo.userid, targetUserid,
                                                                      FRIEND_OPERATION_ADD)) {
-                LOGE("UpdateUserTeamInfo error: %s, , userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-                     conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("UpdateUserTeamInfo error: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                          conn->peerAddress().toIpPort().c_str());
                 return;
             }
         }
@@ -678,15 +674,15 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
         //提示自己当前用户加好友成功
         User targetUser;
         if (!UserManager::getMe().getUserInfoByUserId(targetUserid, targetUser)) {
-            LOGE("Get Userinfo by id error, targetuserid: %d, userid: %d, data: %s, client: %s", targetUserid,
-                 m_userinfo.userid, data.c_str(), conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("Get Userinfo by id error, targetuserid: {}, userid: {}, data: {}, client: {}", targetUserid,
+                      m_userinfo.userid, data, conn->peerAddress().toIpPort());
             return;
         }
         char szSelfData[256] = {0};
         snprintf(szSelfData, 256, R"({"userid": %d, "type": 3, "username": "%s", "accept": %d})",
                  targetUser.userid, targetUser.username.c_str(), accept);
         send(msg_type_operatefriend, m_seq, szSelfData, strlen(szSelfData));
-        LOGI("Response to client: userid: %d, cmd=msg_type_addfriend, data: %s", m_userinfo.userid, szSelfData);
+        LOG_INFO("Response to client: userid:{}, cmd:msg_type_addfriend, data:{}", m_userinfo.userid, szSelfData);
     }
 
     //提示对方加好友成功
@@ -703,7 +699,7 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
     //目标用户不在线，缓存这个消息
     if (sessions.empty()) {
         MsgCacheManager::getMe().addNotifyMsgCache(targetUserid, outbuf);
-        LOGI("userid: %d, is not online, cache notify msg, msg: %s", targetUserid, outbuf.c_str());
+        LOG_INFO("userid: {}, is not online, cache notify msg, msg: {}", targetUserid, outbuf);
         return;
     }
 
@@ -711,32 +707,32 @@ void ChatSession::onOperateFriendResponse(const std::string &data, const std::sh
         iter->send(outbuf);
     }
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_addfriend, data: %s", targetUserid, data.c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_addfriend, data: {}", targetUserid, data.c_str());
 }
 
 void ChatSession::onAddGroupResponse(int32_t groupId, const std::shared_ptr<TcpConnection> &conn) {
     if (!UserManager::getMe().makeFriendRelationshipInDB(m_userinfo.userid, groupId)) {
-        LOGE("make relationship error, groupId: %d, userid: %d, client: %s", groupId, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("make relationship error, groupId: {}, userid: {}, client: {}", groupId, m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         return;
     }
 
     User groupUser;
     if (!UserManager::getMe().getUserInfoByUserId(groupId, groupUser)) {
-        LOGE("Get group info by id error, targetuserid: %d, userid: %d, client: %s", groupId, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Get group info by id error, targetuserid: {}, userid: {}, client: {}", groupId, m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
     char szSelfData[256] = {0};
     snprintf(szSelfData, 256, R"({"userid": %d, "type": 3, "username": "%s", "accept": 3})", groupUser.userid,
              groupUser.username.c_str());
     send(msg_type_operatefriend, m_seq, szSelfData, strlen(szSelfData));
-    LOGI("Response to client: cmd=msg_type_addfriend, data: %s, userid: %d", szSelfData, m_userinfo.userid);
+    LOG_INFO("Response to client: cmd=msg_type_addfriend, data: {}, userid: {}", szSelfData, m_userinfo.userid);
 
     if (!UserManager::getMe().updateUserRelationshipInMemory(m_userinfo.userid, groupId,
                                                              FRIEND_OPERATION_ADD)) {
-        LOGE("UpdateUserTeamInfo error, targetUserid: %d, userid: %d, client: %s", groupId, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("UpdateUserTeamInfo error, targetUserid: {}, userid: {}, client: {}", groupId, m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -762,8 +758,8 @@ void ChatSession::onUpdateUserInfoResponse(const std::string &data, const std::s
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
@@ -774,8 +770,8 @@ void ChatSession::onUpdateUserInfoResponse(const std::string &data, const std::s
         !jsonRoot["birthday"].isInt() || !jsonRoot["signature"].isString() ||
         !jsonRoot["address"].isString() || !jsonRoot["phonenumber"].isString() ||
         !jsonRoot["mail"].isString()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -815,8 +811,8 @@ void ChatSession::onUpdateUserInfoResponse(const std::string &data, const std::s
     //应答客户端
     send(msg_type_updateuserinfo, m_seq, retdata.str());
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_updateuserinfo, data: %s", m_userinfo.userid,
-         retdata.str().c_str());
+    LOG_INFO("Response to client: userid:{}, cmd=msg_type_updateuserinfo, data:{}", m_userinfo.userid,
+             retdata.str());
 
     //给其他在线好友推送个人信息发生改变消息
     std::list<User> friends;
@@ -840,16 +836,16 @@ void ChatSession::onModifyPasswordResponse(const std::string &data, const std::s
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["oldpassword"].isString() || !jsonRoot["newpassword"].isString()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -859,8 +855,8 @@ void ChatSession::onModifyPasswordResponse(const std::string &data, const std::s
     string retdata;
     User cachedUser;
     if (!UserManager::getMe().getUserInfoByUserId(m_userinfo.userid, cachedUser)) {
-        LOGE("get userinfo error, userid: %d, data: %s, client: %s", m_userinfo.userid, data.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("get userinfo error, userid: {}, data: {}, client: {}", m_userinfo.userid, data.c_str(),
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -869,8 +865,8 @@ void ChatSession::onModifyPasswordResponse(const std::string &data, const std::s
     } else {
         if (!UserManager::getMe().modifyUserPassword(m_userinfo.userid, newPass)) {
             retdata = R"({"code": 105, "msg": "modify password error"})";
-            LOGE("modify password error, userid: %d, data:%s, client: %s", m_userinfo.userid, data.c_str(),
-                 conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("modify password error, userid: {}, data:{}, client: {}", m_userinfo.userid, data.c_str(),
+                      conn->peerAddress().toIpPort().c_str());
         } else
             retdata = R"({"code": 0, "msg": "ok"})";
     }
@@ -878,7 +874,7 @@ void ChatSession::onModifyPasswordResponse(const std::string &data, const std::s
     //应答客户端
     send(msg_type_modifypassword, m_seq, retdata);
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_modifypassword, data: %s", m_userinfo.userid, data.c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_modifypassword, data:{}", m_userinfo.userid, data.c_str());
 }
 
 void ChatSession::onCreateGroupResponse(const std::string &data, const std::shared_ptr<TcpConnection> &conn) {
@@ -888,16 +884,14 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data, m_userinfo.userid, conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["groupname"].isString()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json:{}, userid:{}, client:{}", data, m_userinfo.userid, conn->peerAddress().toIpPort());
         return;
     }
 
@@ -905,8 +899,8 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
     string groupname = jsonRoot["groupname"].asString();
     int32_t groupid;
     if (!UserManager::getMe().addGroup(groupname.c_str(), m_userinfo.userid, groupid)) {
-        LOGE("Add group error, data: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Add group error,data:{},userid:{},client:{}", data, m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         retdata << R"({ "code": 106, "msg" : "create group error"})";
     } else {
         retdata << R"({"code": 0, "msg": "ok", "groupid":)" << groupid << R"(, "groupname": ")" << groupname
@@ -917,8 +911,8 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
     //步骤1
     //创建成功以后该用户自动加群
     if (!UserManager::getMe().makeFriendRelationshipInDB(m_userinfo.userid, groupid)) {
-        LOGE("join in group, errordata: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("join in group,errordata:{},userid:{},client:{}", data, m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -926,8 +920,8 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
     //步骤2
     if (!UserManager::getMe().updateUserRelationshipInMemory(m_userinfo.userid, groupid,
                                                              FRIEND_OPERATION_ADD)) {
-        LOGE("UpdateUserTeamInfo error, data: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("UpdateUserTeamInfo error, data: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -941,8 +935,8 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
     //应答客户端，建群成功
     send(msg_type_creategroup, m_seq, retdata.str());
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_creategroup, data: %s", m_userinfo.userid,
-         retdata.str().c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_creategroup, data: {}", m_userinfo.userid,
+             retdata.str().c_str());
 
     //应答客户端，成功加群
     {
@@ -950,7 +944,7 @@ void ChatSession::onCreateGroupResponse(const std::string &data, const std::shar
         snprintf(szSelfData, 256, R"({"userid": %d, "type": 3, "username": "%s", "accept": 1})", groupid,
                  groupname.c_str());
         send(msg_type_operatefriend, m_seq, szSelfData, strlen(szSelfData));
-        LOGI("Response to client, userid: %d, cmd=msg_type_addfriend, data: %s", m_userinfo.userid, szSelfData);
+        LOG_INFO("Response to client, userid: {}, cmd=msg_type_addfriend, data: {}", m_userinfo.userid, szSelfData);
     }
 }
 
@@ -962,16 +956,15 @@ void ChatSession::onGetGroupMembersResponse(const std::string &data, const std::
     JSONCPP_STRING errs;
     bool ok = reader->parse(data.c_str(), data.c_str() + data.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json:{}, userid:{}, client:{}", data, m_userinfo.userid, conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["groupid"].isInt()) {
-        LOGE("invalid json: %s, userid: %d, client: %s", data.c_str(), m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid json: {}, userid: {}, client: {}", data.c_str(), m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         return;
     }
 
@@ -1009,7 +1002,8 @@ void ChatSession::onGetGroupMembersResponse(const std::string &data, const std::
     os << R"({"code": 0, "msg": "ok", "groupid": )" << groupid << ", \"members\":[" << strUserInfo << "]}";
     send(msg_type_getgroupmembers, m_seq, os.str());
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_getgroupmembers, data: %s", m_userinfo.userid, os.str().c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_getgroupmembers, data: {}", m_userinfo.userid,
+             os.str().c_str());
 }
 
 void ChatSession::sendUserStatusChangeMsg(int32_t userid, int type, int status/* = 0*/) {
@@ -1041,7 +1035,7 @@ void ChatSession::sendUserStatusChangeMsg(int32_t userid, int type, int status/*
 
     send(outbuf);
 
-    LOGI("send to client: userid: %d, cmd=msg_type_userstatuschange, data: %s", m_userinfo.userid, data.c_str());
+    LOG_INFO("send to client: userid: {}, cmd=msg_type_userstatuschange, data: {}", m_userinfo.userid, data.c_str());
 }
 
 void ChatSession::makeSessionInvalid() {
@@ -1056,8 +1050,8 @@ void ChatSession::onChatResponse(int32_t targetid, const std::string &data,
                                  const std::shared_ptr<TcpConnection> &conn) {
     std::string modifiedChatData;
     if (!modifyChatMsgLocalTimeToServerTime(data, modifiedChatData)) {
-        LOGE("invalid chat json, chatjson: %s, senderid: %d, targetid: %d, chatmsg: %s, client: %s", data.c_str(),
-             m_userinfo.userid, targetid, data.c_str(), conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid chat json, chatjson:{}, senderid:{}, targetid:{}, chatmsg:{}, client:{}", data,
+                  m_userinfo.userid, targetid, data, conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1075,8 +1069,8 @@ void ChatSession::onChatResponse(int32_t targetid, const std::string &data,
     UserManager &userMgr = UserManager::getMe();
     //写入消息记录
     if (!userMgr.saveChatMsgToDb(m_userinfo.userid, targetid, data)) {
-        LOGE("Write chat msg to db error, senderid: %d, targetid: %d, chatmsg: %s, client: %s", m_userinfo.userid,
-             targetid, data.c_str(), conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Write chat msg to db error, senderid: {}, targetid: {}, chatmsg: {}, client: {}", m_userinfo.userid,
+                  targetid, data, conn->peerAddress().toIpPort());
     }
 
     ChatServer &imserver = ChatServer::getMe();
@@ -1132,16 +1126,16 @@ void ChatSession::onMultiChatResponse(const std::string &targets, const std::str
     JSONCPP_STRING errs;
     bool ok = reader->parse(targets.c_str(), targets.c_str() + targets.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("invalid targets string: targets: %s, data: %s, userid: %d, , client: %s", targets.c_str(), data.c_str(),
-             m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid targets string: targets: {}, data: {}, userid: {}, , client: {}", targets, data,
+                  m_userinfo.userid, conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot["targets"].isArray()) {
-        LOGE("[targets] node is not array in targets string: targets: %s, data: %s, userid: %d, client: %s",
-             targets.c_str(), data.c_str(), m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("[targets] node is not array in targets string: targets:{}, data:{}, userid:{}, client:{}",
+                  targets, data, m_userinfo.userid, conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1149,8 +1143,8 @@ void ChatSession::onMultiChatResponse(const std::string &targets, const std::str
         onChatResponse(i.asInt(), data, conn);
     }
 
-    LOGI("send to client, cmd=msg_type_multichat, targets: %s, data: %s, from userid: %d, from client: %s",
-         targets.c_str(), data.c_str(), m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+    LOG_INFO("send to client, cmd=msg_type_multichat, targets: {}, data: {}, from userid: {}, from client: {}",
+             targets, data, m_userinfo.userid, conn->peerAddress().toIpPort());
 }
 
 void ChatSession::onScreenshotResponse(int32_t targetid, const std::string &bmpHeader, const std::string &bmpData,
@@ -1186,14 +1180,13 @@ void ChatSession::onScreenshotResponse(int32_t targetid, const std::string &bmpH
 void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::string &newTeamName,
                                            const std::string &oldTeamName, const std::shared_ptr<TcpConnection> &conn) {
     if (operationType < updateteaminfo_operation_add || operationType > updateteaminfo_operation_modify) {
-        LOGE("invalid teaminfo, userid: %d, , client: %s", m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("invalid teaminfo, userid:{}, client:{}", m_userinfo.userid, conn->peerAddress().toIpPort());
         return;
     }
 
     string teaminfo;
     if (!UserManager::getMe().getTeamInfoByUserId(m_userinfo.userid, teaminfo)) {
-        LOGE("GetTeamInfoByUserId failed, userid: %d, client: %s", m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("GetTeamInfoByUserId failed,userid:{}, client:{}", m_userinfo.userid, conn->peerAddress().toIpPort());
         //TODO: 应该应答一下客户端
         return;
     }
@@ -1211,8 +1204,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
     bool ok = reader->parse(teaminfo.c_str(), teaminfo.c_str() + teaminfo.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
         //TODO: 应该应答一下客户端
-        LOGE("parse teaminfo json failed, userid: %d, client: %s", m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("parse teaminfo json failed, userid:{}, client:{}", m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
@@ -1226,8 +1219,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
         for (uint32_t i = 0; i < teamCount; ++i) {
             if (!jsonRoot[i]["teamname"].isNull() && jsonRoot[i]["teamname"].asString() == newTeamName) {
                 //TODO: 提示客户端分组已经存在
-                LOGE("teamname not exist, userid: %d, client: %s", m_userinfo.userid,
-                     conn->peerAddress().toIpPort().c_str());
+                LOG_ERROR("teamname not exist, userid:{}, client:{}", m_userinfo.userid,
+                          conn->peerAddress().toIpPort());
                 return;
             }
         }
@@ -1260,8 +1253,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
 
                 //将数据库中该组的好友移动至默认分组
                 if (!UserManager::getMe().deleteTeam(m_userinfo.userid, oldTeamName)) {
-                    LOGE("Delete team error, oldTeamName: %s, userid: %s, client: %s", oldTeamName.c_str(),
-                         m_userinfo.userid, conn->peerAddress().toIpPort().c_str());
+                    LOG_ERROR("Delete team error, oldTeamName:{}, userid:{}, client:{}", oldTeamName,
+                              m_userinfo.userid, conn->peerAddress().toIpPort());
                     return;
                 }
 
@@ -1271,8 +1264,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
 
         if (!found) {
             //提示客户端分组名不存在
-            LOGE("teamname not exist, userid: %d, client: %s", m_userinfo.userid,
-                 conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("teamname not exist, userid:{}, client:{}", m_userinfo.userid,
+                      conn->peerAddress().toIpPort());
         }
 
         //Json::FastWriter writer;
@@ -1308,8 +1301,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
         }
 
         if (!UserManager::getMe().modifyTeamName(m_userinfo.userid, newTeamName, oldTeamName)) {
-            LOGE("Update team info failed, userid: %d, newTeamInfo: %s, oldTeamInfo: %s, client: %s", m_userinfo.userid,
-                 newTeamInfo.c_str(), oldTeamName.c_str(), conn->peerAddress().toIpPort().c_str());
+            LOG_ERROR("Update team info failed, userid:{}, newTeamInfo:{}, oldTeamInfo:{}, client:{}",
+                      m_userinfo.userid, newTeamInfo, oldTeamName, conn->peerAddress().toIpPort());
             return;
         }
 
@@ -1324,8 +1317,8 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
     //保存到数据库里面去（个人信息表）和更新内存中的分组信息
     if (!UserManager::getMe().updateUserTeamInfoInDbAndMemory(m_userinfo.userid, newTeamInfo)) {
         //TODO: 失败应答客户端
-        LOGE("Update team info failed, userid: %d, , newTeamInfo: %s, , client: %s", m_userinfo.userid,
-             newTeamInfo.c_str(), conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Update team info failed, userid:{}, , newTeamInfo:{}, , client:{}", m_userinfo.userid,
+                  newTeamInfo, conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1336,15 +1329,15 @@ void ChatSession::onUpdateTeamInfoResponse(int32_t operationType, const std::str
     os << R"({"code": 0, "msg": "ok", "userinfo":)" << friendinfo << "}";
     send(msg_type_getofriendlist, m_seq, os.str());
 
-    LOGI("Response to client, userid: %d, cmd=msg_type_getofriendlist, data: %s", m_userinfo.userid, os.str().c_str());
+    LOG_INFO("Response to client, userid:{}, cmd=msg_type_getofriendlist, data:{}", m_userinfo.userid, os.str());
 }
 
 void ChatSession::onModifyMarknameResponse(int32_t friendid, const std::string &newmarkname,
                                            const std::shared_ptr<TcpConnection> &conn) {
     if (!UserManager::getMe().updateMarknameInDb(m_userinfo.userid, friendid, newmarkname)) {
         //TODO: 失败应答客户端
-        LOGE("Update markname failed, userid: %d, friendid: %d, client: %s", m_userinfo.userid, friendid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Update markname failed, userid:{}, friendid:{}, client:{}", m_userinfo.userid, friendid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1355,30 +1348,32 @@ void ChatSession::onModifyMarknameResponse(int32_t friendid, const std::string &
     os << R"({"code": 0, "msg": "ok", "userinfo":)" << friendinfo << "}";
     send(msg_type_getofriendlist, m_seq, os.str());
 
-    LOGI("Response to client, userid: %d, cmd=msg_type_getofriendlist, data: %s", m_userinfo.userid, os.str().c_str());
+    LOG_INFO("Response to client, userid:{}, cmd=msg_type_getofriendlist, data:{}", m_userinfo.userid,
+             os.str().c_str());
 }
 
 void ChatSession::onMoveFriendToOtherTeamResponse(int32_t friendid, const std::string &newteamname,
                                                   const std::string &oldteamname,
                                                   const std::shared_ptr<TcpConnection> &conn) {
     if (newteamname.empty() || oldteamname.empty() || newteamname == oldteamname) {
-        LOGE("Failed to move to other team, newteamname or oldteamname is invalid, userid: %d, friendid:%d, client: %s",
-             m_userinfo.userid, friendid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR(
+                "Failed to move to other team, newteamname or oldteamname is invalid, userid:{}, friendid:{}, client:{}",
+                m_userinfo.userid, friendid, conn->peerAddress().toIpPort());
         //TODO: 通知客户端
         return;
     }
 
     //不是你的好友，不能操作
     if (!UserManager::getMe().isFriend(m_userinfo.userid, friendid)) {
-        LOGE("Failed to move to other team, not your friend, userid: %d, friendid: %d, client: %s", m_userinfo.userid,
-             friendid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Failed to move to other team, not your friend, userid:{}, friendid:{}, client:{}", m_userinfo.userid,
+                  friendid, conn->peerAddress().toIpPort());
         //TODO: 通知客户端
         return;
     }
 
     User currentUser;
     if (!UserManager::getMe().getUserInfoByUserId(m_userinfo.userid, currentUser)) {
-        LOGE("User not exist in memory, userid: %d", m_userinfo.userid);
+        LOG_ERROR("User not exist in memory, userid:{}", m_userinfo.userid);
         //TODO: 通知客户端
         return;
     }
@@ -1396,16 +1391,16 @@ void ChatSession::onMoveFriendToOtherTeamResponse(int32_t friendid, const std::s
     JSONCPP_STRING errs;
     bool ok = reader->parse(teaminfo.c_str(), teaminfo.c_str() + teaminfo.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("parse teaminfo json failed, userid: %d, teaminfo: %s, client: %s", m_userinfo.userid, teaminfo.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("parse teaminfo json failed, userid:{}, teaminfo:{}, client:{}", m_userinfo.userid, teaminfo,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot.isArray()) {
-        LOGE("parse teaminfo json failed, userid: %d, teaminfo: %s, client: %s", m_userinfo.userid, teaminfo.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("parse teaminfo json failed, userid:{}, teaminfo:{}, client:{}", m_userinfo.userid, teaminfo,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1424,15 +1419,15 @@ void ChatSession::onMoveFriendToOtherTeamResponse(int32_t friendid, const std::s
     }
 
     if (!foundNewTeam || !foundOldTeam) {
-        LOGE("Failed to move to other team, oldTeamName or newTeamName not exist, userid: %d, friendid: %d, oldTeamName: %s, newTeamName: %s, client: %s",
-             m_userinfo.userid, friendid, oldteamname.c_str(), newteamname.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR(
+                "Failed to move to other team, oldTeamName or newTeamName not exist, userid:{}, friendid:{}, oldTeamName: {}, newTeamName: {}, client: {}",
+                m_userinfo.userid, friendid, oldteamname, newteamname, conn->peerAddress().toIpPort());
         return;
     }
 
     if (!UserManager::getMe().moveFriendToOtherTeam(m_userinfo.userid, friendid, newteamname)) {
-        LOGE("Failed to MoveFriendToOtherTeam, db operation error, userid: %d, friendid: %d, client: %s",
-             m_userinfo.userid, friendid, conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Failed to MoveFriendToOtherTeam, db operation error, userid:{}, friendid:{}, client:{}",
+                  m_userinfo.userid, friendid, conn->peerAddress().toIpPort().c_str());
         return;
     }
 
@@ -1443,7 +1438,7 @@ void ChatSession::onMoveFriendToOtherTeamResponse(int32_t friendid, const std::s
     os << R"({"code": 0, "msg": "ok", "userinfo":)" << friendinfo << "}";
     send(msg_type_getofriendlist, m_seq, os.str());
 
-    LOGI("Response to client: userid: %d, cmd=msg_type_getofriendlist, data: %s", m_userinfo.userid, os.str().c_str());
+    LOG_INFO("Response to client: userid: {}, cmd=msg_type_getofriendlist, data: {}", m_userinfo.userid, os.str());
 }
 
 void ChatSession::deleteFriend(const std::shared_ptr<TcpConnection> &conn, int32_t friendid) {
@@ -1464,23 +1459,23 @@ void ChatSession::deleteFriend(const std::shared_ptr<TcpConnection> &conn, int32
     **/
 
     if (!UserManager::getMe().releaseFriendRelationshipInDBAndMemory(friendid, m_userinfo.userid)) {
-        LOGE("Delete friend error, friendid: %d, userid: %d, client: %d", friendid, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Delete friend error, friendid: {}, userid: {}, client: {}", friendid, m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         return;
     }
 
     //更新一下当前用户的分组信息
     User cachedUser;
     if (!UserManager::getMe().getUserInfoByUserId(friendid, cachedUser)) {
-        LOGE("Delete friend - Get user error, friendid: %d, userid: %d, client: %s", friendid, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("Delete friend - Get user error, friendid: {}, userid: %d, client: {}", friendid, m_userinfo.userid,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
     if (!UserManager::getMe().updateUserRelationshipInMemory(m_userinfo.userid, friendid,
                                                              FRIEND_OPERATION_DELETE)) {
-        LOGE("UpdateUserTeamInfo failed, friendid: %d, userid: %d, client: %s", friendid, m_userinfo.userid,
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("UpdateUserTeamInfo failed, friendid: {}, userid: {}, client:{}", friendid, m_userinfo.userid,
+                  conn->peerAddress().toIpPort().c_str());
         return;
     }
 
@@ -1490,7 +1485,7 @@ void ChatSession::deleteFriend(const std::shared_ptr<TcpConnection> &conn, int32
     snprintf(szData, 256, R"({"userid":%d, "type":5, "username": "%s"})", friendid, cachedUser.username.c_str());
     send(msg_type_operatefriend, m_seq, szData, strlen(szData));
 
-    LOGI("send to client: userid： %d, cmd=msg_type_operatefriend, data: %s", m_userinfo.userid, szData);
+    LOG_INFO("send to client: userid:{}, cmd=msg_type_operatefriend, data:{}", m_userinfo.userid, szData);
 
     //发给被删除的一方
     //删除好友消息
@@ -1508,7 +1503,7 @@ void ChatSession::deleteFriend(const std::shared_ptr<TcpConnection> &conn, int32
                     iter->send(msg_type_operatefriend, m_seq, szData, strlen(szData));
             }
 
-            LOGI("send to client: userid: %d, cmd=msg_type_operatefriend, data: %s", friendid, szData);
+            LOG_INFO("send to client: userid: {}, cmd=msg_type_operatefriend, data: {}", friendid, szData);
         }
 
         return;
@@ -1573,16 +1568,16 @@ void ChatSession::makeUpFriendListInfo(std::string &friendinfo, const std::share
     JSONCPP_STRING errs;
     bool ok = reader->parse(teaminfo.c_str(), teaminfo.c_str() + teaminfo.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("parse teaminfo json failed, userid: %d, teaminfo: %s, client: %s", m_userinfo.userid, teaminfo.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("parse teaminfo json failed, userid: {}, teaminfo: {}, client: {}", m_userinfo.userid, teaminfo,
+                  conn->peerAddress().toIpPort());
         delete reader;
         return;
     }
     delete reader;
 
     if (!jsonRoot.isArray()) {
-        LOGE("parse teaminfo json failed, userid: %d, teaminfo: %s, client: %s", m_userinfo.userid, teaminfo.c_str(),
-             conn->peerAddress().toIpPort().c_str());
+        LOG_ERROR("parse teaminfo json failed, userid: {}, teaminfo: {}, client: {}", m_userinfo.userid, teaminfo,
+                  conn->peerAddress().toIpPort());
         return;
     }
 
@@ -1670,8 +1665,7 @@ bool ChatSession::modifyChatMsgLocalTimeToServerTime(const std::string &chatInpu
     JSONCPP_STRING errs;
     bool ok = reader->parse(chatInputJson.c_str(), chatInputJson.c_str() + chatInputJson.length(), &jsonRoot, &errs);
     if (!ok || !errs.empty()) {
-        LOGE("parse chatInputJson json failed, userid: %d, chatInputJson: %s", m_userinfo.userid,
-             chatInputJson.c_str());
+        LOG_ERROR("parse chatInputJson json failed, userid:{}, chatInputJson:{}", m_userinfo.userid, chatInputJson);
         delete reader;
         return false;
     }
@@ -1702,8 +1696,8 @@ void ChatSession::enableHearbeatCheck() {
 void ChatSession::disableHeartbeatCheck() {
     std::shared_ptr<TcpConnection> conn = getConnectionPtr();
     if (conn) {
-        LOGI("remove check online timerId, userid: %d, clientType: %d, client address: %s", m_userinfo.userid,
-             m_userinfo.clienttype, conn->peerAddress().toIpPort().c_str());
+        LOG_INFO("remove check online timerId, userid: {}, clientType: {}, client address: {}", m_userinfo.userid,
+                 m_userinfo.clienttype, conn->peerAddress().toIpPort());
         conn->getLoop()->cancel(m_checkOnlineTimerId, true);
     }
 }

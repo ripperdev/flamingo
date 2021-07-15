@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cstring>
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "EpollPoller.h"
 
 using namespace net;
@@ -35,7 +35,7 @@ EventLoop::EventLoop()
     poller_ = std::make_unique<EPollPoller>(this);
 
     if (t_loopInThisThread) {
-        LOGF("Another EventLoop  exists in this thread ");
+        LOG_ERROR("Another EventLoop  exists in this thread ");
     } else {
         t_loopInThisThread = this;
     }
@@ -50,7 +50,7 @@ EventLoop::EventLoop()
 
 EventLoop::~EventLoop() {
     assertInLoopThread();
-    LOGD("EventLoop 0x%x destructs.", this);
+    LOG_DEBUG("EventLoop {} destructs.", (void *) this);
 
     //std::stringstream ss;
     //ss << "eventloop destructs threadid = " << threadId_;
@@ -72,7 +72,7 @@ void EventLoop::loop() {
     assertInLoopThread();
     looping_ = true;
     quit_ = false;  // FIXME: what if someone calls quit() before loop() ?
-    LOGD("EventLoop 0x%x  start looping", this);
+    LOG_DEBUG("EventLoop {}  start looping", (void *) this);
 
     while (!quit_) {
         timerQueue_->doTimer();
@@ -99,14 +99,14 @@ void EventLoop::loop() {
         }
     }
 
-    LOGD("EventLoop 0x%0x stop looping", this);
+    LOG_DEBUG("EventLoop {} stop looping", (void *) this);
     looping_ = false;
 
 
     std::ostringstream oss;
     oss << std::this_thread::get_id();
     std::string stid = oss.str();
-    LOGI("Exiting loop, EventLoop object: 0x%x , threadID: %s", this, stid.c_str());
+    LOG_INFO("Exiting loop, EventLoop object: {} , threadID: {}", (void *) this, stid.c_str());
 }
 
 void EventLoop::quit() {
@@ -200,7 +200,7 @@ void EventLoop::removeChannel(Channel *channel) {
         //assert(currentActiveChannel_ == channel || std::find(activeChannels_.begin(), activeChannels_.end(), channel) == activeChannels_.end());
     }
 
-    LOGD("Remove channel, channel = 0x%x, fd = %d", channel, channel->fd());
+    LOG_DEBUG("Remove channel, channel = {}, fd = {}", (void *) channel, channel->fd());
     poller_->removeChannel(channel);
 }
 
@@ -215,7 +215,7 @@ bool EventLoop::createWakeupfd() {
     wakeupFd_ = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (wakeupFd_ < 0) {
         //让程序挂掉
-        LOGF("Unable to create wakeup eventfd, EventLoop: 0x%x", this);
+        LOG_CRITICAL("Unable to create wakeup eventfd, EventLoop: {}", (void*)this);
         return false;
     }
     return true;
@@ -224,7 +224,7 @@ bool EventLoop::createWakeupfd() {
 void EventLoop::abortNotInLoopThread() {
     std::stringstream ss;
     ss << "threadid_ = " << threadId_ << " this_thread::get_id() = " << std::this_thread::get_id();
-    LOGF("EventLoop::abortNotInLoopThread - EventLoop %s", ss.str().c_str());
+    LOG_CRITICAL("EventLoop::abortNotInLoopThread - EventLoop {}", ss.str().c_str());
 }
 
 bool EventLoop::wakeup() const {
@@ -232,8 +232,8 @@ bool EventLoop::wakeup() const {
     int32_t n = sockets::write(wakeupFd_, &one, sizeof(one));
     if (n != sizeof one) {
         int error = errno;
-        LOGSYSE("EventLoop::wakeup() writes %d  bytes instead of 8, fd: %d, error: %d, errorinfo: %s", n, wakeupFd_,
-                error, strerror(error));
+        LOG_ERROR("EventLoop::wakeup() writes {} bytes instead of 8, fd: {}, error: {}, errorinfo: {}", n, wakeupFd_,
+                  error, strerror(error));
         return false;
     }
     return true;
@@ -245,8 +245,8 @@ bool EventLoop::handleRead() const {
 
     if (n != sizeof one) {
         int error = errno;
-        LOGSYSE("EventLoop::wakeup() read %d  bytes instead of 8, fd: %d, error: %d, errorinfo: %s", n, wakeupFd_,
-                error, strerror(error));
+        LOG_ERROR("EventLoop::wakeup() read {} bytes instead of 8, fd: {}, error: {}, errorinfo: {}", n, wakeupFd_,
+                  error, strerror(error));
         return false;
     }
     return true;
@@ -269,6 +269,6 @@ void EventLoop::doPendingFunctors() {
 
 void EventLoop::printActiveChannels() const {
     for (auto ch : activeChannels_) {
-        LOGD("{%s}", ch->reventsToString().c_str());
+        LOG_DEBUG("{}", ch->reventsToString().c_str());
     }
 }

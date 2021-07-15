@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstring>
 
-#include "AsyncLog.h"
+#include "Logger.h"
 
 CDatabaseMysql::CDatabaseMysql() {
     //m_Mysql = new MYSQL;
@@ -160,13 +160,13 @@ bool CDatabaseMysql::execute(const char *sql) {
                 //LOGI << sql;
                 iTempRet = mysql_real_query(m_Mysql, sql, strlen(sql));
                 if (iTempRet) {
-                    LOGE("sql error: %s, sql: %s", mysql_error(m_Mysql), sql);
+                    LOG_ERROR("sql error: {}, sql: {}", mysql_error(m_Mysql), sql);
                     //LOGE << "query ERROR: " << mysql_error(m_Mysql);
                 }
             } else {
                 //LOGE << "SQL: " << sql;
                 //LOGE << "query ERROR: " << mysql_error(m_Mysql);
-                LOGE("sql error: %s, sql: %s", mysql_error(m_Mysql), sql);
+                LOG_ERROR("sql error: {}, sql: {}", mysql_error(m_Mysql), sql);
             }
             return false;
         }

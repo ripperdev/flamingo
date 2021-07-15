@@ -1,6 +1,6 @@
 #include "MysqlManager.h"
 #include <sstream>
-#include "AsyncLog.h"
+#include "Logger.h"
 
 CMysqlManager::CMysqlManager() {
     //TODO: m_strCharactSet可以放在初始化列表中初始化
@@ -135,7 +135,7 @@ bool CMysqlManager::init(const char *host, const char *user, const char *pwd, co
     }
 
     ////////////////////// 2. 检查库中表是否正确 /////////////////////////
-    for (const auto& table : m_vecTableInfo) {
+    for (const auto &table : m_vecTableInfo) {
         if (!checkTable(table)) {
             //LOG_FATAL << "CMysqlManager::Init, table check failed : " << table.m_strName;
             return false;
@@ -293,6 +293,6 @@ bool CMysqlManager::createTable(const STableInfo &table) {
         return true;
     }
 
-    LOGE("Create table error, sql: %s", ss.str().c_str());
+    LOG_ERROR("Create table error, sql:{}", ss.str());
     return false;
 }

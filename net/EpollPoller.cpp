@@ -1,8 +1,8 @@
 #include "EpollPoller.h"
 
 #include <cstring>
-#include "../base/Platform.h"
-#include "../base/AsyncLog.h"
+#include "base/Platform.h"
+#include "base/Logger.h"
 #include "EventLoop.h"
 
 using namespace net;
@@ -27,7 +27,7 @@ EPollPoller::EPollPoller(EventLoop *loop)
           events_(kInitEventListSize),
           ownerLoop_(loop) {
     if (epollfd_ < 0) {
-        LOGF("EPollPoller::EPollPoller");
+        LOG_CRITICAL("EPollPoller::EPollPoller");
     }
 }
 
@@ -64,7 +64,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList *activeChannels) {
         // error happens, log uncommon ones
         if (savedErrno != EINTR) {
             errno = savedErrno;
-            LOGSYSE("EPollPoller::poll()");
+            LOG_CRITICAL("EPollPoller::poll()");
         }
     }
     return now;
@@ -85,7 +85,7 @@ void EPollPoller::fillActiveChannels(int numEvents, ChannelList *activeChannels)
 
 bool EPollPoller::updateChannel(Channel *channel) {
     assertInLoopThread();
-    LOGD("fd = %d  events = %d", channel->fd(), channel->events());
+    LOG_DEBUG("fd = {}  events = {}", channel->fd(), channel->events());
     const int index = channel->index();
     if (index == kNew || index == kDeleted) {
         // a new one, add with XEPOLL_CTL_ADD
@@ -93,20 +93,20 @@ bool EPollPoller::updateChannel(Channel *channel) {
         if (index == kNew) {
             //assert(channels_.find(fd) == channels_.end())
             if (channels_.find(fd) != channels_.end()) {
-                LOGE("fd = %d  must not exist in channels_", fd);
+                LOG_ERROR("fd = {}  must not exist in channels_", fd);
                 return false;
             }
             channels_[fd] = channel;
         } else {
             //assert(channels_.find(fd) != channels_.end());
             if (channels_.find(fd) == channels_.end()) {
-                LOGE("fd = %d  must exist in channels_", fd);
+                LOG_ERROR("fd = {}  must exist in channels_", fd);
                 return false;
             }
 
             //assert(channels_[fd] == channel);
             if (channels_[fd] != channel) {
-                LOGE("current channel is not matched current fd, fd = %d", fd);
+                LOG_ERROR("current channel is not matched current fd, fd = {}", fd);
                 return false;
             }
         }
@@ -120,7 +120,7 @@ bool EPollPoller::updateChannel(Channel *channel) {
         //assert(channels_[fd] == channel);
         //assert(index == kAdded);
         if (channels_.find(fd) == channels_.end() || channels_[fd] != channel || index != kAdded) {
-            LOGE("current channel is not matched current fd, fd = %d, channel = 0x%x", fd, channel);
+            LOG_ERROR("current channel is not matched current fd, fd = {}, channel = {}", fd, (void*)channel);
             return false;
         }
 
@@ -171,10 +171,10 @@ bool EPollPoller::update(int operation, Channel *channel) const {
     int fd = channel->fd();
     if (::epoll_ctl(epollfd_, operation, fd, &event) < 0) {
         if (operation == XEPOLL_CTL_DEL) {
-            LOGE("epoll_ctl op=%d fd=%d, epollfd=%d, errno=%d, errorInfo: %s", operation, fd, epollfd_, errno,
+            LOG_ERROR("epoll_ctl op={} fd={}, epollfd={}, errno={}, errorInfo: {}", operation, fd, epollfd_, errno,
                  strerror(errno));
         } else {
-            LOGE("epoll_ctl op=%d fd=%d, epollfd=%d, errno=%d, errorInfo: %s", operation, fd, epollfd_, errno,
+            LOG_ERROR("epoll_ctl op={} fd={}, epollfd={}, errno={}, errorInfo: {}", operation, fd, epollfd_, errno,
                  strerror(errno));
         }
         return false;

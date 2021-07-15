@@ -1,19 +1,14 @@
-/**
- *  聊天图片服务程序入口函数
- *  zhangyl 2017.03.09
- **/
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
-#include "base/Platform.h"
-#include "base/Singleton.h"
 #include "base/ConfigFileReader.h"
-#include "base/AsyncLog.h"
+#include "base/Logger.h"
+#include "base/Platform.h"
 #include "net/EventLoop.h"
+#include "utils/DaemonRun.h"
+
 #include "FileServer/FileManager.h"
 #include "FileServer/FileServer.h"
-
-#include "utils/DaemonRun.h"
 
 using namespace net;
 
@@ -33,6 +28,13 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, prog_exit);
     signal(SIGTERM, prog_exit);
 
+    if (!Logger::getMe().init("ImgServer", "ImgServer")) {
+        std::cout << "ImgServer Logger init failed" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    CConfigFileReader config("etc/imgserver.conf");
+
     int ch;
     bool bdaemon = false;
     while ((ch = getopt(argc, argv, "d")) != -1) {
@@ -45,33 +47,6 @@ int main(int argc, char *argv[]) {
     if (bdaemon)
         daemon_run();
 
-    CConfigFileReader config("etc/imgserver.conf");
-
-    std::string logFileFullPath;
-
-    const char *logfilepath = config.getConfigName("logfiledir");
-    if (logfilepath == nullptr) {
-        LOGF("logdir is not set in config file");
-        return 1;
-    }
-
-    //如果log目录不存在则创建之
-    DIR *dp = opendir(logfilepath);
-    if (dp == nullptr) {
-        if (mkdir(logfilepath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-            LOGF("create base dir error, %s , errno: %d, %s", logfilepath, errno, strerror(errno));
-            return 1;
-        }
-    }
-    closedir(dp);
-
-    logFileFullPath = logfilepath;
-
-    const char *logfilename = config.getConfigName("logfilename");
-    logFileFullPath += logfilename;
-
-    CAsyncLog::init(logFileFullPath.c_str());
-
     const char *filecachedir = config.getConfigName("imgcachedir");
     FileManager::getMe().init(filecachedir);
 
@@ -79,11 +54,11 @@ int main(int argc, char *argv[]) {
     auto listenport = (short) atol(config.getConfigName("listenport"));
     FileServer::getMe().init(listenip, listenport, &g_mainLoop, filecachedir);
 
-    LOGI("imgserver initialization complete, now you can use client to connect it.");
+    LOG_INFO("imgserver initialization complete, now you can use client to connect it.");
 
     g_mainLoop.loop();
 
-    LOGI("exit imgserver.");
+    LOG_INFO("exit imgserver.");
 
     return 0;
 }

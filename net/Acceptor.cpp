@@ -1,6 +1,6 @@
 #include "Acceptor.h"
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "EventLoop.h"
 #include "InetAddress.h"
 
@@ -39,7 +39,7 @@ void Acceptor::handleRead() {
     int connfd = acceptSocket_.accept(&peerAddr);
     if (connfd >= 0) {
         string hostport = peerAddr.toIpPort();
-        LOGD("Accepts of %s", hostport.c_str());
+        LOG_DEBUG("Accepts of {}", hostport.c_str());
         //newConnectionCallback_实际指向TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
         if (newConnectionCallback_) {
             newConnectionCallback_(connfd, peerAddr);
@@ -47,7 +47,7 @@ void Acceptor::handleRead() {
             sockets::close(connfd);
         }
     } else {
-        LOGSYSE("in Acceptor::handleRead");
+        LOG_ERROR("in Acceptor::handleRead");
         /*
         The special problem of accept()ing when you can't
 

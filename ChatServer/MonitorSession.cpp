@@ -1,14 +1,10 @@
-/**
- * 监控会话类, MonitorSession.cpp
- * zhangyl 2017.03.09
- */
 #include "MonitorSession.h"
 #include <sstream>
 #include <list>
-#include "../net/EventLoopThread.h"
-#include "../base/AsyncLog.h"
-#include "../base/Singleton.h"
-#include "../utils/StringUtil.h"
+#include "net/EventLoopThread.h"
+#include "base/Logger.h"
+#include "base/Singleton.h"
+#include "utils/StringUtil.h"
 #include "ChatSession.h"
 #include "ChatServer.h"
 #include "MonitorServer.h"
@@ -49,7 +45,7 @@ void MonitorSession::onRead(const std::shared_ptr<TcpConnection> &conn, Buffer *
                     substr = buf.substr(0, pos);
                 totalsize += substr.length();
                 buf = buf.substr(pos + 1);
-                LOGI("recv cmd: %s", substr.c_str());
+                LOG_INFO("recv cmd: {}", substr.c_str());
                 //LOGI << "buf: " << substr;
                 process(conn, substr);
             } else {

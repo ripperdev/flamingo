@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "Acceptor.h"
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
@@ -29,7 +29,7 @@ TcpServer::TcpServer(EventLoop *loop,
 
 TcpServer::~TcpServer() {
     loop_->assertInLoopThread();
-    LOGD("TcpServer::~TcpServer [%s] destructing", name_.c_str());
+    LOG_DEBUG("TcpServer::~TcpServer [{}] destructing", name_.c_str());
 
     stop();
 }
@@ -77,7 +77,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
     ++nextConnId_;
     string connName = name_ + buf;
 
-    LOGD("TcpServer::newConnection [%s] - new connection [%s] from %s", name_.c_str(), connName.c_str(),
+    LOG_DEBUG("TcpServer::newConnection [{}] - new connection [{}] from {}", name_.c_str(), connName.c_str(),
          peerAddr.toIpPort().c_str());
 
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
@@ -100,13 +100,13 @@ void TcpServer::removeConnection(const TcpConnectionPtr &conn) {
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr &conn) {
     loop_->assertInLoopThread();
-    LOGD("TcpServer::removeConnectionInLoop [%s] - connection %s", name_.c_str(), conn->name().c_str());
+    LOG_DEBUG("TcpServer::removeConnectionInLoop [{}] - connection {}", name_.c_str(), conn->name().c_str());
     size_t n = connections_.erase(conn->name());
     //(void)n;
     //assert(n == 1);
     if (n != 1) {
         //出现这种情况，是TcpConneaction对象在创建过程中，对方就断开连接了。
-        LOGD("TcpServer::removeConnectionInLoop [%s] - connection %s, connection does not exist.", name_.c_str(),
+        LOG_DEBUG("TcpServer::removeConnectionInLoop [{}] - connection {}, connection does not exist.", name_.c_str(),
              conn->name().c_str());
         return;
     }
