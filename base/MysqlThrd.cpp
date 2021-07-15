@@ -1,8 +1,5 @@
 #include "MysqlThrd.h"
 
-#include <memory>
-#include "AsyncLog.h"
-
 CMysqlThrd::CMysqlThrd() {
     m_bTerminate = false;
 
