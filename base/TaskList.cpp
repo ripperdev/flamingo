@@ -1,6 +1,5 @@
 #include "TaskList.h"
 #include <cstring>
-#include "AsyncLog.h"
 
 CTaskList::CTaskList() : m_uReadIndex(0), m_uWriteIndex(0) {
     memset(m_pTaskNode, 0, sizeof(m_pTaskNode));

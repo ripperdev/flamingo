@@ -2,7 +2,7 @@
 #include <functional>
 
 #include "TcpClient.h"
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "EventLoop.h"
 #include "Connector.h"
 
@@ -46,11 +46,11 @@ TcpClient::TcpClient(EventLoop *loop,
     connector_->setNewConnectionCallback(
             [this](int fd) { newConnection(fd); });
     // FIXME setConnectFailedCallback
-    LOGD("TcpClient::TcpClient[%s] - connector 0x%x", name_.c_str(), connector_.get());
+    LOG_DEBUG("TcpClient::TcpClient[{}] - connector {}", name_.c_str(), (void*)connector_.get());
 }
 
 TcpClient::~TcpClient() {
-    LOGD("TcpClient::~TcpClient[%s] - connector 0x%x", name_.c_str(), connector_.get());
+    LOG_DEBUG("TcpClient::~TcpClient[{}] - connector {}", name_.c_str(), (void*)connector_.get());
     TcpConnectionPtr conn;
     bool unique = false;
     {
@@ -78,7 +78,7 @@ TcpClient::~TcpClient() {
 
 void TcpClient::connect() {
     // FIXME: check state
-    LOGD("TcpClient::connect[%s] - connecting to %s", name_.c_str(), connector_->serverAddress().toIpPort().c_str());
+    LOG_DEBUG("TcpClient::connect[{}] - connecting to {}", name_, connector_->serverAddress().toIpPort());
     connect_ = true;
     connector_->start();
 }
@@ -141,8 +141,7 @@ void TcpClient::removeConnection(const TcpConnectionPtr &conn) {
 
     loop_->queueInLoop([conn] { conn->connectDestroyed(); });
     if (retry_ && connect_) {
-        LOGD("TcpClient::connect[%s] - Reconnecting to %s", name_.c_str(),
-             connector_->serverAddress().toIpPort().c_str());
+        LOG_DEBUG("TcpClient::connect[{}] - Reconnecting to {}", name_, connector_->serverAddress().toIpPort());
         connector_->restart();
     }
 }

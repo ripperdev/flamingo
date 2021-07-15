@@ -1,7 +1,7 @@
 #include "PollPoller.h"
 
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include <poll.h>
@@ -17,14 +17,14 @@ Timestamp PollPoller::poll(int timeoutMs, ChannelList *activeChannels) {
     int savedErrno = errno;
     Timestamp now(Timestamp::now());
     if (numEvents > 0) {
-        LOGD("%d  events happended", numEvents);
+        LOG_DEBUG("{}  events happended", numEvents);
         fillActiveChannels(numEvents, activeChannels);
     } else if (numEvents == 0) {
-        LOGD("nothing happended");
+        LOG_DEBUG("nothing happended");
     } else {
         if (savedErrno != EINTR) {
             errno = savedErrno;
-            LOGSYSE("PollPoller::poll()");
+            LOG_ERROR("PollPoller::poll()");
         }
     }
     return now;
@@ -53,7 +53,7 @@ void PollPoller::fillActiveChannels(int numEvents, ChannelList *activeChannels) 
 
 bool PollPoller::updateChannel(Channel *channel) {
     assertInLoopThread();
-    LOGD("fd = %d events = %d", channel->fd(), channel->events());
+    LOG_DEBUG("fd = {} events = {}", channel->fd(), channel->events());
     if (channel->index() < 0) {
         // a new one, add to pollfds_
         //assert(channels_.find(channel->fd()) == channels_.end());
@@ -96,7 +96,7 @@ bool PollPoller::updateChannel(Channel *channel) {
 
 void PollPoller::removeChannel(Channel *channel) {
     assertInLoopThread();
-    LOGD("fd = %d", channel->fd());
+    LOG_DEBUG("fd:{}", channel->fd());
 
     //assert(channels_.find(channel->fd()) != channels_.end());
     //assert(channels_[channel->fd()] == channel);

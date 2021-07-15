@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cstring>
 
-#include "../base/AsyncLog.h"
+#include "base/Logger.h"
 #include "EventLoop.h"
 
 using namespace net;
@@ -66,7 +66,7 @@ Timestamp SelectPoller::poll(int timeoutMs, ChannelList *activeChannels) {
         int savedErrno;
         savedErrno = errno;
 
-        LOGSYSE("SelectPoller::poll() error, errno: %d", savedErrno);
+        LOG_ERROR("SelectPoller::poll() error, errno: {}", savedErrno);
     }
 
     return now;
@@ -115,20 +115,20 @@ bool SelectPoller::updateChannel(Channel *channel) {
         if (index == kNew) {
             //assert(channels_.find(fd) == channels_.end())
             if (channels_.find(fd) != channels_.end()) {
-                LOGE("fd = %d must not exist in channels_", fd);
+                LOG_ERROR("fd = {} must not exist in channels_", fd);
                 return false;
             }
             channels_[fd] = channel;
         } else {
             //assert(channels_.find(fd) != channels_.end());
             if (channels_.find(fd) == channels_.end()) {
-                LOGE("fd = %d must not exist in channels_", fd);
+                LOG_ERROR("fd = {} must not exist in channels_", fd);
                 return false;
             }
 
             //assert(channels_[fd] == channel);
             if (channels_[fd] != channel) {
-                LOGE("current channel is not matched current fd, fd = %d", fd);
+                LOG_ERROR("current channel is not matched current fd, fd = {}", fd);
                 return false;
             }
         }
@@ -142,7 +142,7 @@ bool SelectPoller::updateChannel(Channel *channel) {
         //assert(channels_[fd] == channel);
         //assert(index == kAdded);
         if (channels_.find(fd) == channels_.end() || channels_[fd] != channel || index != kAdded) {
-            LOGE("current channel is not matched current fd, fd = %d, channel = 0x%x", fd, channel);
+            LOG_ERROR("current channel is not matched current fd, fd = {}, channel = {}", fd, (void*)channel);
             return false;
         }
 
@@ -224,7 +224,7 @@ bool SelectPoller::update(int operation, Channel *channel) {
     for (const auto &iter : events_) {
         os << "fd: " << iter.data.fd << ", Channel: 0x%x: " << iter.data.ptr << ", events: " << iter.events << "\n";
     }
-    LOGE("%s", os.str().c_str());
+    LOG_ERROR("%s", os.str());
 
     return false;
 }

@@ -1,7 +1,6 @@
 #include "TimerQueue.h"
 
-#include "../base/Platform.h"
-#include "../base/AsyncLog.h"
+#include "base/Platform.h"
 #include "EventLoop.h"
 #include "Timer.h"
 
