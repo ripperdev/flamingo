@@ -150,11 +150,6 @@ bool ChatSession::process(const std::shared_ptr<TcpConnection> &conn, const char
         LOG_INFO("Request from client: userid={}, cmd={}, seq={}, data={}, datalength={}, buflength={}",
                  m_userinfo.userid, cmd, m_seq, data.c_str(), datalength, buflength);
 
-    if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
-        LOG_INFO("body stream, buflength: {}, client: {}", buflength, conn->peerAddress().toIpPort().c_str());
-        //LOG_DEBUG_BIN((unsigned char*)inbuf, buflength);
-    }
-
     switch (cmd) {
         //心跳包
         case msg_type_heartbeat:

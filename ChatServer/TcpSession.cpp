@@ -50,9 +50,6 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
     header.compressflag = 1;
     header.compresssize = destbuf.length();
     header.originsize = length;
-    if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
-        LOG_INFO("Send data, header length: {}, body length: {}", sizeof(header), destbuf.length());
-    }
 
     //插入一个包头
     strPackageData.append((const char *) &header, sizeof(header));
@@ -67,11 +64,6 @@ void TcpSession::sendPackage(const char *p, int32_t length) {
 
     std::shared_ptr<TcpConnection> conn = tmpConn_.lock();
     if (conn) {
-        if (ChatServer::getMe().isLogPackageBinaryEnabled()) {
-            size_t length = strPackageData.length();
-            LOG_INFO("Send data, package length: {}", length);
-            //LOG_DEBUG_BIN((unsigned char*)strPackageData.c_str(), length);
-        }
         conn->send(strPackageData);
     }
 }

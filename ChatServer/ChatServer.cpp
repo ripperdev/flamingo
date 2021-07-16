@@ -10,9 +10,7 @@
 #include "ChatSession.h"
 #include "UserManager.h"
 
-ChatServer::ChatServer() {
-    m_logPackageBinary = false;
-}
+ChatServer::ChatServer() {}
 
 bool ChatServer::init(const char *ip, short port, EventLoop *loop) {
     InetAddress addr(ip, port);
@@ -27,14 +25,6 @@ bool ChatServer::init(const char *ip, short port, EventLoop *loop) {
 void ChatServer::uninit() {
     if (m_server)
         m_server->stop();
-}
-
-void ChatServer::enableLogPackageBinary(bool enable) {
-    m_logPackageBinary = enable;
-}
-
-bool ChatServer::isLogPackageBinaryEnabled() {
-    return m_logPackageBinary;
 }
 
 void ChatServer::onConnected(const std::shared_ptr<TcpConnection> &conn) {

@@ -12,13 +12,11 @@
 
 using namespace net;
 
-EventLoop g_mainLoop;
 
 void prog_exit(int signo) {
     std::cout << "program recv signal [" << signo << "] to exit." << std::endl;
 
     FileServer::getMe().uninit();
-    g_mainLoop.quit();
 }
 
 int main(int argc, char *argv[]) {
@@ -28,10 +26,12 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, prog_exit);
     signal(SIGTERM, prog_exit);
 
-    if (!Logger::getMe().init("ImgServer", "ImgServer")) {
+    if (!Logger::getMe().init("ImgServer", "log/ImgServer")) {
         std::cout << "ImgServer Logger init failed" << std::endl;
         return EXIT_FAILURE;
     }
+
+    EventLoop mainLoop;
 
     CConfigFileReader config("etc/imgserver.conf");
 
@@ -52,11 +52,11 @@ int main(int argc, char *argv[]) {
 
     const char *listenip = config.getConfigName("listenip");
     auto listenport = (short) atol(config.getConfigName("listenport"));
-    FileServer::getMe().init(listenip, listenport, &g_mainLoop, filecachedir);
+    FileServer::getMe().init(listenip, listenport, &mainLoop, filecachedir);
 
     LOG_INFO("imgserver initialization complete, now you can use client to connect it.");
 
-    g_mainLoop.loop();
+    mainLoop.loop();
 
     LOG_INFO("exit imgserver.");
 

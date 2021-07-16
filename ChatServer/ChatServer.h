@@ -47,8 +47,6 @@ public:
 
     void enableLogPackageBinary(bool enable);
 
-    bool isLogPackageBinaryEnabled();
-
     void getSessions(std::list<std::shared_ptr<ChatSession>> &sessions);
 
     //用户id和clienttype会唯一确定一个session
@@ -75,5 +73,4 @@ private:
     std::mutex m_sessionMutex;      //多线程之间保护m_sessions
     std::atomic_int m_sessionId{};
     std::mutex m_idMutex;           //多线程之间保护m_baseUserId
-    std::atomic_bool m_logPackageBinary{};  //是否日志打印出包的二进制数据
 };

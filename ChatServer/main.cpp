@@ -16,7 +16,6 @@
 
 using namespace net;
 
-EventLoop g_mainLoop;
 
 void prog_exit(int signo) {
     std::cout << "program recv signal [" << signo << "] to exit." << std::endl;
@@ -24,7 +23,6 @@ void prog_exit(int signo) {
     MonitorServer::getMe().uninit();
     HttpServer::getMe().uninit();
     ChatServer::getMe().uninit();
-    g_mainLoop.quit();
 }
 
 int main(int argc, char *argv[]) {
@@ -34,21 +32,14 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, prog_exit);
     signal(SIGTERM, prog_exit);
 
-    if (!Logger::getMe().init("ChatServer", "ChatServer")) {
+    if (!Logger::getMe().init("ChatServer", "log/ChatServer")) {
         std::cout << "ChatServer Logger init failed" << std::endl;
         return EXIT_FAILURE;
     }
 
-    CConfigFileReader config("etc/chatserver.conf");
+    EventLoop mainLoop;
 
-    const char *logbinarypackage = config.getConfigName("logbinarypackage");
-    if (logbinarypackage != nullptr) {
-        int logbinarypackageint = atoi(logbinarypackage);
-        if (logbinarypackageint != 0)
-            ChatServer::getMe().enableLogPackageBinary(true);
-        else
-            ChatServer::getMe().enableLogPackageBinary(false);
-    }
+    CConfigFileReader config("etc/chatserver.conf");
 
     int ch;
     bool bdaemon = false;
@@ -69,28 +60,30 @@ int main(int argc, char *argv[]) {
     const char *dbname = config.getConfigName("dbname");
     if (!CMysqlManager::getMe().init(dbserver, dbuser, dbpassword, dbname)) {
         LOG_ERROR("Init mysql failed, please check your database config");
+        return EXIT_FAILURE;
     }
 
     if (!UserManager::getMe().init(dbserver, dbuser, dbpassword, dbname)) {
         LOG_ERROR("Init UserManager failed, please check your database config");
+        return EXIT_FAILURE;
     }
 
     const char *listenip = config.getConfigName("listenip");
     auto listenport = (short) atol(config.getConfigName("listenport"));
-    ChatServer::getMe().init(listenip, listenport, &g_mainLoop);
+    ChatServer::getMe().init(listenip, listenport, &mainLoop);
 
     const char *monitorlistenip = config.getConfigName("monitorlistenip");
     auto monitorlistenport = (short) atol(config.getConfigName("monitorlistenport"));
     const char *monitortoken = config.getConfigName("monitortoken");
-    MonitorServer::getMe().init(monitorlistenip, monitorlistenport, &g_mainLoop, monitortoken);
+    MonitorServer::getMe().init(monitorlistenip, monitorlistenport, &mainLoop, monitortoken);
 
     const char *httplistenip = config.getConfigName("monitorlistenip");
     auto httplistenport = (short) atol(config.getConfigName("httplistenport"));
-    HttpServer::getMe().init(httplistenip, httplistenport, &g_mainLoop);
+    HttpServer::getMe().init(httplistenip, httplistenport, &mainLoop);
 
     LOG_INFO("chatserver initialization completed, now you can use client to connect it.");
 
-    g_mainLoop.loop();
+    mainLoop.loop();
 
     LOG_INFO("exit chatserver.");
 

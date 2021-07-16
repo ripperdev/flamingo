@@ -155,15 +155,9 @@ bool MonitorSession::process(const std::shared_ptr<TcpConnection> &conn, const s
             }
 
         } else if (v[0] == g_helpInfo[3].cmd) {
-            //开启日志数据包打印二进制字节
-            ChatServer::getMe().enableLogPackageBinary(true);
-
             char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));
         } else if (v[0] == g_helpInfo[4].cmd) {
-            //开启日志数据包打印二进制字节
-            ChatServer::getMe().enableLogPackageBinary(false);
-
             char tip[32] = {"OK.\n"};
             send(tip, strlen(tip));
         } else {
