@@ -1,5 +1,10 @@
 #include "MysqlThrd.h"
 
+#include <chrono>           // for milliseconds
+
+#include "DatabaseMysql.h"  // for CDatabaseMysql
+#include "MysqlTask.h"      // for IMysqlTask
+
 CMysqlThrd::CMysqlThrd() {
     m_bTerminate = false;
 

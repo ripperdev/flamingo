@@ -1,11 +1,15 @@
 #pragma once
 
-#include <condition_variable>
-#include <thread>
+#include <condition_variable>  // for condition_variable
+#include <memory>              // for unique_ptr
+#include <mutex>               // for mutex
+#include <string>              // for string
+#include <thread>              // for thread
 
-#include "DatabaseMysql.h"
-#include "MysqlTask.h"
-#include "TaskList.h"
+#include "TaskList.h"          // for CTaskList
+
+class CDatabaseMysql;
+class IMysqlTask;
 
 class CMysqlThrd {
 public:

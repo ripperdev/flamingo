@@ -6,11 +6,9 @@
 #ifndef __PROTOCOL_STREAM_H__
 #define __PROTOCOL_STREAM_H__
 
-#include <cstdlib>
-#include <sys/types.h>
-#include <string>
-#include <sstream>
-#include <cstdint>
+#include <cstdint>  // for uint32_t, int32_t, int64_t, uint64_t
+#include <cstdlib>  // for size_t
+#include <string>   // for string
 
 //二进制协议的打包解包类，内部的服务器之间通讯，统一采用这些类
 namespace net {

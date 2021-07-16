@@ -4,10 +4,12 @@
  **/
 #include "TcpSession.h"
 
-#include <utility>
-#include "base/Logger.h"
-#include "net/ProtocolStream.h"
-#include "FileMsg.h"
+#include <utility>               // for move
+
+#include "FileMsg.h"             // for file_msg_header
+#include "base/Logger.h"         // for LOG_ERROR, LOG_INFO
+#include "net/ProtocolStream.h"  // for BinaryStreamWriter
+#include "net/TcpConnection.h"   // for TcpConnection
 
 TcpSession::TcpSession(std::weak_ptr<TcpConnection> tmpconn) : tmpConn_(std::move(tmpconn)) {
 

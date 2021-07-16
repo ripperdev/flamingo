@@ -1,7 +1,13 @@
 #include "EventLoopThreadPool.h"
-#include <sstream>
-#include "EventLoop.h"
-#include "EventLoopThread.h"
+
+#include <stdio.h>            // for size_t, snprintf
+#include <sstream>            // for operator<<, basic_ostream, endl, string...
+#include <thread>             // for operator<<
+#include <utility>            // for move
+
+#include "EventLoop.h"        // for EventLoop
+#include "EventLoopThread.h"  // for EventLoopThread, net
+#include "net/Callbacks.h"    // for implicit_cast
 
 using namespace net;
 

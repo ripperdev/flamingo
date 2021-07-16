@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
-#include "../base/Platform.h"
+#include <netinet/in.h>  // for sockaddr_in, in_addr
+#include <stdint.h>      // for uint16_t, uint32_t
+#include <string>        // for string
 
 namespace net {
     ///

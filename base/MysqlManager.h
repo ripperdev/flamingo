@@ -1,12 +1,14 @@
 #pragma once
 
-#include <memory>
-#include <map>
-#include <utility>
-#include <vector>
+#include <map>          // for map
+#include <memory>       // for shared_ptr
+#include <string>       // for string
+#include <utility>      // for move
+#include <vector>       // for vector
 
-#include "DatabaseMysql.h"
-#include "Singleton.h"
+#include "Singleton.h"  // for Singleton
+
+class CDatabaseMysql;
 
 #define MAXCMDLEN 8192
 

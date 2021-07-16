@@ -1,11 +1,16 @@
-#include "net/InetAddress.h"
-#include "base/Logger.h"
-#include "net/TcpServer.h"
-#include "net/EventLoop.h"
-#include "net/EventLoopThread.h"
-#include "net/EventLoopThreadPool.h"
-#include "MonitorSession.h"
+#include <functional>           // for _Bind_helper<>::type, _Placeholder, bind
+
 #include "MonitorServer.h"
+#include "MonitorSession.h"     // for MonitorSession
+#include "base/Logger.h"        // for LOG_ERROR, LOG_INFO
+#include "base/Timestamp.h"     // for Timestamp
+#include "net/InetAddress.h"    // for InetAddress
+#include "net/TcpConnection.h"  // for TcpConnection
+#include "net/TcpServer.h"      // for TcpServer, TcpServer::kReusePort
+
+namespace net {
+class EventLoop;
+}  // namespace net
 
 bool MonitorServer::init(const char *ip, short port, EventLoop *loop, const char *token) {
     m_token = token;

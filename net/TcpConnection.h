@@ -1,19 +1,18 @@
 #pragma once
 
-#include <memory>
+#include <stddef.h>       // for size_t
+#include <memory>         // for unique_ptr, enable_shared_from_this, shared...
+#include <string>         // for string
 
-#include "Callbacks.h"
-#include "Buffer.h"
-#include "InetAddress.h"
+#include "Buffer.h"       // for Buffer
+#include "Callbacks.h"    // for CloseCallback, ConnectionCallback, HighWate...
+#include "InetAddress.h"  // for InetAddress
 
-// struct tcp_info is in <netinet/tcp.h>
-struct tcp_info;
+class Timestamp;
 
 namespace net {
-    class EventLoop;
-
     class Channel;
-
+    class EventLoop;
     class Socket;
 
     ///

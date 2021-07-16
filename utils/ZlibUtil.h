@@ -1,7 +1,8 @@
 #ifndef FLAMINGO_ZLIBUTIL_H
 #define FLAMINGO_ZLIBUTIL_H
 
-#include <string>
+#include <stddef.h>  // for size_t
+#include <string>    // for string
 
 class ZlibUtil {
 public:

@@ -4,13 +4,13 @@
  **/
 #include "TcpSession.h"
 
-#include <utility>
-#include "base/Logger.h"
-#include "base/Singleton.h"
-#include "net/ProtocolStream.h"
-#include "utils/ZlibUtil.h"
-#include "ChatServer.h"
-#include "Msg.h"
+#include <utility>               // for move
+
+#include "Msg.h"                 // for chat_msg_header
+#include "base/Logger.h"         // for LOG_ERROR
+#include "net/ProtocolStream.h"  // for BinaryStreamWriter
+#include "net/TcpConnection.h"   // for TcpConnection
+#include "utils/ZlibUtil.h"      // for ZlibUtil
 
 TcpSession::TcpSession(std::weak_ptr<TcpConnection> tmpconn) : tmpConn_(std::move(tmpconn)) {}
 

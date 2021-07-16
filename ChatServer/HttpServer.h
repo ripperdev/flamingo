@@ -5,12 +5,18 @@
 #ifndef __HTTP_SERVER_H__
 #define __HTTP_SERVER_H__
 
-#include <memory>
-#include <mutex>
-#include <list>
-#include "net/EventLoop.h"
-#include "net/TcpServer.h"
-#include "base/Singleton.h"
+#include <list>              // for list
+#include <memory>            // for shared_ptr, unique_ptr
+#include <mutex>             // for mutex
+
+#include "base/Singleton.h"  // for Singleton
+#include "net/Callbacks.h"   // for net
+
+namespace net {
+class EventLoop;
+class TcpConnection;
+class TcpServer;
+}  // namespace net
 
 using namespace net;
 

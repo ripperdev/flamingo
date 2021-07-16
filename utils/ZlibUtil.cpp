@@ -1,6 +1,8 @@
 #include "ZlibUtil.h"
-#include <cstring>
-#include <zlib.h>
+
+#include <zconf.h>  // for Bytef, uLongf
+#include <zlib.h>   // for z_stream, Z_OK, compress, compressBound, deflateEnd
+#include <cstring>  // for memset, size_t
 
 //最大支持压缩10M
 #define MAX_COMPRESS_BUF_SIZE 10*1024*1024

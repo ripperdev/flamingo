@@ -5,12 +5,20 @@
 #ifndef __MONITOR_SERVER_H__
 #define __MONITOR_SERVER_H__
 
-#include <memory>
-#include <mutex>
-#include <list>
+#include <list>               // for list
+#include <memory>             // for shared_ptr, unique_ptr
+#include <mutex>              // for mutex
+#include <string>             // for string
 
-#include "MonitorSession.h"
-#include "base/Singleton.h"
+#include "base/Singleton.h"   // for Singleton
+#include "net/InetAddress.h"  // for net
+
+class MonitorSession;
+namespace net {
+class EventLoop;
+class TcpConnection;
+class TcpServer;
+}  // namespace net
 
 using namespace net;
 

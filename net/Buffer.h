@@ -1,13 +1,13 @@
 #pragma once
 
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <cstring>
+#include <stdint.h>   // for int32_t, int16_t, int64_t, int8_t
+#include <algorithm>  // for copy, search, max
+#include <cstring>    // for size_t, memcpy, memchr, strlen
+#include <string>     // for string, allocator
+#include <utility>    // for swap
+#include <vector>     // for vector
 
-#include "../base/Platform.h"
-#include "Sockets.h"
-#include "Endian.h"
+#include "Endian.h"   // for hostToNetwork16, hostToNetwork32, hostToNetwork64
 
 namespace net {
 

@@ -1,9 +1,13 @@
 #include "Connector.h"
-#include <sstream>
-#include <cstring>
-#include "Channel.h"
-#include "EventLoop.h"
-#include "base/Logger.h"
+
+#include <errno.h>            // for EACCES, EADDRINUSE, EADDRNOTAVAIL, EAFN...
+#include <cstring>            // for strerror
+
+#include "Channel.h"          // for Channel
+#include "EventLoop.h"        // for EventLoop
+#include "base/Logger.h"      // for LOG_ERROR, LOG_DEBUG, LOG_WARN, LOG_INFO
+#include "net/InetAddress.h"  // for InetAddress, net
+#include "net/Sockets.h"      // for close, getSocketError, connect, createN...
 
 using namespace net;
 

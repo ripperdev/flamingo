@@ -1,17 +1,15 @@
 #pragma once
 
-#include <set>
-#include <vector>
+#include <stdint.h>             // for int64_t
+#include <set>                  // for set
+#include <utility>              // for pair
 
-#include "../base/Timestamp.h"
-#include "../net/Callbacks.h"
-#include "../net/Channel.h"
+#include "../base/Timestamp.h"  // for Timestamp, operator<
+#include "../net/Callbacks.h"   // for TimerCallback
 
 namespace net {
     class EventLoop;
-
     class Timer;
-
     class TimerId;
 
     ///

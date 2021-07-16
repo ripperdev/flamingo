@@ -1,10 +1,13 @@
-#include <cstdio>
-#include <functional>
+#include <cstdio>               // for snprintf
+#include <utility>              // for move
 
+#include "Connector.h"          // for Connector
+#include "EventLoop.h"          // for EventLoop
 #include "TcpClient.h"
-#include "base/Logger.h"
-#include "EventLoop.h"
-#include "Connector.h"
+#include "base/Logger.h"        // for LOG_DEBUG
+#include "net/InetAddress.h"    // for InetAddress
+#include "net/Sockets.h"        // for getLocalAddr, getPeerAddr
+#include "net/TcpConnection.h"  // for TcpConnectionPtr, TcpConnection
 
 using namespace net;
 

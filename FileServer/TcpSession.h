@@ -5,8 +5,15 @@
 
 #pragma once
 
-#include <memory>
-#include "net/TcpConnection.h"
+#include <stdint.h>         // for int32_t, int64_t
+#include <memory>           // for weak_ptr, shared_ptr
+#include <string>           // for string
+
+#include "net/Callbacks.h"  // for net
+
+namespace net {
+class TcpConnection;
+}  // namespace net
 
 using namespace net;
 

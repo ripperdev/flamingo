@@ -1,8 +1,12 @@
 #include "InetAddress.h"
-#include <cstring>
-#include "base/Logger.h"
-#include "Endian.h"
-#include "Sockets.h"
+
+#include <netdb.h>        // for gethostbyname_r, hostent, h_addr
+#include <sys/socket.h>   // for AF_INET
+#include <cstring>        // for memset
+
+#include "Endian.h"       // for hostToNetwork16, hostToNetwork32, networkTo...
+#include "Sockets.h"      // for fromIpPort, toIp, toIpPort
+#include "base/Logger.h"  // for LOG_ERROR
 
 // INADDR_ANY use (type)value casting.
 //static const in_addr_t kInaddrAny = INADDR_ANY;

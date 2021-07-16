@@ -1,9 +1,11 @@
-#include <arpa/inet.h>
+#include <netinet/in.h>  // for htonl, htons, ntohl, ntohs
+#include <stdio.h>       // for sprintf
+#include <algorithm>     // for min
+#include <cassert>       // for assert
+#include <cstring>       // for memcpy, strlen
+#include <sstream>       // for std
 
 #include "ProtocolStream.h"
-#include <cstring>
-#include <cassert>
-#include <algorithm>
 
 using namespace std;
 

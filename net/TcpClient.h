@@ -1,13 +1,16 @@
 #pragma once
 
-#include <string>
-#include <mutex>
-#include "TcpConnection.h"
+#include <memory>           // for shared_ptr
+#include <mutex>            // for mutex, unique_lock
+#include <string>           // for string
+
+#include "TcpConnection.h"  // for TcpConnectionPtr
+#include "net/Callbacks.h"  // for ConnectionCallback, MessageCallback, Writ...
 
 namespace net {
-    class EventLoop;
-
     class Connector;
+    class EventLoop;
+class InetAddress;
 
     typedef std::shared_ptr<Connector> ConnectorPtr;
 

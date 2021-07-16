@@ -1,27 +1,21 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <functional>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include <stdint.h>             // for int64_t
+#include <functional>           // for function
+#include <memory>               // for unique_ptr
+#include <mutex>                // for mutex
+#include <thread>               // for get_id, operator==, thread::id, thread
+#include <vector>               // for vector
 
-#include "../base/Timestamp.h"
-#include "../base/Platform.h"
-#include "Callbacks.h"
-#include "Sockets.h"
-#include "TimerId.h"
-#include "TimerQueue.h"
+#include "../base/Platform.h"   // for SOCKET
+#include "../base/Timestamp.h"  // for Timestamp
+#include "Callbacks.h"          // for TimerCallback
+#include "TimerId.h"            // for TimerId
 
 namespace net {
-    class EventLoop;
-
     class Channel;
-
     class Poller;
-
-    class CTimerHeap;
+class TimerQueue;
 
     ///
     /// Reactor, at most one per thread.

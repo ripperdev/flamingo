@@ -1,9 +1,13 @@
 #include "FileManager.h"
 
-#include <cstring>
+#include <dirent.h>       // for dirent, closedir, opendir, readdir, DIR
+#include <errno.h>        // for errno
+#include <fcntl.h>        // for S_IROTH, S_IRWXG, S_IRWXU, S_IXOTH
+#include <stdio.h>        // for fclose, fopen, FILE
+#include <sys/stat.h>     // for mkdir
+#include <cstring>        // for strcmp, strerror
 
-#include "base/Logger.h"
-#include "base/Platform.h"
+#include "base/Logger.h"  // for LOG_ERROR, LOG_INFO
 
 bool FileManager::init(const char *basepath) {
     m_basepath = basepath;

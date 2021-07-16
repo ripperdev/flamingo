@@ -1,10 +1,11 @@
 #include "Channel.h"
-#include <sstream>
 
-#include "base/Platform.h"
-#include "base/Logger.h"
-#include "Poller.h"
-#include "EventLoop.h"
+#include <sstream>           // for operator<<, ostringstream, basic_ostream
+
+#include "EventLoop.h"       // for EventLoop
+#include "base/Logger.h"     // for LOG_WARN, LOG_DEBUG
+#include "base/Platform.h"   // for XPOLLIN, XPOLLNVAL, XPOLLOUT, XPOLLPRI
+#include "base/Timestamp.h"  // for Timestamp
 
 using namespace net;
 

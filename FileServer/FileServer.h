@@ -1,14 +1,20 @@
 #pragma once
 
-#include <list>
-#include <map>
-#include <memory>
-#include <mutex>
+#include <stdint.h>          // for int32_t
+#include <list>              // for list
+#include <memory>            // for shared_ptr, unique_ptr
+#include <mutex>             // for mutex
+#include <string>            // for string
 
-#include "base/Singleton.h"
-#include "net/EventLoop.h"
-#include "net/TcpServer.h"
-#include "FileSession.h"
+#include "base/Singleton.h"  // for Singleton
+#include "net/Callbacks.h"   // for net
+#include "net/TcpServer.h"   // for TcpServer
+
+class FileSession;
+namespace net {
+class EventLoop;
+class TcpConnection;
+}  // namespace net
 
 using namespace net;
 

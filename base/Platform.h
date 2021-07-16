@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -48,13 +46,13 @@ struct epoll_event {
 };
 #pragma pack(pop)
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #include <Windows.h>
 #include <Ws2ipdef.h>
-#include <io.h>     //_pipe
 #include <fcntl.h>  //for O_BINARY
+#include <io.h>     //_pipe
 #include <shlwapi.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 class NetworkInitializer
 {
@@ -72,32 +70,9 @@ typedef int SOCKET;
 #define closesocket(s) close(s)
 
 
-#include <arpa/inet.h>
-
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
-#include <unistd.h>
-#include <cstdint>
-#include <endian.h>
-#include <poll.h>
-#include <fcntl.h>
-#include <csignal>
-#include <cinttypes>
-#include <cerrno>
-#include <dirent.h>
-
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/eventfd.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <sys/epoll.h>
-#include <sys/syscall.h>
+#include <endian.h>     // for be64toh, htobe64
+#include <poll.h>       // for POLLERR, POLLHUP, POLLIN, POLLNVAL, POLLOUT
+#include <sys/epoll.h>  // for EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
 
 //for ubuntu readv not found
 #ifdef __UBUNTU

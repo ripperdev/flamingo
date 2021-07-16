@@ -1,8 +1,17 @@
 #include "Acceptor.h"
 
-#include "base/Logger.h"
-#include "EventLoop.h"
-#include "InetAddress.h"
+#include <errno.h>           // for EMFILE, errno
+#include <fcntl.h>           // for open, O_CLOEXEC, O_RDONLY
+#include <sys/socket.h>      // for accept
+#include <unistd.h>          // for close
+#include <string>            // for string
+
+#include "EventLoop.h"       // for EventLoop
+#include "InetAddress.h"     // for InetAddress
+#include "base/Logger.h"     // for LOG_DEBUG, LOG_ERROR
+#include "base/Timestamp.h"  // for Timestamp
+#include "net/Channel.h"     // for Channel, net
+#include "net/Sockets.h"     // for Socket, close, createNonblockingOrDie
 
 using namespace net;
 

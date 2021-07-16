@@ -1,7 +1,8 @@
 #pragma once
 
-#include <algorithm>
-#include <string>
+#include <stdint.h>  // for int16_t, int32_t, uint16_t, uint32_t, uint64_t
+#include <stdlib.h>  // for atol, atof, atoi, atoll, size_t
+#include <string>    // for string
 
 inline void toLowerString(std::string &str) {
     for (char &i : str) {

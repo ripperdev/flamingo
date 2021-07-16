@@ -4,11 +4,15 @@
  */
 
 #include "BussinessLogic.h"
-#include "jsoncpp/json/json.h"
-#include "base/Logger.h"
-#include "base/Singleton.h"
-#include "ChatServer.h"
-#include "UserManager.h"
+
+#include <jsoncpp/json/config.h>  // for JSONCPP_STRING
+#include <jsoncpp/json/reader.h>  // for CharReader, CharReaderBuilder
+#include <jsoncpp/json/value.h>   // for Value
+
+#include "UserManager.h"          // for User, UserManager
+#include "base/Logger.h"          // for LOG_WARN
+#include "net/InetAddress.h"      // for InetAddress
+#include "net/TcpConnection.h"    // for TcpConnection
 
 void BussinessLogic::registerUser(const std::string &data, const std::shared_ptr<TcpConnection> &conn, bool keepalive,
                                   std::string &retData) {

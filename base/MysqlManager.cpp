@@ -1,6 +1,13 @@
 #include "MysqlManager.h"
-#include <sstream>
-#include "Logger.h"
+
+#include <stdint.h>         // for uint32_t
+#include <algorithm>        // for max
+#include <sstream>          // for operator<<, basic_ostream, stringstream
+
+#include "DatabaseMysql.h"  // for CDatabaseMysql
+#include "Field.h"          // for Field
+#include "Logger.h"         // for LOG_ERROR
+#include "QueryResult.h"    // for QueryResult
 
 CMysqlManager::CMysqlManager() {
     //TODO: m_strCharactSet可以放在初始化列表中初始化

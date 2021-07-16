@@ -1,5 +1,9 @@
 #include "Timestamp.h"
-#include <chrono>
+
+#include <bits/types/struct_tm.h>  // for tm
+#include <stdio.h>                 // for snprintf
+#include <time.h>                  // for localtime, time_t
+#include <chrono>                  // for microseconds, time_point_cast, sys...
 
 static_assert(sizeof(Timestamp) == sizeof(int64_t), "sizeof(Timestamp) error");
 

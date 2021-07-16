@@ -1,7 +1,8 @@
 #pragma once
 
-#include "MysqlTask.h"
-#include <cstdint>
+#include <cstdint>  // for uint16_t
+
+class IMysqlTask;
 
 #define MAX_TASK_NUM 1000
 

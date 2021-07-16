@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Poller.h"
+#include <poll.h>            // for pollfd
+#include <algorithm>         // for max
+#include <map>               // for map, map<>::value_compare
+#include <vector>            // for vector
 
-#include <vector>
-#include <map>
-
-struct pollfd;
+#include "Poller.h"          // for Poller::ChannelList, Poller
+#include "base/Timestamp.h"  // for Timestamp
 
 namespace net {
     class Channel;
-
     class EventLoop;
 
     ///

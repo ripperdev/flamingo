@@ -4,11 +4,19 @@
  **/
 #include "ChatServer.h"
 
-#include "net/InetAddress.h"
-#include "base/Logger.h"
-#include "base/Singleton.h"
-#include "ChatSession.h"
-#include "UserManager.h"
+#include <functional>           // for _Bind_helper<>::type, _Placeholder, bind
+
+#include "ChatSession.h"        // for ChatSession
+#include "UserManager.h"        // for User, UserManager
+#include "base/Logger.h"        // for LOG_INFO, LOG_DEBUG, LOG_ERROR
+#include "base/Timestamp.h"     // for Timestamp
+#include "net/InetAddress.h"    // for InetAddress
+#include "net/TcpConnection.h"  // for TcpConnection, TcpConnectionPtr
+
+namespace net {
+class Buffer;
+class EventLoop;
+}  // namespace net
 
 ChatServer::ChatServer() {}
 

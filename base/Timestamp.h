@@ -1,8 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <algorithm>
-#include <string>
+#include <sys/types.h>  // for time_t
+#include <cstdint>      // for int64_t
+#include <iosfwd>       // for std
+#include <string>       // for string
+#include <utility>      // for swap
 
 using namespace std;
 

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstdint>
-#include "../base/Platform.h"
+#include <netinet/in.h>        // for sockaddr_in
+#include <stddef.h>            // for size_t
+#include <sys/types.h>         // for ssize_t
+#include <cstdint>             // for int32_t, uint16_t
 
-// struct tcp_info is in <netinet/tcp.h>
-struct tcp_info;
+#include "../base/Platform.h"  // for SOCKET
 
 namespace net {
     class InetAddress;

@@ -1,12 +1,21 @@
 #include "Sockets.h"
 
-#include <cstdio>
-#include <cstring>
+#include <arpa/inet.h>      // for inet_ntop, inet_pton
+#include <endian.h>         // for htobe16
+#include <errno.h>          // for errno, EAGAIN, EBADF, ECONNABORTED, EFAULT
+#include <fcntl.h>          // for fcntl, FD_CLOEXEC, F_GETFD, F_GETFL, F_SETFD
+#include <netinet/tcp.h>    // for TCP_NODELAY
+#include <sys/socket.h>     // for setsockopt, socklen_t, AF_INET, socket
+#include <sys/uio.h>        // for readv
+#include <unistd.h>         // for close, read, write, ssize_t
+#include <cstdio>           // for snprintf, size_t
+#include <cstring>          // for memset, strerror, strlen, size_t
 
-#include "base/Logger.h"
-#include "InetAddress.h"
-#include "Endian.h"
-#include "Callbacks.h"
+#include "Callbacks.h"      // for implicit_cast
+#include "Endian.h"         // for networkToHost16
+#include "InetAddress.h"    // for InetAddress
+#include "base/Logger.h"    // for LOG_CRITICAL, LOG_ERROR
+#include "base/Platform.h"  // for SOCKET
 
 using namespace net;
 

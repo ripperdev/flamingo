@@ -1,10 +1,11 @@
 #pragma once
 
-#include <mutex>
-#include <condition_variable>
-#include <thread>
-#include <string>
-#include <functional>
+#include <condition_variable>  // for condition_variable
+#include <functional>          // for function
+#include <memory>              // for unique_ptr
+#include <mutex>               // for mutex
+#include <string>              // for allocator, string
+#include <thread>              // for thread
 
 namespace net {
 
