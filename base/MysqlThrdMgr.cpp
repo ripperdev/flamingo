@@ -1,7 +1,5 @@
 #include "MysqlThrdMgr.h"
 
-#include "MysqlTask.h"  // for IMysqlTask
-
 bool CMysqlThrdMgr::addTask(uint32_t dwHashID, IMysqlTask *poTask) {
     //LOG_DEBUG << "CMysqlThrdMgr::AddTask, HashID = " << dwHashID;
     uint32_t btIndex = getTableHashID(dwHashID);

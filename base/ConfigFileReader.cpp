@@ -3,10 +3,7 @@
  *  zhangyl 2017.05.27
  */
 #include "ConfigFileReader.h"
-
-#include <stdio.h>  // for fclose, fopen, fgets, fwrite, snprintf, FILE
-#include <cstring>  // for strlen, strchr, memset, size_t
-#include <utility>  // for pair, make_pair
+#include <cstring>
 
 CConfigFileReader::CConfigFileReader(const char *filename) {
     loadFile(filename);

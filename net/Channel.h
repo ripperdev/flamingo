@@ -1,10 +1,9 @@
 #pragma once
 
-#include <functional>  // for function
-#include <memory>      // for shared_ptr, weak_ptr
-#include <string>      // for string
+#include <memory>
+#include <functional>
 
-class Timestamp;
+#include "../base/Timestamp.h"
 
 namespace net {
     class EventLoop;

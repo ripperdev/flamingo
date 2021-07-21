@@ -2,19 +2,20 @@
  *  文件服务程序入口函数
  *  zhangyl 2017.03.09
  **/
-#include <bits/getopt_core.h>       // for getopt
-#include <signal.h>                 // for signal, SIGCHLD, SIGINT, SIGPIPE
-#include <cstdlib>                  // for atol, EXIT_FAILURE
-#include <iostream>                 // for operator<<, endl, basic_ostream
-#include <memory>                   // for allocator
+#include <iostream>
+#include <cstdlib>
 
-#include "FileManager.h"            // for FileManager
-#include "FileServer.h"             // for FileServer
-#include "base/ConfigFileReader.h"  // for CConfigFileReader
-#include "base/Logger.h"            // for LOG_INFO, Logger
-#include "net/Callbacks.h"          // for net
-#include "net/EventLoop.h"          // for EventLoop
-#include "utils/DaemonRun.h"        // for daemon_run
+#include "base/Platform.h"
+#include "base/Singleton.h"
+#include "base/ConfigFileReader.h"
+#include "base/Logger.h"
+#include "net/EventLoop.h"
+#include "FileManager.h"
+
+#include <cstring>
+#include "utils/DaemonRun.h"
+
+#include "FileServer.h"
 
 using namespace net;
 

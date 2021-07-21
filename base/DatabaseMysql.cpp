@@ -1,12 +1,8 @@
 #include "DatabaseMysql.h"
+#include <fstream>
+#include <cstring>
 
-#include <mysql/errmsg.h>  // for CR_SERVER_GONE_ERROR
-#include <stdarg.h>        // for va_end, va_list, va_start
-#include <stdio.h>         // for vsnprintf
-#include <cstring>         // for strlen
-
-#include "Logger.h"        // for LOG_ERROR
-#include "QueryResult.h"   // for QueryResult
+#include "Logger.h"
 
 CDatabaseMysql::CDatabaseMysql() {
     //m_Mysql = new MYSQL;

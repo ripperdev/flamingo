@@ -3,19 +3,10 @@
  * zhangyl 2018.05.16
  */
 #include "HttpServer.h"
-
-#include <functional>           // for _Bind_helper<>::type, _Placeholder, bind
-
-#include "HttpSession.h"        // for HttpSession
-#include "base/Logger.h"        // for LOG_ERROR, LOG_INFO
-#include "base/Timestamp.h"     // for Timestamp
-#include "net/InetAddress.h"    // for InetAddress
-#include "net/TcpConnection.h"  // for TcpConnection
-#include "net/TcpServer.h"      // for TcpServer, TcpServer::kReusePort
-
-namespace net {
-class EventLoop;
-}  // namespace net
+#include "base/Logger.h"
+#include "net/EventLoopThread.h"
+#include "net/EventLoopThreadPool.h"
+#include "HttpSession.h"
 
 bool HttpServer::init(const char *ip, short port, EventLoop *loop) {
     InetAddress addr(ip, port);

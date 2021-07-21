@@ -5,18 +5,10 @@
 #ifndef __MONITOR_SESSION_H__
 #define __MONITOR_SESSION_H__
 
-#include <stddef.h>       // for size_t
-#include <stdint.h>       // for int32_t
-#include <memory>         // for shared_ptr, weak_ptr, allocator
-#include <string>         // for string
-
-#include "net/Sockets.h"  // for net
-
-class Timestamp;
-namespace net {
-class Buffer;
-class TcpConnection;
-}  // namespace net
+#include "../net/Buffer.h"
+#include "../base/Timestamp.h"
+#include "../net/TcpConnection.h"
+#include <memory>
 
 using namespace net;
 

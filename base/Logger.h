@@ -1,14 +1,9 @@
 #ifndef FLAMINGO_LOGGER_H
 #define FLAMINGO_LOGGER_H
 
-#include <memory>       // for shared_ptr
-#include <string>       // for string
+#include <spdlog/spdlog.h>
 
-#include "Singleton.h"  // for Singleton
-
-namespace spdlog {
-class logger;
-}  // namespace spdlog
+#include "Singleton.h"
 
 class Logger : public Singleton<Logger> {
 public:

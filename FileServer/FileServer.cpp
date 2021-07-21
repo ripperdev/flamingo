@@ -1,15 +1,6 @@
 #include "FileServer.h"
 
-#include "FileServer/FileSession.h"  // for FileSession
-#include "base/Logger.h"             // for LOG_INFO, LOG_ERROR
-#include "base/Timestamp.h"          // for Timestamp
-#include "net/InetAddress.h"         // for InetAddress
-#include "net/TcpConnection.h"       // for TcpConnection, TcpConnectionPtr
-
-namespace net {
-class Buffer;
-class EventLoop;
-}  // namespace net
+#include "base/Logger.h"
 
 bool FileServer::init(const char *ip, short port, EventLoop *loop, const char *fileBaseDir/* = "filecache/"*/) {
     m_strFileBaseDir = fileBaseDir;

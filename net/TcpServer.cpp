@@ -1,16 +1,11 @@
 #include "TcpServer.h"
 
-#include <stdio.h>                // for snprintf, size_t
-#include <memory>                 // for __shared_ptr_access, unique_ptr
-#include <utility>                // for move, pair
+#include <memory>
 
-#include "Acceptor.h"             // for Acceptor
-#include "EventLoop.h"            // for EventLoop
-#include "EventLoopThreadPool.h"  // for EventLoopThreadPool
-#include "base/Logger.h"          // for LOG_DEBUG
-#include "net/InetAddress.h"      // for InetAddress
-#include "net/Sockets.h"          // for getLocalAddr
-#include "net/TcpConnection.h"    // for TcpConnectionPtr, TcpConnection
+#include "base/Logger.h"
+#include "Acceptor.h"
+#include "EventLoop.h"
+#include "EventLoopThreadPool.h"
 
 using namespace net;
 

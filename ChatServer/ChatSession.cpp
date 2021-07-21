@@ -1,31 +1,16 @@
 #include "ChatSession.h"
-
-#include <jsoncpp/json/config.h>    // for JSONCPP_STRING
-#include <jsoncpp/json/reader.h>    // for CharReader, CharReaderBuilder
-#include <jsoncpp/json/value.h>     // for Value, arrayValue
-#include <jsoncpp/json/writer.h>    // for StreamWriterBuilder, writeString
-#include <stdio.h>                  // for snprintf, size_t, sprintf
-#include <string.h>                 // for strlen, memset, memcpy
-#include <time.h>                   // for time
-#include <functional>               // for _Bind_helper<>::type, bind
-#include <list>                     // for list
-#include <sstream>                  // for operator<<, basic_ostream, basic_...
-
-#include "BussinessLogic.h"         // for BussinessLogic
-#include "ChatServer.h"             // for ChatServer
-#include "ChatServer/TcpSession.h"  // for TcpSession
-#include "Msg.h"                    // for chat_msg_header, msg_type_operate...
-#include "MsgCacheManager.h"        // for MsgCacheManager, ChatMsgCache
-#include "UserManager.h"            // for User, UserManager, DEFAULT_TEAMNAME
-#include "base/Logger.h"            // for LOG_ERROR, LOG_INFO
-#include "base/Timestamp.h"         // for Timestamp
-#include "net/Buffer.h"             // for Buffer
-#include "net/EventLoop.h"          // for EventLoop
-#include "net/InetAddress.h"        // for InetAddress
-#include "net/ProtocolStream.h"     // for BinaryStreamWriter, BinaryStreamR...
-#include "net/TcpConnection.h"      // for TcpConnection
-#include "net/TimerId.h"            // for TimerId
-#include "utils/ZlibUtil.h"         // for ZlibUtil
+#include <sstream>
+#include <list>
+#include "net/ProtocolStream.h"
+#include "base/Logger.h"
+#include "base/Singleton.h"
+#include "jsoncpp/json/json.h"
+#include "Msg.h"
+#include "UserManager.h"
+#include "ChatServer.h"
+#include "MsgCacheManager.h"
+#include "utils/ZlibUtil.h"
+#include "BussinessLogic.h"
 
 //包最大字节数限制为10M
 #define MAX_PACKAGE_SIZE    10 * 1024 * 1024

@@ -1,11 +1,6 @@
 #include "Buffer.h"
 
-#include <bits/types/struct_iovec.h>  // for iovec
-#include <errno.h>                    // for errno
-#include <sys/types.h>                // for ssize_t
-
-#include "Callbacks.h"                // for implicit_cast
-#include "net/Sockets.h"              // for readv, net
+#include "Callbacks.h"
 
 using namespace net;
 

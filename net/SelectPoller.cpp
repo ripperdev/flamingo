@@ -1,16 +1,10 @@
 #include "SelectPoller.h"
 
-#include <errno.h>          // for errno
-#include <sys/time.h>       // for timeval
-#include <cstring>          // for memset, size_t
-#include <sstream>          // for operator<<, basic_ostream::operator<<
-#include <utility>          // for pair
+#include <sstream>
+#include <cstring>
 
-#include "EventLoop.h"      // for EventLoop
-#include "base/Logger.h"    // for LOG_ERROR
-#include "base/Platform.h"  // for XEPOLL_CTL_ADD, XEPOLL_CTL_DEL, XPOLLIN
-#include "net/Channel.h"    // for Channel
-#include "net/Poller.h"     // for Poller::ChannelList, net
+#include "base/Logger.h"
+#include "EventLoop.h"
 
 using namespace net;
 

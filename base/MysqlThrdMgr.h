@@ -1,11 +1,7 @@
 #pragma once
 
-#include <stdint.h>     // for uint32_t, int32_t
-#include <string>       // for string
-
-#include "MysqlThrd.h"  // for CMysqlThrd
-
-class IMysqlTask;
+#include "MysqlTask.h"
+#include "MysqlThrd.h"
 
 class CMysqlThrdMgr {
 public:

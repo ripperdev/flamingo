@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <atomic>            // for atomic, atomic_int
-#include <cstdint>           // for int32_t
-#include <iosfwd>            // for std
-#include <list>              // for list
-#include <mutex>             // for mutex
-#include <string>            // for string
+#include <cstdint>
+#include <string>
+#include <list>
+#include <mutex>
+#include <set>
+#include <atomic>
 
-#include "base/Singleton.h"  // for Singleton
+#include "base/Singleton.h"
 
 using namespace std;
 

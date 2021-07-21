@@ -3,18 +3,13 @@
  * zhangyl 2018.05.16
  */
 #include "HttpSession.h"
-
-#include <sstream>                // for operator<<, basic_ostream, ostrings...
-#include <vector>                 // for vector
-
-#include "BussinessLogic.h"       // for BussinessLogic
-#include "base/Logger.h"          // for LOG_INFO, LOG_ERROR
-#include "base/Timestamp.h"       // for Timestamp
-#include "net/Buffer.h"           // for Buffer
-#include "net/InetAddress.h"      // for InetAddress
-#include "net/TcpConnection.h"    // for TcpConnection
-#include "utils/StringUtil.h"     // for StringUtil
-#include "utils/URLEncodeUtil.h"  // for URLEncodeUtil
+#include <sstream>
+#include "net/EventLoopThread.h"
+#include "base/Logger.h"
+#include "utils/StringUtil.h"
+#include "utils/URLEncodeUtil.h"
+#include "ChatServer.h"
+#include "BussinessLogic.h"
 
 #define MAX_URL_LENGTH 2048
 

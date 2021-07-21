@@ -4,12 +4,9 @@
 */
 
 #include "DaemonRun.h"
-
-#include <fcntl.h>   // for open, O_RDWR
-#include <signal.h>  // for signal, SIGCHLD, SIG_IGN
-#include <unistd.h>  // for dup2, close, fork, setsid, STDERR_FILENO, STDIN_...
-#include <cstdlib>   // for exit
-#include <iostream>  // for operator<<, endl, basic_ostream, cout, ostream
+#include <cstdlib>
+#include <iostream>
+#include "../base/Platform.h"
 
 void daemon_run() {
     int pid;

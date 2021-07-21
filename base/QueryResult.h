@@ -1,14 +1,11 @@
 #pragma once
 
-#include <mysql/field_types.h>  // for enum_field_types
-#include <mysql/mysql.h>        // for MYSQL_RES
-#include <cstdint>              // for uint32_t, uint64_t
-#include <map>                  // for map, map<>::value_compare
-#include <string>               // for string, operator==, basic_string
-#include <utility>              // for pair
-#include <vector>               // for vector
+#include <mysql/mysql.h>
+#include <cstdint>
+#include <vector>
+#include <map>
 
-#include "Field.h"              // for Field, Field::DataTypes
+#include "Field.h"
 
 class QueryResult {
 public:

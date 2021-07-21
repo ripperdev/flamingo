@@ -1,10 +1,9 @@
 #pragma once
 
-#include <mysql/mysql.h>  // for MYSQL
-#include <cstdint>        // for uint32_t, int32_t
-#include <string>         // for string
-
-class QueryResult;
+#include <cstdint>
+#include <mysql/mysql.h>
+#include <mysql/errmsg.h>
+#include "QueryResult.h"
 
 #define MAX_QUERY_LEN   1024
 

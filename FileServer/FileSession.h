@@ -5,18 +5,8 @@
 
 #pragma once
 
-#include <stdint.h>      // for int64_t, int32_t
-#include <stdio.h>       // for FILE, size_t
-#include <memory>        // for shared_ptr
-#include <string>        // for string
-
-#include "TcpSession.h"  // for TcpSession
-
-class Timestamp;
-namespace net {
-class Buffer;
-class TcpConnection;
-}  // namespace net
+#include "../net/Buffer.h"
+#include "TcpSession.h"
 
 class FileSession : public TcpSession {
 public:

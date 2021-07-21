@@ -1,10 +1,5 @@
 #include "Timer.h"
 
-#include <utility>           // for move
-
-#include "base/Timestamp.h"  // for Timestamp
-#include "net/Callbacks.h"   // for TimerCallback, net
-
 using namespace net;
 
 std::atomic<int64_t> Timer::s_numCreated_;

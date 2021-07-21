@@ -1,7 +1,5 @@
 #include "QueryResult.h"
 
-#include <algorithm>  // for max
-
 QueryResult::QueryResult(MYSQL_RES *result, uint64_t rowCount, uint32_t fieldCount)
         : m_FieldCount(fieldCount), m_RowCount(rowCount) {
     m_Result = result;

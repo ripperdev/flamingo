@@ -1,12 +1,10 @@
 #pragma once
 
-#include <stddef.h>           // for size_t
-#include <functional>         // for function
-#include <memory>             // for unique_ptr
-#include <string>             // for string
-#include <vector>             // for vector
-
-#include "EventLoopThread.h"  // for EventLoopThread
+#include <vector>
+#include <functional>
+#include <memory>
+#include <string>
+#include "EventLoopThread.h"
 
 namespace net {
 

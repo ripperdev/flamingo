@@ -1,17 +1,9 @@
 #include "EpollPoller.h"
 
-#include <errno.h>           // for errno, EINTR
-#include <unistd.h>          // for close
-#include <cstring>           // for strerror, memset, size_t
-#include <memory>            // for allocator_traits<>::value_type
-#include <utility>           // for pair
-
-#include "EventLoop.h"       // for EventLoop
-#include "base/Logger.h"     // for LOG_ERROR, LOG_CRITICAL, LOG_DEBUG
-#include "base/Platform.h"   // for XEPOLL_CTL_DEL, XEPOLL_CTL_ADD, XEPOLL_C...
-#include "base/Timestamp.h"  // for Timestamp
-#include "net/Channel.h"     // for Channel
-#include "net/Poller.h"      // for Poller::ChannelList, net
+#include <cstring>
+#include "base/Platform.h"
+#include "base/Logger.h"
+#include "EventLoop.h"
 
 using namespace net;
 

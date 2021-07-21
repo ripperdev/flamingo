@@ -1,16 +1,10 @@
 #include "PollPoller.h"
 
-#include <errno.h>          // for errno, EINTR
-#include <poll.h>           // for pollfd, poll
-#include <stddef.h>         // for size_t
-#include <memory>           // for allocator_traits<>::value_type
-#include <utility>          // for pair
 
-#include "Channel.h"        // for Channel
-#include "EventLoop.h"      // for EventLoop
-#include "base/Logger.h"    // for LOG_DEBUG, LOG_ERROR
-#include "net/Callbacks.h"  // for implicit_cast
-#include "net/Poller.h"     // for Poller::ChannelList, net
+#include "base/Logger.h"
+#include "Channel.h"
+#include "EventLoop.h"
+#include <poll.h>
 
 using namespace net;
 

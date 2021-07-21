@@ -5,20 +5,9 @@
 
 #pragma once
 
-#include <stdint.h>          // for int32_t
-#include <ctime>             // for size_t, time_t
-#include <memory>            // for shared_ptr
-#include <string>            // for string
-
-#include "../net/TimerId.h"  // for TimerId
-#include "TcpSession.h"      // for TcpSession
-#include "net/Sockets.h"     // for net
-
-class Timestamp;
-namespace net {
-class Buffer;
-class TcpConnection;
-}  // namespace net
+#include "../net/Buffer.h"
+#include "../net/TimerId.h"
+#include "TcpSession.h"
 
 using namespace net;
 

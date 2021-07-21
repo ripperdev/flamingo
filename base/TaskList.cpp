@@ -1,8 +1,5 @@
 #include "TaskList.h"
-
-#include <cstring>      // for memset
-
-#include "MysqlTask.h"  // for IMysqlTask
+#include <cstring>
 
 CTaskList::CTaskList() : m_uReadIndex(0), m_uWriteIndex(0) {
     memset(m_pTaskNode, 0, sizeof(m_pTaskNode));

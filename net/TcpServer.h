@@ -1,19 +1,16 @@
 #pragma once
 
-#include <atomic>           // for atomic
-#include <functional>       // for function
-#include <map>              // for map, map<>::value_compare
-#include <memory>           // for unique_ptr
-#include <string>           // for string
-
-#include "TcpConnection.h"  // for TcpConnectionPtr
-#include "net/Callbacks.h"  // for ConnectionCallback, MessageCallback, Writ...
+#include <atomic>
+#include <map>
+#include <memory>
+#include "TcpConnection.h"
 
 namespace net {
     class Acceptor;
+
     class EventLoop;
+
     class EventLoopThreadPool;
-class InetAddress;
 
     ///
     /// TCP server, supports single-threaded and thread-pool models.

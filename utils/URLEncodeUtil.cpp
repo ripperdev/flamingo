@@ -4,9 +4,6 @@
  */
 #include "URLEncodeUtil.h"
 
-#include <ctype.h>   // for isxdigit, isascii
-#include <stdlib.h>  // for size_t, strtol
-
 bool URLEncodeUtil::encode(const std::string &src, std::string &dst) {
     if (src.empty())
         return false;

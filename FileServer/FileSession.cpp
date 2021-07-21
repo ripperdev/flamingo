@@ -3,22 +3,12 @@
  * zhangyl, 2017.03.17
  **/
 #include "FileSession.h"
-
-#include <errno.h>                  // for errno
-#include <fcntl.h>                  // for SEEK_SET, SEEK_END
-#include <string.h>                 // for strerror, memcpy
-#include <sstream>                  // for operator<<, basic_ostream, char_t...
-
-#include "FileManager.h"            // for FileManager
-#include "FileMsg.h"                // for file_msg_header, file_msg_error_c...
-#include "FileServer/TcpSession.h"  // for TcpSession
-#include "base/Logger.h"            // for LOG_ERROR, LOG_INFO
-#include "base/Timestamp.h"         // for Timestamp
-#include "net/Buffer.h"             // for Buffer
-#include "net/InetAddress.h"        // for InetAddress
-#include "net/ProtocolStream.h"     // for BinaryStreamReader
-#include "net/Sockets.h"            // for net
-#include "net/TcpConnection.h"      // for TcpConnection
+#include <sstream>
+#include <list>
+#include "net/ProtocolStream.h"
+#include "base/Logger.h"
+#include "FileMsg.h"
+#include "FileManager.h"
 
 using namespace net;
 

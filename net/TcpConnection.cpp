@@ -1,19 +1,10 @@
 #include "TcpConnection.h"
 
-#include <errno.h>            // for errno, ECONNRESET, EPIPE, EWOULDBLOCK
-#include <stdint.h>           // for int32_t
-#include <string.h>           // for size_t, strerror
-#include <functional>         // for function
-#include <utility>            // for move
-
-#include "EventLoop.h"        // for EventLoop
-#include "base/Logger.h"      // for LOG_DEBUG, LOG_ERROR, LOG_WARN
-#include "base/Timestamp.h"   // for Timestamp
-#include "net/Buffer.h"       // for Buffer
-#include "net/Callbacks.h"    // for WriteCompleteCallback, HighWaterMarkCal...
-#include "net/Channel.h"      // for Channel
-#include "net/InetAddress.h"  // for InetAddress
-#include "net/Sockets.h"      // for Socket, write, getSocketError
+#include <thread>
+#include <sstream>
+#include <utility>
+#include "base/Logger.h"
+#include "EventLoop.h"
 
 using namespace net;
 

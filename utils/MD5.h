@@ -1,9 +1,8 @@
 #ifndef MD5_H
 #define MD5_H
 
-#include <stddef.h>  // for size_t
-#include <fstream>   // for ifstream
-#include <string>    // for string
+#include <string>
+#include <fstream>
 
 using std::string;
 using std::ifstream;

@@ -4,22 +4,15 @@
  **/
 #pragma once
 
-#include <stdint.h>          // for int32_t
-#include <atomic>            // for atomic_int
-#include <list>              // for list
-#include <memory>            // for shared_ptr, unique_ptr
-#include <mutex>             // for mutex
-#include <string>            // for string
-
-#include "base/Singleton.h"  // for Singleton
-#include "net/Callbacks.h"   // for net
-#include "net/TcpServer.h"   // for TcpServer
-
-class ChatSession;
-namespace net {
-class EventLoop;
-class TcpConnection;
-}  // namespace net
+#include <memory>
+#include <list>
+#include <map>
+#include <mutex>
+#include <atomic>
+#include "net/TcpServer.h"
+#include "net/EventLoop.h"
+#include "ChatSession.h"
+#include "base/Singleton.h"
 
 using namespace net;
 

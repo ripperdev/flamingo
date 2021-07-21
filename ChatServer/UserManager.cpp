@@ -1,14 +1,8 @@
 #include "UserManager.h"
-
-#include <stdio.h>               // for snprintf
-#include <memory>                // for unique_ptr
-#include <set>                   // for set
-#include <sstream>               // for operator<<, basic_ostream, basic_ost...
-
-#include "base/DatabaseMysql.h"  // for CDatabaseMysql
-#include "base/Field.h"          // for Field
-#include "base/Logger.h"         // for LOG_ERROR, LOG_INFO, LOG_WARN
-#include "base/QueryResult.h"    // for QueryResult
+#include <memory>
+#include <sstream>
+#include "base/DatabaseMysql.h"
+#include "base/Logger.h"
 
 bool UserManager::init(const char *dbServer, const char *dbUserName, const char *dbPassword, const char *dbName) {
     m_strDbServer = dbServer;

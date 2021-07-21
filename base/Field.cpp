@@ -1,7 +1,5 @@
 #include "Field.h"
 
-#include <stddef.h>  // for size_t
-
 Field::Field() : m_iType(DB_TYPE_UNKNOWN) {
     m_bNULL = false;
 }

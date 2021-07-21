@@ -1,12 +1,12 @@
 #pragma once
 
-#include <functional>     // for function
-#include <memory>         // for enable_shared_from_this, unique_ptr
-
-#include "InetAddress.h"  // for InetAddress
-#include "net/Channel.h"  // for Channel
+#include "InetAddress.h"
+#include <functional>
+#include <memory>
 
 namespace net {
+    class Channel;
+
     class EventLoop;
 
     class Connector : public std::enable_shared_from_this<Connector> {

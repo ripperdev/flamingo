@@ -1,9 +1,7 @@
 #include "EventLoopThread.h"
 
-#include <memory>       // for make_unique, unique_ptr
-#include <utility>      // for move
-
-#include "EventLoop.h"  // for EventLoop
+#include <memory>
+#include "EventLoop.h"
 
 using namespace net;
 

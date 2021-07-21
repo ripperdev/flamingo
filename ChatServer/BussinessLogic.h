@@ -5,14 +5,8 @@
 #ifndef __BUSSINESS_LOGIC_H__
 #define __BUSSINESS_LOGIC_H__
 
-#include <memory>           // for shared_ptr
-#include <string>           // for string
-
-#include "net/Callbacks.h"  // for net
-
-namespace net {
-class TcpConnection;
-}  // namespace net
+#include <memory>
+#include "../net/TcpConnection.h"
 
 using namespace net;
 
