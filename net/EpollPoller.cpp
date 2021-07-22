@@ -1,8 +1,11 @@
 #include "EpollPoller.h"
 
 #include <cstring>
+
 #include "base/Platform.h"
 #include "base/Logger.h"
+
+#include "Channel.h"
 #include "EventLoop.h"
 
 using namespace net;

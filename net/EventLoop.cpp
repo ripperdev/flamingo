@@ -4,6 +4,8 @@
 #include <cstring>
 
 #include "base/Logger.h"
+
+#include "Channel.h"
 #include "EpollPoller.h"
 
 using namespace net;

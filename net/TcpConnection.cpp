@@ -3,7 +3,10 @@
 #include <thread>
 #include <sstream>
 #include <utility>
+
 #include "base/Logger.h"
+
+#include "Channel.h"
 #include "EventLoop.h"
 
 using namespace net;

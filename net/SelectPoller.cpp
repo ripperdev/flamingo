@@ -4,6 +4,8 @@
 #include <cstring>
 
 #include "base/Logger.h"
+
+#include "Channel.h"
 #include "EventLoop.h"
 
 using namespace net;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../base/Timestamp.h"
+#include "base/Timestamp.h"
 
 namespace net {
     class Channel;

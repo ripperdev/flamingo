@@ -1,10 +1,13 @@
+#include "TcpClient.h"
+
 #include <cstdio>
 #include <functional>
 
-#include "TcpClient.h"
 #include "base/Logger.h"
-#include "EventLoop.h"
+
 #include "Connector.h"
+#include "Channel.h"
+#include "EventLoop.h"
 
 using namespace net;
 

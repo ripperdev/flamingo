@@ -7,8 +7,8 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "../base/Timestamp.h"
-#include "../base/Platform.h"
+#include "base/Timestamp.h"
+#include "base/Platform.h"
 #include "Callbacks.h"
 #include "Sockets.h"
 #include "TimerId.h"
