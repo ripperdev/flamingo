@@ -271,6 +271,6 @@ void EventLoop::doPendingFunctors() {
 
 void EventLoop::printActiveChannels() const {
     for (auto ch : activeChannels_) {
-        LOG_DEBUG("{}", ch->reventsToString().c_str());
+        LOG_DEBUG("{}", ch->reventsToString());
     }
 }

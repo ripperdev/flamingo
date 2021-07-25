@@ -57,6 +57,6 @@ void MsgCacheManager::getChatMsgCache(int32_t userid, std::list<ChatMsgCache> &c
         }
     }
 
-    LOG_INFO("get chat msg cache, userid:{}, m_listChatMsgCache.size():%d, cached size:%d", userid,
+    LOG_INFO("get chat msg cache, userid:{}, m_listChatMsgCache.size():{}, cached size:{}", userid,
          m_listChatMsgCache.size(), cached.size());
 }

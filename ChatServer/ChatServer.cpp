@@ -76,7 +76,7 @@ void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
                     }
                 }
             } else {
-                LOG_INFO("Session is invalid, userid=%d", (*iter)->getUserId());
+                LOG_INFO("Session is invalid, userid={}", (*iter)->getUserId());
             }
 
             //停掉该Session的掉线检测
@@ -84,12 +84,12 @@ void ChatServer::onDisconnected(const std::shared_ptr<TcpConnection> &conn) {
             //用户下线
             m_sessions.erase(iter);
             //bUserOffline = true;
-            LOG_INFO("client disconnected: %s", conn->peerAddress().toIpPort().c_str());
+            LOG_INFO("client disconnected: {}", conn->peerAddress().toIpPort());
             break;
         }
     }
 
-    LOG_INFO("current online user count: %d", (int) m_sessions.size());
+    LOG_INFO("current online user count: {}", (int) m_sessions.size());
 }
 
 void ChatServer::getSessions(std::list<std::shared_ptr<ChatSession>> &sessions) {
